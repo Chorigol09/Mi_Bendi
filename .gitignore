@@ -1,0 +1,36 @@
+# Build / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Publicaciones
+**/PublishProfiles/
+*.pubxml
+*.pubxml.user
+
+# Paquetes
+packages/
+*.nupkg
+*.snupkg
+
+# Logs / temporales
+*.log
+*.tmp
+*.cache/
+*.temp
+*.DS_Store
+Thumbs.db
+
+# Config locales
+appsettings.*.local.json
+secrets.json
+
+# SQL Server / DB locales
+*.mdf
+*.ldf
+*.bak
+*.bacpac
+db/*.bak
+db/*.bacpac
