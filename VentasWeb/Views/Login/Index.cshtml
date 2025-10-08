@@ -5,69 +5,149 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
+    <title>Login</title>
     @Styles.Render("~/Content/css")
+
+    <style>
+        html, body { height: 100%; }
+        body {
+            background:
+                linear-gradient(180deg, rgba(90,167,201,0.8) 0%, rgba(47,110,145,0.8) 45%, rgba(31,79,106,0.8) 100%),
+                url('@Url.Content("~/Imagenes/Nubes2.jpg")') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            letter-spacing: .2px;
+        }
+
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+
+        .auth-panel {
+            width: 100%;
+            max-width: 420px;
+            padding: 28px 28px 32px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .10);
+            box-shadow: 0 10px 30px rgba(0,0,0,.20);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .brand {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        h1.title {
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: .25rem;
+            margin: 8px 0 24px;
+        }
+
+        .form-control {
+            height: 48px;
+            border-radius: 16px;
+            border: 0;
+            background: rgba(255,255,255,.18);
+            color: #fff;
+            box-shadow: inset 0 2px 0 rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.15);
+        }
+
+        .form-control:focus {
+            background: rgba(255,255,255,.22);
+            color: #fff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(255,255,255,.25);
+        }
+
+        ::placeholder { color: rgba(255,255,255,.85); }
+
+        .btn-primary {
+            width: 100%;
+            height: 46px;
+            border-radius: 18px;
+            font-weight: 700;
+            letter-spacing: .05rem;
+            text-transform: uppercase;
+            box-shadow: 0 8px 18px rgba(0,0,0,.25);
+        }
+
+        .error-box { margin-bottom: 14px; }
+
+        .register {
+            color: #ffe78f;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .register:hover { text-decoration: underline; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0 8px;
+            opacity: .65;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,.45);
+        }
+    </style>
 </head>
-<body class="bg-info">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex align-items-center min-vh-100">
-                    <div class="w-100 d-block my-5">
-                        <div class="row justify-content-center">
-                            <div class="col-md-8 col-lg-5">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="text-center mb-4 mt-3">
-                                            <a href="#">
-                                                <span>
-                                                    <img src="@Url.Content("~/Imagenes/tienda.png?v=3")" alt="" height="100">
-                                                </span>
-                                            </a>
-                                        </div>
-
-                                        <!-- MENSAJE DE ERROR (si corresponde) -->
-                                        @if (ViewBag.Error != null)
-                                        {
-                                            <div class="alert alert-danger text-center" role="alert">
-                                                @ViewBag.Error
-                                            </div>
-                                        }
-
-                                        <!-- FORM LOGIN -->
-                                        <form action="@Url.Content("~/Login/Index")" method="post" class="p-2" autocomplete="off">
-                                            @Html.AntiForgeryToken() <!-- *** CLAVE: token antifalsificación *** -->
-
-                                            <div class="form-group">
-                                                <label for="emailaddress">Correo</label>
-                                                <input class="form-control" id="emailaddress" type="email" name="correo" required value="admin@gmail.com" />
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="password">Contraseña</label>
-                                                <input class="form-control" id="password" type="password" name="clave" required value="admin@gmail.com" />
-                                            </div>
-
-                                            <div class="mb-3 text-center">
-                                                <button class="btn btn-primary btn-block" type="submit">Ingresar</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-4">
-                                    <div class="col-sm-12 text-center">
-                                        <p class="text-white mb-0">
-                                            <a href="https://ouo.io/RK1tRH" target="_blank" class="text-white ml-1"><b></b></a>
-                                        </p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-panel">
+            <div class="brand">
+                <img src="@Url.Content("~/Imagenes/tienda.png?v=3")" alt="logo" height="72" />
             </div>
+
+            <h1 class="title">BIENVENIDO</h1>
+
+            @* MENSAJE DE ERROR *@
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger text-center error-box" role="alert">
+                    @ViewBag.Error
+                </div>
+            }
+
+            @* FORM LOGIN *@
+            <form action="@Url.Content("~/Login/Index")" method="post" autocomplete="off" class="mt-2">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-3">
+                    <input class="form-control" type="email" name="correo"
+                           placeholder="email / username"
+                           required value="admin@gmail.com" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <input class="form-control" type="password" name="clave"
+                           placeholder="password"
+                           required value="admin@gmail.com" />
+                </div>
+
+                <button class="btn btn-primary mt-1" type="submit">Ingresar</button>
+
+                <div class="divider mt-4 mb-2"><span></span></div>
+
+                <p class="text-center mb-0">
+                    No tienes una cuenta?
+                    <a href="@Url.Content("~/Usuarios/Register")" class="register">Registrarse</a>
+                </p>
+            </form>
         </div>
     </div>
 
