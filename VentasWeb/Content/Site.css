@@ -30,3 +30,39 @@
     border-radius: 0.25rem !important;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }*/
+/* ====== Forzar color de la barra superior aun si tiene bg-info ====== */
+.navbar.bg-info,
+.bg-info.navbar,
+.navbar.navbar-inverse.bg-info,
+.navbar.navbar-default.bg-info {
+    background-color: #4FC3F7 !important; /* azul clarito */
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,.08);
+}
+
+    /* Texto y enlaces dentro de la navbar */
+    .navbar.bg-info .navbar-brand,
+    .navbar.bg-info .navbar-nav > li > a {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+        /* Hover */
+        .navbar.bg-info .navbar-nav > li > a:hover,
+        .navbar.bg-info .navbar-brand:hover {
+            color: #E1F5FE !important;
+        }
+
+    /* Dropdowns (si los usás) */
+    .navbar.bg-info .dropdown-menu {
+        background-color: #4FC3F7 !important;
+        border: none !important;
+    }
+
+        .navbar.bg-info .dropdown-menu > li > a {
+            color: #fff !important;
+        }
+
+            .navbar.bg-info .dropdown-menu > li > a:hover {
+                background-color: #29B6F6 !important;
+            }
