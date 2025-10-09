@@ -1,56 +1,273 @@
 ﻿@{
-    /**/
-
     ViewBag.Title = "Home Page";
-}
 
-@{
     var nombre = (string)ViewBag.NombreUsuario ?? "Usuario";
-    var inicial = !string.IsNullOrWhiteSpace(nombre) ? nombre.Trim()[0].ToString().ToUpper() : "U";
-    var rol = (string)ViewBag.RolUsuario ?? "Invitado";
+    var rol = (string)ViewBag.RolUsuario ?? "ADMINISTRADOR";
+
+    var h = DateTime.Now.Hour;
+    var saludo = (h < 12) ? "Buenos días" : (h < 19 ? "Buenas tardes" : "Buenas noches");
+
+    // Datos demo por si aún no los traes del controller:
+    var totalClientes = ViewBag.TotalClientes ?? 1234;
+    var ventasTotales = ViewBag.VentasTotales ?? 45678.00m;
+    var comprasActivas = ViewBag.ComprasActivas ?? 89;
+    var totalProductos = ViewBag.TotalProductos ?? 456;
+    var deltaClientes = ViewBag.DeltaClientes ?? "+12% este mes";
+    var deltaVentas = ViewBag.DeltaVentas ?? "+23% este mes";
+    var deltaCompras = ViewBag.DeltaCompras ?? "+5 esta semana";
+    var deltaProductos = ViewBag.DeltaProductos ?? "+8 nuevos";
 }
 
-<div class="user-card">
-    <div class="user-avatar">@inicial</div>
+<div class="dash-container">
 
-    <div class="user-info">
-        <h1 class="user-title">Bienvenido</h1>
+    <!-- Hero / Banner -->
+    <div class="dash-hero card">
+        <div>
+            <h1 class="dash-hero-title">@saludo, @nombre</h1>
+            <p class="dash-hero-sub">Bienvenido de vuelta a tu panel de control</p>
+            <p class="dash-hero-foot">© @DateTime.Now.Year - Mi aplicación Mateo Quartin</p>
+        </div>
+        <span class="dash-role">@rol.ToString().ToUpper()</span>
+    </div>
 
-        <div class="user-meta">
-            <span class="user-name">
-                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                @nombre
-            </span>
+    <!-- Métricas -->
+    <div class="row g-3 g-md-4 dash-metrics">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="dash-card card">
+                <div class="dash-icon">@Html.Raw(DashIcons.Users)</div>
+                <div class="dash-label">Total Clientes</div>
+                <div class="dash-value">@String.Format("{0:N0}", totalClientes)</div>
+                <div class="dash-delta text-success">@deltaClientes</div>
+            </div>
+        </div>
 
-            <span class="label label-primary user-role">@rol</span>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="dash-card card">
+                <div class="dash-icon">@Html.Raw(DashIcons.Sales)</div>
+                <div class="dash-label">Ventas Totales</div>
+                <div class="dash-value">$@String.Format("{0:N0}", ventasTotales)</div>
+                <div class="dash-delta text-success">@deltaVentas</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="dash-card card">
+                <div class="dash-icon">@Html.Raw(DashIcons.Cart)</div>
+                <div class="dash-label">Compras Activas</div>
+                <div class="dash-value">@comprasActivas</div>
+                <div class="dash-delta text-success">@deltaCompras</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="dash-card card">
+                <div class="dash-icon">@Html.Raw(DashIcons.Box)</div>
+                <div class="dash-label">Productos</div>
+                <div class="dash-value">@totalProductos</div>
+                <div class="dash-delta text-success">@deltaProductos</div>
+            </div>
         </div>
     </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="dash-actions card">
+        <h2 class="dash-section-title">Acciones Rápidas</h2>
+
+        <div class="row g-3 g-md-4">
+            <div class="col-12 col-lg-6">
+                <a href="@Url.Action("Create","Clientes")" class="dash-action card-link">
+                    <div class="dash-action-card card">
+                        <div class="dash-action-icon">@Html.Raw(DashIcons.UserPlus)</div>
+                        <div>
+                            <div class="dash-action-title">Nuevo Cliente</div>
+                            <div class="dash-action-sub">Agregar un nuevo cliente al sistema</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <a href="@Url.Action("Create","Ventas")" class="dash-action card-link">
+                    <div class="dash-action-card card">
+                        <div class="dash-action-icon">@Html.Raw(DashIcons.Receipt)</div>
+                        <div>
+                            <div class="dash-action-title">Nueva Venta</div>
+                            <div class="dash-action-sub">Registrar una nueva transacción de venta</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-@*<div class="row">
-        <div class="col-md-4">
-            <h2>Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-            <h2>Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-            <h2>Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </div>
-    </div>*@
+@section estilos{
+    <style>
+        /* Layout base */
+        .dash-container {
+            padding: 16px;
+        }
 
+        @@media (min-width:992px) {
+            .dash-container {
+                padding: 24px;
+            }
+        }
+
+        /* Tarjetas base */
+        .card {
+            border: 0;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(22,28,45,.06);
+        }
+
+        /* Hero */
+        .dash-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 28px 24px;
+            background: linear-gradient(180deg, rgba(0,186,199,.08), rgba(0,0,0,0));
+            margin-bottom: 22px;
+        }
+
+        .dash-hero-title {
+            margin: 0 0 6px;
+            font-size: 28px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .dash-hero-sub {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .dash-hero-foot {
+            margin: 8px 0 0;
+            color: #9ca3af;
+            font-size: .95rem;
+        }
+
+        .dash-role {
+            color: #0f766e;
+            background: #d1fae5;
+            font-weight: 700;
+            letter-spacing: .04em;
+            padding: 8px 12px;
+            border-radius: 999px;
+            align-self: center;
+        }
+
+        /* Métricas */
+        .dash-metrics .dash-card {
+            padding: 18px;
+            height: 100%;
+        }
+
+        .dash-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            background: #f1f5f9;
+        }
+
+        .dash-label {
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .dash-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.15;
+        }
+
+        .dash-delta {
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* Acciones rápidas */
+        .dash-actions {
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .dash-section-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 0 14px;
+            color: #0f172a;
+        }
+
+        .card-link {
+            text-decoration: none;
+        }
+
+        .dash-action-card {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            padding: 16px;
+            transition: transform .08s ease, box-shadow .12s ease;
+        }
+
+            .dash-action-card:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 6px rgba(0,0,0,.06), 0 12px 28px rgba(22,28,45,.10);
+            }
+
+        .dash-action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dash-action-title {
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .dash-action-sub {
+            color: #6b7280;
+        }
+
+        /* Grid helpers (si tu Bootstrap es 3, agrega gap simulado) */
+        .g-3 > [class*="col-"] {
+            margin-bottom: 12px;
+        }
+
+        .g-md-4 > [class*="col-"] {
+            margin-bottom: 18px;
+        }
+    </style>
+}
 
 @section scripts{
     <script src="@Url.Content("~/Scripts/Views/Home_Index.js")" type="text/javascript"></script>
+}
+
+@functions{
+    public static class DashIcons
+    {
+        public static string Users = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg>";
+        public static string Sales = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M3 3v18h18'/><path d='M7 13l3-3 4 4 5-5'/></svg>";
+        public static string Cart = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6'/></svg>";
+        public static string Box = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 16V8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/><path d='M3.27 6.96L12 12l8.73-5.04'/></svg>";
+        public static string UserPlus = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><line x1='19' y1='8' x2='19' y2='14'/><line x1='22' y1='11' x2='16' y2='11'/></svg>";
+        public static string Receipt = @"<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z'/><path d='M8 10h8'/><path d='M8 14h6'/></svg>";
+    }
 }
 
