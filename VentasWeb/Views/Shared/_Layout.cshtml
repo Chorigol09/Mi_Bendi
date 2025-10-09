@@ -10,15 +10,21 @@
     <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <title>Mi Tienda Online</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Styles.Render("~/Content/PluginsCSS")
+
+    <!-- Asegurar prioridad de Site.css -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/Site.css")?v=6">
+
     @RenderSection("estilos", required: false)
 </head>
 <body>
 
     <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-info" style="font-weight:bold"> <a class="navbar-brand" href="#"> <img src="@Url.Content("~/Imagenes/tiendalogo.png")?v=3" width="110" height="45" alt="logo"> </a> <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button> <div class="collapse navbar-collapse" id="navbarSupportedContent"> <ul class="navbar-nav mr-auto"> <li class="nav-item"> <a class="nav-link" name="Home" href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> Inicio</a> </li> @Html.ActionLinkAllow() <li class="nav-item"> <a class="nav-link" href="https://ouo.io/VRgLgZ" target="_blank"></i></a> </li> </ul> <ul class="nav navbar-nav ml-auto"> <li class="nav-item"> <a href="@Url.Action("Salir", "Home")" class="nav-link"> <i class="fas fa-sign-out-alt"></i> <span> <strong>Salir</strong> </span> </a> </li> </ul> </div> </nav>
 
+    <!-- CONTENIDO -->
     <div class="container-fluid mt-4">
         @RenderBody()
         <hr />
@@ -32,7 +38,6 @@
     @Scripts.Render("~/Content/PluginsJS")
 
     <script type="text/javascript">
-
         $.extend({ MisUrls: { url: {}, urls: function (a) { $.extend($.MisUrls.url, a); } } });
 
         //CONTROLADOR ROL
@@ -43,7 +48,6 @@
         //CONTROLADOR PERMISOS
         $.MisUrls.urls({ _ObtenerPermisos: '@Url.Action("Obtener", "Permisos")' });
         $.MisUrls.urls({ _GuardarPermisos: '@Url.Action("Guardar", "Permisos")' });
-
 
         //CONTROLADOR USUARIO
         $.MisUrls.urls({ _ObtenerUsuarios: '@Url.Action("Obtener", "Usuario")' });
@@ -60,8 +64,7 @@
         $.MisUrls.urls({ _GuardarCategoria: '@Url.Action("Guardar", "Categoria")' });
         $.MisUrls.urls({ _EliminarCategoria: '@Url.Action("Eliminar", "Categoria")' });
 
-
-         //CONTROLADOR PRODUCTO
+        //CONTROLADOR PRODUCTO
         $.MisUrls.urls({ _ObtenerProductos: '@Url.Action("Obtener", "Producto")' });
         $.MisUrls.urls({ _ObtenerProductosPorTienda: '@Url.Action("ObtenerPorTienda", "Producto")' });
         $.MisUrls.urls({ _GuardarProducto: '@Url.Action("Guardar", "Producto")' });
@@ -71,17 +74,15 @@
         $.MisUrls.urls({ _ModificarProductoTienda: '@Url.Action("ModificarProductoTienda", "Producto")' });
         $.MisUrls.urls({ _EliminarProductoTienda: '@Url.Action("EliminarProductoTienda", "Producto")' });
 
-
         //CONTROLADOR TIENDA
         $.MisUrls.urls({ _ObtenerTiendas: '@Url.Action("Obtener", "Tienda")' });
-         $.MisUrls.urls({ _GuardarTienda: '@Url.Action("Guardar", "Tienda")' });
+        $.MisUrls.urls({ _GuardarTienda: '@Url.Action("Guardar", "Tienda")' });
         $.MisUrls.urls({ _EliminarTienda: '@Url.Action("Eliminar", "Tienda")' });
 
         //CONTROLADOR COMPRA
         $.MisUrls.urls({ _ObtenerCompras: '@Url.Action("Obtener", "Compra")' });
         $.MisUrls.urls({ _GuardarCompra: '@Url.Action("Guardar", "Compra")' });
         $.MisUrls.urls({ _DocumentoCompra: '@Url.Action("Documento", "Compra")' });
-
 
         //CONTROLADOR VENTA
         $.MisUrls.urls({ _ObtenerUsuario: '@Url.Action("ObtenerUsuario", "Venta")' });
@@ -92,33 +93,25 @@
         $.MisUrls.urls({ _ObtenerVentas: '@Url.Action("Obtener", "Venta")' });
 
         //CONTROLADOR REPORTE
-        $.MisUrls.urls({ _ObtenerReporteProducto :'@Url.Action("ObtenerProducto", "Reporte")' });
-        $.MisUrls.urls({ _ObtenerReporteVenta :'@Url.Action("ObtenerVenta", "Reporte")' });
-
+        $.MisUrls.urls({ _ObtenerReporteProducto: '@Url.Action("ObtenerProducto", "Reporte")' });
+        $.MisUrls.urls({ _ObtenerReporteVenta: '@Url.Action("ObtenerVenta", "Reporte")' });
 
         //CONTROLADOR CLIENTE
         $.MisUrls.urls({ _ObtenerClientes: '@Url.Action("Obtener", "Cliente")' });
         $.MisUrls.urls({ _GuardarCliente: '@Url.Action("Guardar", "Cliente")' });
         $.MisUrls.urls({ _EliminarCliente: '@Url.Action("Eliminar", "Cliente")' });
 
-
         //lenguaje español datatable
         $.MisUrls.urls({ Url_datatable_spanish: '@Url.Content("~/content/plugins/datatables/js/datatable_spanish.json")' });
-
-
-
     </script>
+
     <script>
-
+        // Marca activo via name (si lo usás en vistas)
         function activarMenu(menuactivo) {
-
             var ul = $("ul.navbar-nav");
             ul.find("li.nav-item").each(function (i, li) {
-
                 var a;
-
                 if ($(li).find("div.dropdown-menu").length != 0) {
-
                     var div = $($(li).find("div.dropdown-menu"))
 
                     div.find("a.dropdown-item").each(function (x, tagA) {
@@ -129,9 +122,7 @@
                         }
                     })
                 } else {
-
                     a = $(li).find("a.nav-link");
-
                     if ($(a).attr("name") == menuactivo) {
                         $(li).addClass("active");
                         return false;
@@ -140,7 +131,18 @@
             });
         }
 
+        // Iniciales automáticas del usuario
+        (function () {
+            var nameNode = document.getElementById('userName');
+            var initialsNode = document.getElementById('userInitials');
+            if (!nameNode || !initialsNode) return;
+
+            var name = (nameNode.textContent || "").trim();
+            var initials = name.split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+            initialsNode.textContent = initials || 'US';
+        })();
     </script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
