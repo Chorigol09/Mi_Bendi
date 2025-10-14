@@ -1,0 +1,185 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║         🗃️  CONFIGURACIÓN DE BASE DE DATOS - Mi Bendi         ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 INSTRUCCIONES PARA NUEVOS DESARROLLADORES
+═══════════════════════════════════════════════════════════════
+
+Si es la PRIMERA VEZ que configuras este proyecto, sigue estos pasos:
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ PASO 1: Clonar el Repositorio                              │
+└─────────────────────────────────────────────────────────────┘
+
+git clone https://github.com/Chorigol09/Mi_Bendi.git
+cd Mi_Bendi
+git checkout develop
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ PASO 2: Verificar SQL Server                               │
+└─────────────────────────────────────────────────────────────┘
+
+✓ SQL Server instalado
+✓ SQL Server Management Studio (SSMS) instalado
+✓ Servicio SQL Server corriendo
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ PASO 3: Crear la Base de Datos                             │
+└─────────────────────────────────────────────────────────────┘
+
+Tienes 2 OPCIONES:
+
+═══════════════════════════════════════════════════════════════
+OPCIÓN A: SCRIPT SQL (Recomendado)
+═══════════════════════════════════════════════════════════════
+
+1. Abre SQL Server Management Studio
+2. Conecta a tu servidor (localhost o .\SQLEXPRESS)
+3. Ejecuta estos scripts EN ORDEN:
+
+   📄 002_DBSISTEMA_VENTA.sql
+      → Crea la estructura completa de la BD
+
+   📄 004_MEJORAS_SISTEMA_OC_REMITOS_FACTURAS.sql
+      → Agrega tablas de Remitos y Facturas
+
+   📄 006_AGREGAR_MENUS_REMITO_FACTURA.sql
+      → Configura los menús del sistema
+
+   📄 016_GENERAR_REMITOS_FACTURAS_AUTO.sql
+      → Configura generación automática
+
+4. ¡Listo! Base de datos creada
+
+
+═══════════════════════════════════════════════════════════════
+OPCIÓN B: BACKUP (.bak) - Si te lo compartieron
+═══════════════════════════════════════════════════════════════
+
+1. Abre SQL Server Management Studio
+2. Click derecho en "Databases"
+3. Selecciona "Restore Database..."
+4. Selecciona "Device" → Buscar archivo .bak
+5. Verifica nombre: DBSISTEMA_VENTA
+6. Click "OK"
+7. ¡Listo! Base de datos restaurada
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ PASO 4: Configurar Web.config                              │
+└─────────────────────────────────────────────────────────────┘
+
+Abre: VentasWeb/Web.config
+
+Busca la sección <connectionStrings> y ajusta según tu servidor:
+
+
+<!-- Para SQL Server local con Windows Authentication -->
+<add name="cadena_conexion" 
+     connectionString="Data Source=localhost;Initial Catalog=DBSISTEMA_VENTA;Integrated Security=True" 
+     providerName="System.Data.SqlClient" />
+
+
+<!-- Para SQL Server Express -->
+<add name="cadena_conexion" 
+     connectionString="Data Source=localhost\SQLEXPRESS;Initial Catalog=DBSISTEMA_VENTA;Integrated Security=True" 
+     providerName="System.Data.SqlClient" />
+
+
+<!-- Con usuario y contraseña -->
+<add name="cadena_conexion" 
+     connectionString="Data Source=localhost;Initial Catalog=DBSISTEMA_VENTA;User ID=sa;Password=tuPassword" 
+     providerName="System.Data.SqlClient" />
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ PASO 5: Compilar y Ejecutar                                │
+└─────────────────────────────────────────────────────────────┘
+
+1. Abre la solución en Visual Studio:
+   📁 SistemaVenta.sln
+
+2. Recompila todo:
+   Build → Rebuild Solution
+
+3. Ejecuta:
+   Presiona F5
+
+4. Login con:
+   👤 Usuario: admin@mibendi.com
+   🔐 Password: admin123
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ VERIFICACIÓN: ¿Todo funcionó?                              │
+└─────────────────────────────────────────────────────────────┘
+
+✓ Puedes hacer login
+✓ Ves el dashboard principal
+✓ Puedes navegar por los menús
+✓ Puedes crear una Orden de Compra
+✓ Se generan Remitos y Facturas automáticamente
+
+
+═══════════════════════════════════════════════════════════════
+🆘 PROBLEMAS COMUNES
+═══════════════════════════════════════════════════════════════
+
+❌ "Cannot open database DBSISTEMA_VENTA"
+   → Ejecuta los scripts SQL primero
+
+❌ "Login failed for user"
+   → Verifica tu connection string en Web.config
+   → Verifica que SQL Server acepta tu tipo de autenticación
+
+❌ "Invalid column name 'PrecioUnidadVenta'"
+   → Ejecuta el script: 016_GENERAR_REMITOS_FACTURAS_AUTO.sql
+
+❌ Errores de compilación
+   → Build → Clean Solution
+   → Build → Rebuild Solution
+   → Restaurar paquetes NuGet si es necesario
+
+
+═══════════════════════════════════════════════════════════════
+📚 DOCUMENTACIÓN ADICIONAL
+═══════════════════════════════════════════════════════════════
+
+📄 COMO_COMPARTIR_BASE_DATOS.md
+   → Guía completa de configuración de BD
+
+📄 RESUMEN_MEJORAS_COMPRAS_REMITOS_FACTURAS.md
+   → Resumen de funcionalidades implementadas
+
+📄 COMO_COMPILAR_Y_EJECUTAR.md
+   → Guía de compilación
+
+
+═══════════════════════════════════════════════════════════════
+💡 CONSEJOS
+═══════════════════════════════════════════════════════════════
+
+• Siempre trabaja en develop, NO directamente en main
+• Crea una rama nueva para cada feature
+• Haz commits frecuentes con mensajes descriptivos
+• Haz pull antes de empezar a trabajar
+
+
+═══════════════════════════════════════════════════════════════
+📞 SOPORTE
+═══════════════════════════════════════════════════════════════
+
+Si tienes problemas:
+1. Revisa esta guía
+2. Consulta los archivos .md del repositorio
+3. Contacta al equipo
+
+
+╔════════════════════════════════════════════════════════════╗
+║                    ¡Bienvenido al equipo! 🚀              ║
+╚════════════════════════════════════════════════════════════╝
