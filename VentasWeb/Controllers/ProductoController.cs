@@ -1,4 +1,4 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaModelo;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,55 @@ namespace VentasWeb.Controllers
     public class ProductoController : Controller
     {
         // GET: Producto
+        [HttpPost]
+        public JsonResult AjustarStock(int idProducto, int idTienda, int delta)
+        {
+            try
+            {
+                if (delta == 0) 
+                    return Json(new { ok = false, mensaje = "Delta inválido" }, JsonRequestBehavior.AllowGet);
+
+                var pt = CD_ProductoTienda.Instancia.ObtenerProductoTienda()
+                          .FirstOrDefault(x => x.oProducto.IdProducto == idProducto
+                                            && x.oTienda.IdTienda == idTienda);
+                if (pt == null) 
+                    return Json(new { ok = false, mensaje = "Producto/Tienda no encontrado" }, JsonRequestBehavior.AllowGet);
+
+                var nuevo = pt.Stock + delta;
+                if (nuevo < 0) 
+                    return Json(new { ok = false, mensaje = "El stock no puede ser negativo" }, JsonRequestBehavior.AllowGet);
+
+                var ok = CD_ProductoTienda.Instancia.ActualizarStock(idProducto, idTienda, nuevo);
+                if (!ok) 
+                    return Json(new { ok = false, mensaje = "No se pudo actualizar el stock" }, JsonRequestBehavior.AllowGet);
+
+                return Json(new { ok = true, stock = nuevo }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { ok = false, mensaje = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ActualizarPrecioVenta(int idProducto, decimal nuevoPrecio)
+        {
+            try
+            {
+                if (nuevoPrecio < 0) 
+                    return Json(new { ok = false, mensaje = "Precio inválido" }, JsonRequestBehavior.AllowGet);
+
+                var ok = CD_Producto.Instancia.ActualizarPrecioVenta(idProducto, nuevoPrecio);
+                if (!ok) 
+                    return Json(new { ok = false, mensaje = "No se pudo actualizar el precio" }, JsonRequestBehavior.AllowGet);
+
+                return Json(new { ok = true, precio = nuevoPrecio }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { ok = false, mensaje = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         public ActionResult Crear()
         {
             return View();
@@ -104,5 +153,23 @@ namespace VentasWeb.Controllers
             List<ProductoTienda> lista = CD_ProductoTienda.Instancia.ObtenerProductoTienda();
             return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult ActualizarPrecioVentaTienda(int idProductoTienda, decimal precioVenta)
+        {
+            try
+            {
+                if (precioVenta < 0)
+                    return Json(new { resultado = false, mensaje = "El precio debe ser mayor o igual a cero" }, JsonRequestBehavior.AllowGet);
+
+                bool respuesta = CD_ProductoTienda.Instancia.ActualizarPrecioVenta(idProductoTienda, precioVenta);
+                return Json(new { resultado = respuesta }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { resultado = false, mensaje = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        
     }
 }

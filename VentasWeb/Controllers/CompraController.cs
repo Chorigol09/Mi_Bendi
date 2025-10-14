@@ -1,4 +1,4 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaModelo;
 using System;
 using System.Collections.Generic;
@@ -10,11 +10,9 @@ namespace VentasWeb.Controllers
 {
     public class CompraController : Controller
     {
-        private static Usuario SesionUsuario;
         // GET: Compra
         public ActionResult Crear()
         {
-            SesionUsuario = (Usuario)Session["Usuario"];
             return View();
         }
         // GET: Compra
@@ -44,15 +42,30 @@ namespace VentasWeb.Controllers
 
 
         [HttpPost]
+        [ValidateInput(false)]
         public JsonResult Guardar(string xml)
         {
+            // Obtener usuario de la sesión actual
+            Usuario SesionUsuario = (Usuario)Session["Usuario"];
+            
+            if (SesionUsuario == null)
+            {
+                return Json(new { resultado = false, mensaje = "Sesión expirada" }, JsonRequestBehavior.AllowGet);
+            }
+
             xml = xml.Replace("!idusuario¡", SesionUsuario.IdUsuario.ToString());
 
-            bool respuesta  = CD_Compra.Instancia.RegistrarCompra(xml);
+            bool respuesta = CD_Compra.Instancia.RegistrarCompra(xml);
 
             return Json(new { resultado = respuesta }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult ActualizarEstado(int idCompra, string estado)
+        {
+            bool respuesta = CD_Compra.Instancia.ActualizarEstadoOrdenCompra(idCompra, estado);
+            return Json(new { resultado = respuesta }, JsonRequestBehavior.AllowGet);
+        }
 
 
     }

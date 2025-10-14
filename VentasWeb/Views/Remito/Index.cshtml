@@ -1,0 +1,175 @@
+@{
+    ViewBag.Title = "Remitos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta charset="UTF-8">
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Compras</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Remitos</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-file-invoice"></i> Gestión de Remitos
+            </div>
+            <div class="card-body p-2">
+                <div class="row mb-3">
+                    <div class="col-sm-12">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Los remitos se generan automáticamente al registrar una Orden de Compra</p>
+                    </div>
+                </div>
+                <hr />
+                <div class="row mt-3">
+                    <div class="col-sm-12">
+                        <table id="tbRemitos" class="table table-striped table-bordered nowrap compact" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Número Remito</th>
+                                    <th>ID Orden Compra</th>
+                                    <th>Proveedor</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var tableRemitos;
+
+        $(document).ready(function () {
+            activarMenu("Compras");
+
+            // Inicializar DataTable
+            tableRemitos = $('#tbRemitos').DataTable({
+                "ajax": {
+                    "url": $.MisUrls.url._ObtenerRemitos,
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { 
+                        "data": "NumeroRemito",
+                        "render": function (data) {
+                            return '<span class="badge badge-primary">' + data + '</span>';
+                        }
+                    },
+                    { 
+                        "data": "IdOrdenCompra",
+                        "render": function (data) {
+                            return '<span class="badge badge-secondary">#' + data + '</span>';
+                        }
+                    },
+                    {
+                        "data": "oProveedor",
+                        "render": function (data) {
+                            return data ? data.RazonSocial : '';
+                        }
+                    },
+                    {
+                        "data": "FechaOrdenCompra",
+                        "render": function (data) {
+                            if (data) {
+                                return data;
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        "data": "Productos",
+                        "render": function (data) {
+                            if (!data || data == '') return '<em class="text-muted">Sin productos</em>';
+                            if (data.length > 80) {
+                                return '<span title="' + data + '">' + data.substring(0, 80) + '...</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        "data": "CantidadProductos",
+                        "render": function (data) {
+                            return '<span class="badge badge-info">' + data + '</span>';
+                        }
+                    },
+                    {
+                        "data": "Estado",
+                        "render": function (data) {
+                            var badgeClass = data == 'En Espera' ? 'badge-warning' : 'badge-success';
+                            return '<span class="badge ' + badgeClass + '">' + data + '</span>';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            var btnCambiarEstado = '';
+                            if (row.Estado == 'En Espera') {
+                                btnCambiarEstado = '<button class="btn btn-sm btn-success btn-recibir" data-id="' + row.IdRemito + '">Marcar Recibido</button>';
+                            } else {
+                                btnCambiarEstado = '<span class="text-success"><i class="fas fa-check"></i> Recibido</span>';
+                            }
+                            return btnCambiarEstado;
+                        },
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "url": $.MisUrls.url.Url_datatable_spanish
+                },
+                responsive: true
+            });
+
+            // Evento para marcar como recibido
+            $('#tbRemitos tbody').on('click', '.btn-recibir', function () {
+                var idRemito = $(this).data('id');
+
+                swal({
+                    title: "¿Está seguro?",
+                    text: "¿Desea marcar este remito como recibido?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-success",
+                    confirmButtonText: "Sí, marcar recibido",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                },
+                function () {
+                    jQuery.ajax({
+                        url: $.MisUrls.url._ActualizarEstadoRemito,
+                        type: "POST",
+                        data: JSON.stringify({ idRemito: idRemito, estado: 'Recibido' }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data.resultado) {
+                                swal("Éxito", "Remito marcado como recibido", "success");
+                                tableRemitos.ajax.reload();
+                            } else {
+                                swal("Error", "No se pudo actualizar el remito", "error");
+                            }
+                        },
+                        error: function () {
+                            swal("Error", "Error al actualizar el remito", "error");
+                        }
+                    });
+                });
+            });
+
+        });
+    </script>
+}

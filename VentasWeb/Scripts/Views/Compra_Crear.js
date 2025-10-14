@@ -1,4 +1,4 @@
-﻿
+
 var tabladata;
 var tablaproveedor;
 var tablatienda;
@@ -211,10 +211,6 @@ $("#txtPrecioCompraProducto").inputFilter(function (value) {
     return /^-?\d*[.]?\d{0,2}$/.test(value);
 });
 
-$("#txtPrecioVentaProducto").inputFilter(function (value) {
-    return /^-?\d*[.]?\d{0,2}$/.test(value);
-});
-
 
 
 $('#btnAgregarCompra').on('click', function () {
@@ -225,8 +221,7 @@ $('#btnAgregarCompra').on('click', function () {
         parseInt($("#txtIdTienda").val()) == 0 ||
         parseInt($("#txtIdProducto").val()) == 0 ||
         parseFloat($("#txtCantidadProducto").val()) == 0 ||
-        parseFloat($("#txtPrecioCompraProducto").val()) == 0 ||
-        parseFloat($("#txtPrecioVentaProducto").val()) == 0
+        parseFloat($("#txtPrecioCompraProducto").val()) == 0
     ) {
         swal("Mensaje", "Debe completar todos los campos", "warning")
         return;
@@ -253,8 +248,7 @@ $('#btnAgregarCompra').on('click', function () {
             $("<td>").addClass("codigoproducto").data("idproducto", $("#txtIdProducto").val()).append($("#txtCodigoProducto").val()),
             $("<td>").append($("#txtNombreProducto").val()),
             $("<td>").addClass("cantidad").append($("#txtCantidadProducto").val()),
-            $("<td>").addClass("preciocompra").append($("#txtPrecioCompraProducto").val()),
-            $("<td>").addClass("precioventa").append($("#txtPrecioVentaProducto").val()),
+            $("<td>").addClass("preciocompra").append($("#txtPrecioCompraProducto").val())
         ).appendTo("#tbCompra tbody");
 
         $("#txtIdProducto").val("0");
@@ -262,7 +256,6 @@ $('#btnAgregarCompra').on('click', function () {
         $("#txtNombreProducto").val("");
         $("#txtCantidadProducto").val("0");
         $("#txtPrecioCompraProducto").val("0");
-        $("#txtPrecioVentaProducto").val("0");
 
     } else {
         swal("Mensaje", "El producto ya existe en la compra", "warning")
@@ -304,7 +297,6 @@ $('#btnTerminarGuardarCompra').on('click', function () {
         var idproducto = parseFloat($(fila).find("td.codigoproducto").data("idproducto"));
         var cantidad = parseFloat($(fila).find("td.cantidad").text());
         var preciocompra = parseFloat($(fila).find("td.preciocompra").text());
-        var precioventa = parseFloat($(fila).find("td.precioventa").text());
         var totalcosto = parseFloat(cantidad) * parseFloat(preciocompra);
 
         detalle = detalle + "<DETALLE>" +
@@ -312,7 +304,7 @@ $('#btnTerminarGuardarCompra').on('click', function () {
             "<IdProducto>" + idproducto + "</IdProducto>" +
             "<Cantidad>" + cantidad + "</Cantidad>" +
             "<PrecioUnidadCompra>" + preciocompra + "</PrecioUnidadCompra>" +
-            "<PrecioUnidadVenta>" + precioventa + "</PrecioUnidadVenta>" +
+            "<PrecioUnidadVenta>0</PrecioUnidadVenta>" +
             "<TotalCosto>" + totalcosto.toString() + "</TotalCosto>" +
             "</DETALLE>";
         totalcostocompra = totalcostocompra + totalcosto;
@@ -322,16 +314,14 @@ $('#btnTerminarGuardarCompra').on('click', function () {
     compra = compra.replace("!totalcosto¡", totalcostocompra.toString());
     $xml = $xml + compra + detallecompra + detalle + "</DETALLE_COMPRA></DETALLE>";
 
-    var request = { xml: $xml };
-
-
+    // Enviar XML directamente como parámetro
+    console.log("XML a enviar:", $xml);
 
     jQuery.ajax({
         url: $.MisUrls.url._GuardarCompra,
         type: "POST",
-        data: JSON.stringify(request),
+        data: { xml: $xml },
         dataType: "json",
-        contentType: "application/json; charset=utf-8",
         success: function (data) {
             $.LoadingOverlay("hide");
 
@@ -353,7 +343,6 @@ $('#btnTerminarGuardarCompra').on('click', function () {
                 $("#txtNombreProducto").val("");
                 $("#txtCantidadProducto").val("0");
                 $("#txtPrecioCompraProducto").val("0");
-                $("#txtPrecioVentaProducto").val("0");
 
                 $("#tbCompra tbody").html("");
 

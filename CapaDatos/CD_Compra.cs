@@ -1,4 +1,4 @@
-﻿using CapaModelo;
+using CapaModelo;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -130,7 +130,27 @@ namespace CapaDatos
             }
         }
 
-
+        public bool ActualizarEstadoOrdenCompra(int idCompra, string estado)
+        {
+            bool respuesta = false;
+            using (SqlConnection oConexion = new SqlConnection(Conexion.CN))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("UPDATE ORDEN_COMPRA SET Estado = @Estado WHERE IdCompra = @Id", oConexion);
+                    cmd.Parameters.AddWithValue("@Estado", estado);
+                    cmd.Parameters.AddWithValue("@Id", idCompra);
+                    
+                    oConexion.Open();
+                    respuesta = cmd.ExecuteNonQuery() > 0;
+                }
+                catch
+                {
+                    respuesta = false;
+                }
+            }
+            return respuesta;
+        }
 
 
         public List<Compra> ObtenerListaCompra(DateTime FechaInicio, DateTime FechaFin, int IdProveedor, int IdTienda)
@@ -159,7 +179,10 @@ namespace CapaDatos
                             oProveedor = new Proveedor() { RazonSocial = dr["RazonSocial"].ToString() },
                             oTienda = new Tienda() { Nombre = dr["Nombre"].ToString() },
                             FechaCompra = dr["FechaCompra"].ToString(),
-                            TotalCosto = Convert.ToDecimal(dr["TotalCosto"].ToString(), new CultureInfo("es-PE"))
+                            TotalCosto = Convert.ToDecimal(dr["TotalCosto"].ToString(), new CultureInfo("es-PE")),
+                            Estado = dr["Estado"].ToString(),
+                            CantidadProductos = Convert.ToInt32(dr["CantidadProductos"].ToString()),
+                            Productos = dr["Productos"] != DBNull.Value ? dr["Productos"].ToString() : ""
                         });
                     }
                     dr.Close();

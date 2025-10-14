@@ -1,4 +1,4 @@
-﻿
+
 var tabladata;
 var tablatienda;
 var tablaproducto;
@@ -93,6 +93,24 @@ $(document).ready(function () {
             { "data": "oProducto", render: function (data) { return data.Codigo   } },
             { "data": "oProducto", render: function (data) { return data.Nombre   } },
             { "data": "Stock" },
+            { 
+                "data": "PrecioUnidadVenta", 
+                "render": function (data) { 
+                    if (data && data > 0) {
+                        return "S./ " + parseFloat(data).toFixed(2);
+                    }
+                    return '<span class="text-muted">Sin precio</span>';
+                }
+            },
+            {
+                "data": null, 
+                "render": function (data, type, row, meta) {
+                    return "<button class='btn btn-warning btn-sm' type='button' onclick='abrirModalPrecio(" + JSON.stringify(row) + ")'><i class='fas fa-edit'></i> Modificar</button>"
+                },
+                "orderable": false,
+                "searchable": false,
+                "width": "120px"
+            },
             {
                 "data": "IdProductoTienda", "render": function (data, type, row, meta) {
                     return  "<button class='btn btn-danger btn-sm ml-2' type='button' onclick='eliminar(" + data + ")'><i class='fa fa-trash'></i></button>"
@@ -238,6 +256,50 @@ function asignarProducto() {
 
 }
 
+
+function abrirModalPrecio(row) {
+    $("#txtIdProductoTiendaPrecio").val(row.IdProductoTienda);
+    $("#txtProductoNombrePrecio").val(row.oProducto.Nombre);
+    $("#txtTiendaNombrePrecio").val(row.oTienda.Nombre);
+    $("#txtNuevoPrecioVenta").val(row.PrecioUnidadVenta || '');
+    $('#modalPrecio').modal('show');
+}
+
+function guardarPrecioVenta() {
+    var idProductoTienda = $("#txtIdProductoTiendaPrecio").val();
+    var nuevoPrecio = $("#txtNuevoPrecioVenta").val();
+
+    if (!nuevoPrecio || parseFloat(nuevoPrecio) < 0) {
+        swal("Mensaje", "Por favor ingrese un precio válido", "warning");
+        return;
+    }
+
+    var request = {
+        idProductoTienda: parseInt(idProductoTienda),
+        precioVenta: parseFloat(nuevoPrecio)
+    };
+
+    jQuery.ajax({
+        url: $.MisUrls.url._ActualizarPrecioVentaTienda,
+        type: "POST",
+        data: JSON.stringify(request),
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            if (data.resultado) {
+                swal("Éxito", "Precio de venta actualizado correctamente", "success");
+                $('#modalPrecio').modal('hide');
+                tabladata.ajax.reload();
+            } else {
+                swal("Error", "No se pudo actualizar el precio de venta", "error");
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            swal("Error", "Error al actualizar el precio", "error");
+        }
+    });
+}
 
 function eliminar($id) {
 

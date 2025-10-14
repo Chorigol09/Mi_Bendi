@@ -1,4 +1,4 @@
-﻿
+
 @{
     ViewBag.Title = "Asignar";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -111,6 +111,8 @@
                                         <th>Codigo Producto</th>
                                         <th>Nombre Producto</th>
                                         <th>Stock</th>
+                                        <th>Precio Venta</th>
+                                        <th>Modificar Precio</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -186,6 +188,40 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrecio" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="modalPrecioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalPrecioLabel">Modificar Precio de Venta</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtIdProductoTiendaPrecio" />
+                <div class="form-group">
+                    <label><strong>Producto:</strong></label>
+                    <input type="text" class="form-control form-control-sm" id="txtProductoNombrePrecio" readonly />
+                </div>
+                <div class="form-group">
+                    <label><strong>Tienda:</strong></label>
+                    <input type="text" class="form-control form-control-sm" id="txtTiendaNombrePrecio" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="txtNuevoPrecioVenta"><strong>Nuevo Precio de Venta:</strong></label>
+                    <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="txtNuevoPrecioVenta" placeholder="Ingrese el precio de venta" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-success" onclick="guardarPrecioVenta()">
+                    <i class="fas fa-save"></i> Guardar Precio
+                </button>
             </div>
         </div>
     </div>

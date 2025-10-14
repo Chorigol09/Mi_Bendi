@@ -16,6 +16,6 @@ namespace CapaModelo
         public int IdCategoria { get; set; }
         public Categoria oCategoria { get; set; }
         public bool Activo { get; set; }
-
+        public object PrecioVenta { get; set; }
     }
 }

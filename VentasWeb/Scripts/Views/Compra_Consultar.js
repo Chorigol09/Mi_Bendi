@@ -1,4 +1,4 @@
-﻿
+
 var tabladata;
 
 $(document).ready(function () {
@@ -102,7 +102,12 @@ $(document).ready(function () {
                     return "<button class='btn btn-success btn-sm ml-2' type='button' onclick='Imprimir(" + data + ")'><i class='far fa-clipboard'></i> Ver</button>"
                 }
             },
-            { "data": "NumeroCompra" },
+            { 
+                "data": "IdCompra",
+                render: function (data) {
+                    return '<span class="badge badge-primary">#' + data + '</span>';
+                }
+            },
             {
                 "data": "oProveedor", render: function (data) {
                     return data.RazonSocial
@@ -116,11 +121,40 @@ $(document).ready(function () {
             { "data": "FechaCompra" },
             {
                 "data": "TotalCosto", render: function (data) {
-
                     return "S./ " + (data).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
                 }
             },
-           
+            {
+                "data": "CantidadProductos",
+                render: function (data) {
+                    return '<span class="badge badge-info">' + data + '</span>';
+                }
+            },
+            {
+                "data": "Productos",
+                render: function (data) {
+                    if (!data || data == '') return '<em class="text-muted">Sin productos</em>';
+                    // Limitar a 100 caracteres para que no sea muy largo
+                    if (data.length > 100) {
+                        return '<span title="' + data + '">' + data.substring(0, 100) + '...</span>';
+                    }
+                    return data;
+                }
+            },
+            {
+                "data": null,
+                render: function (data, type, row) {
+                    var selectedAbierta = row.Estado == 'Abierta' ? 'selected' : '';
+                    var selectedCerrada = row.Estado == 'Cerrada' ? 'selected' : '';
+                    var colorClass = row.Estado == 'Abierta' ? 'bg-warning' : 'bg-success text-white';
+                    
+                    return '<select class="form-control form-control-sm select-estado ' + colorClass + '" data-id="' + row.IdCompra + '" style="width:110px;">' +
+                           '<option value="Abierta" ' + selectedAbierta + '>Abierta</option>' +
+                           '<option value="Cerrada" ' + selectedCerrada + '>Cerrada</option>' +
+                           '</select>';
+                },
+                "orderable": false
+            }
 
         ],
         "language": {
@@ -129,6 +163,46 @@ $(document).ready(function () {
         responsive: true
     });
 
+    // Evento para cambiar estado de Orden de Compra automáticamente
+    $('#tbCompras tbody').on('change', '.select-estado', function () {
+        var $select = $(this);
+        var idCompra = $select.data('id');
+        var nuevoEstado = $select.val();
+        var estadoAnterior = $select.find('option').not(':selected').val();
+        
+        // Mostrar loading en el select
+        $select.prop('disabled', true);
+        
+        jQuery.ajax({
+            url: $.MisUrls.url._ActualizarEstadoOC,
+            type: "POST",
+            data: JSON.stringify({ idCompra: idCompra, estado: nuevoEstado }),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $select.prop('disabled', false);
+                if (data.resultado) {
+                    // Cambiar color del select según el estado
+                    if (nuevoEstado == 'Abierta') {
+                        $select.removeClass('bg-success text-white').addClass('bg-warning');
+                    } else {
+                        $select.removeClass('bg-warning').addClass('bg-success text-white');
+                    }
+                    
+                    swal("Éxito", "Estado actualizado a: " + nuevoEstado, "success");
+                } else {
+                    // Revertir selección si falla
+                    $select.val(estadoAnterior);
+                    swal("Error", "No se pudo actualizar el estado", "error");
+                }
+            },
+            error: function (error) {
+                $select.prop('disabled', false);
+                $select.val(estadoAnterior);
+                swal("Error", "Error al actualizar el estado", "error");
+            }
+        });
+    });
 
 })
 

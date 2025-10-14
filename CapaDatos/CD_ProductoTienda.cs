@@ -1,4 +1,4 @@
-﻿using CapaModelo;
+using CapaModelo;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -81,7 +81,26 @@ namespace CapaDatos
                 }
             }
         }
-
+        public bool ActualizarStock(int idProducto, int idTienda, int nuevoStock)
+        {
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Conexion.CN))
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE PRODUCTO_TIENDA SET Stock = @Stock WHERE IdProducto = @IdProducto AND IdTienda = @IdTienda", cn))
+                {
+                    cmd.Parameters.AddWithValue("@Stock", nuevoStock);
+                    cmd.Parameters.AddWithValue("@IdProducto", idProducto);
+                    cmd.Parameters.AddWithValue("@IdTienda", idTienda);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public bool RegistrarProductoTienda(ProductoTienda oProductoTienda)
         {
             bool respuesta = true;
@@ -202,5 +221,31 @@ namespace CapaDatos
             }
             return respuesta;
         }
+
+        public bool ActualizarPrecioVenta(int idProductoTienda, decimal precioVenta)
+        {
+            bool respuesta = false;
+            using (SqlConnection oConexion = new SqlConnection(Conexion.CN))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("UPDATE PRODUCTO_TIENDA SET PrecioUnidadVenta = @PrecioVenta WHERE IdProductoTienda = @IdProductoTienda", oConexion);
+                    cmd.Parameters.AddWithValue("@PrecioVenta", precioVenta);
+                    cmd.Parameters.AddWithValue("@IdProductoTienda", idProductoTienda);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConexion.Open();
+                    int filasAfectadas = cmd.ExecuteNonQuery();
+                    respuesta = filasAfectadas > 0;
+                }
+                catch (Exception ex)
+                {
+                    respuesta = false;
+                }
+            }
+            return respuesta;
+        }
+
+        
     }
 }

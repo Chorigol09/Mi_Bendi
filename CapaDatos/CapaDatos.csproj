@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.Net.Compilers.Toolset.4.14.0\build\Microsoft.Net.Compilers.Toolset.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.Toolset.4.14.0\build\Microsoft.Net.Compilers.Toolset.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
@@ -53,10 +53,12 @@
     <Compile Include="CD_Categoria.cs" />
     <Compile Include="CD_Cliente.cs" />
     <Compile Include="CD_Compra.cs" />
+    <Compile Include="CD_Factura.cs" />
     <Compile Include="CD_Permisos.cs" />
     <Compile Include="CD_Producto.cs" />
     <Compile Include="CD_ProductoTienda.cs" />
     <Compile Include="CD_Proveedor.cs" />
+    <Compile Include="CD_Remito.cs" />
     <Compile Include="CD_Reportes.cs" />
     <Compile Include="CD_Rol.cs" />
     <Compile Include="CD_Tienda.cs" />

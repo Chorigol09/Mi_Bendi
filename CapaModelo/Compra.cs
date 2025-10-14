@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,9 @@ namespace CapaModelo
         public List<DetalleCompra> oListaDetalleCompra { get; set; }
         public decimal TotalCosto { get; set; }
         public string TipoComprobante { get; set; }
+        public string Estado { get; set; } // "Abierta" o "Cerrada"
+        public int CantidadProductos { get; set; }
+        public string Productos { get; set; }
         public bool Activo { get; set; }
         public DateTime FechaRegistro { get; set; }
     }

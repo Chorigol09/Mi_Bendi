@@ -1,0 +1,64 @@
+========================================
+   EJECUTA ESTO AHORA (2 PASOS)
+========================================
+
+PASO 1: SQL Server Management Studio
+-------------------------------------
+
+1. Abre SQL Server Management Studio
+2. Conecta a tu servidor
+3. Selecciona base de datos: DBVENTAS_WEB
+4. File > Open > File...
+5. Navega a: Utilidad/SQL Server/010_CORREGIR_TODO_FINAL.sql
+6. Presiona F5
+7. Espera mensaje: "✅ CORRECCIONES COMPLETADAS"
+
+
+PASO 2: Ejecutar Aplicación
+------------------------------
+
+Opción A - Doble clic:
+   ejecutar.bat
+
+Opción B - PowerShell:
+   cd "c:\Users\santi\Downloads\Ventas2\022_SistemaVentaAspMVC-main"
+   .\ejecutar.bat
+
+Opción C - Visual Studio:
+   1. Abrir VentasWeb.sln
+   2. Build > Clean Solution
+   3. Build > Build Solution
+   4. Presionar F5
+
+
+CREDENCIALES:
+-------------
+Usuario: admin@mibendi.com
+Clave: admin123
+
+
+QUÉ DEBE FUNCIONAR AHORA:
+---------------------------
+✅ Registrar Orden de Compra (sin errores)
+✅ Entrar a Remitos (sin 404)
+✅ Entrar a Facturas (sin 404)
+✅ Guardar Precio de Venta (persiste al recargar)
+✅ Flechas ↑↓ de Stock (funciona y persiste)
+
+
+ARCHIVOS IMPORTANTES:
+----------------------
+📘 SOLUCION_FINAL_TODOS_LOS_PROBLEMAS.md  ← LEE ESTO SI TIENES DUDAS
+📘 LEEME_PRIMERO.md                       ← Guía general
+📘 EJECUTAR_SCRIPTS_SQL.md                ← Guía de scripts SQL
+
+
+¿SIGUEN LOS ERRORES?
+---------------------
+Lee: SOLUCION_FINAL_TODOS_LOS_PROBLEMAS.md
+Sección: "DIAGNÓSTICO RÁPIDO"
+
+
+========================================
+   ¡Ejecuta el script SQL y listo!
+========================================

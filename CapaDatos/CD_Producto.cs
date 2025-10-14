@@ -1,4 +1,4 @@
-﻿using CapaModelo;
+using CapaModelo;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -133,6 +133,19 @@ namespace CapaDatos
             return respuesta;
 
         }
+
+        public bool ActualizarPrecioVenta(int idProducto, decimal nuevoPrecio)
+        {
+            using (var cn = new SqlConnection(Conexion.CN))
+            using (var cmd = new SqlCommand("UPDATE PRODUCTO SET PrecioVenta=@p WHERE IdProducto=@id", cn))
+            {
+                cmd.Parameters.AddWithValue("@p", nuevoPrecio);
+                cmd.Parameters.AddWithValue("@id", idProducto);
+                cn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
 
         public bool EliminarProducto(int IdProducto)
         {

@@ -1,4 +1,4 @@
-﻿@using VentasWeb.Helpers
+@using VentasWeb.Helpers
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,6 +23,7 @@
 <body>
     <!-- NUEVOOOOOO NAV -->
     <!-- NAVBAR -->
+   
     <nav class="topbar navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid px-3">
             <!-- full ancho -->
@@ -88,7 +89,7 @@
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/Content/PluginsJS")
 
-    <script type="text/javascript">
+<script type="text/javascript">
         $.extend({ MisUrls: { url: {}, urls: function (a) { $.extend($.MisUrls.url, a); } } });
 
         //CONTROLADOR ROL
@@ -124,6 +125,7 @@
         $.MisUrls.urls({ _RegistrarProductoTienda: '@Url.Action("RegistrarProductoTienda", "Producto")' });
         $.MisUrls.urls({ _ModificarProductoTienda: '@Url.Action("ModificarProductoTienda", "Producto")' });
         $.MisUrls.urls({ _EliminarProductoTienda: '@Url.Action("EliminarProductoTienda", "Producto")' });
+        $.MisUrls.urls({ _ActualizarPrecioVentaTienda: '@Url.Action("ActualizarPrecioVentaTienda", "Producto")' });
 
         //CONTROLADOR TIENDA
         $.MisUrls.urls({ _ObtenerTiendas: '@Url.Action("Obtener", "Tienda")' });
@@ -134,6 +136,17 @@
         $.MisUrls.urls({ _ObtenerCompras: '@Url.Action("Obtener", "Compra")' });
         $.MisUrls.urls({ _GuardarCompra: '@Url.Action("Guardar", "Compra")' });
         $.MisUrls.urls({ _DocumentoCompra: '@Url.Action("Documento", "Compra")' });
+        $.MisUrls.urls({ _ActualizarEstadoOC: '@Url.Action("ActualizarEstado", "Compra")' });
+
+        //CONTROLADOR REMITO
+        $.MisUrls.urls({ _ObtenerRemitos: '@Url.Action("Obtener", "Remito")' });
+        $.MisUrls.urls({ _GuardarRemito: '@Url.Action("Guardar", "Remito")' });
+        $.MisUrls.urls({ _ActualizarEstadoRemito: '@Url.Action("ActualizarEstado", "Remito")' });
+
+        //CONTROLADOR FACTURA
+        $.MisUrls.urls({ _ObtenerFacturas: '@Url.Action("Obtener", "Factura")' });
+        $.MisUrls.urls({ _GuardarFactura: '@Url.Action("Guardar", "Factura")' });
+        $.MisUrls.urls({ _ActualizarEstadoFactura: '@Url.Action("ActualizarEstado", "Factura")' });
 
         //CONTROLADOR VENTA
         $.MisUrls.urls({ _ObtenerUsuario: '@Url.Action("ObtenerUsuario", "Venta")' });
@@ -144,17 +157,23 @@
         $.MisUrls.urls({ _ObtenerVentas: '@Url.Action("Obtener", "Venta")' });
 
         //CONTROLADOR REPORTE
-        $.MisUrls.urls({ _ObtenerReporteProducto: '@Url.Action("ObtenerProducto", "Reporte")' });
-        $.MisUrls.urls({ _ObtenerReporteVenta: '@Url.Action("ObtenerVenta", "Reporte")' });
+        $.MisUrls.urls({ _ObtenerReporteProducto: '@Url.Action("ObtenerReporteProducto", "Reportes")' });
+        $.MisUrls.urls({ _ObtenerReporteVenta: '@Url.Action("ObtenerVenta", "Reportes")' });
 
         //CONTROLADOR CLIENTE
         $.MisUrls.urls({ _ObtenerClientes: '@Url.Action("Obtener", "Cliente")' });
         $.MisUrls.urls({ _GuardarCliente: '@Url.Action("Guardar", "Cliente")' });
         $.MisUrls.urls({ _EliminarCliente: '@Url.Action("Eliminar", "Cliente")' });
 
+        $.MisUrls.urls({ _AjustarStock: '@Url.Action("AjustarStock", "Producto")' });
+        $.MisUrls.urls({ _ActualizarPrecioVenta: '@Url.Action("ActualizarPrecioVenta","Producto")' });
+
+
+
         //lenguaje español datatable
         $.MisUrls.urls({ Url_datatable_spanish: '@Url.Content("~/content/plugins/datatables/js/datatable_spanish.json")' });
-    </script>
+
+</script>
 
     <script>
         // Marca activo via name (si lo usás en vistas)
