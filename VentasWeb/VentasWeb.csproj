@@ -135,6 +135,7 @@
     <Compile Include="Controllers\RemitoController.cs" />
     <Compile Include="Controllers\ReporteController.cs" />
     <Compile Include="Controllers\RolController.cs" />
+    <Compile Include="Controllers\MovimientoStockController.cs" />
     <Compile Include="Controllers\TiendaController.cs" />
     <Compile Include="Controllers\UsuarioController.cs" />
     <Compile Include="Controllers\VentaController.cs" />
@@ -2018,6 +2019,7 @@
     <Content Include="Scripts\Views\Reporte_Producto.js" />
     <Content Include="Scripts\Views\Reporte_Venta.js" />
     <Content Include="Scripts\Views\Tienda_Crear.js" />
+    <Content Include="Scripts\Views\MovimientoStock_Crear.js" />
     <Content Include="Scripts\Views\Proveedor_Crear.js" />
     <Content Include="Scripts\Views\Cliente_Crear.js" />
     <Content Include="Scripts\Views\Usuario_Crear.js" />

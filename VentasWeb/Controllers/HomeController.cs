@@ -20,7 +20,10 @@ namespace VentasWeb.Controllers
             try
             {
                 ViewBag.NombreUsuario = SesionUsuario.Nombres + " " + SesionUsuario.Apellidos;
-                ViewBag.RolUsuario = SesionUsuario.oRol.Descripcion;
+                if (SesionUsuario.oRol != null)
+                    ViewBag.RolUsuario = SesionUsuario.oRol.Descripcion;
+                else
+                    ViewBag.RolUsuario = "Sin rol";
 
             }
             catch {

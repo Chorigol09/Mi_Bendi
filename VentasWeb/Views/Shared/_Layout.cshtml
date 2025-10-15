@@ -46,8 +46,7 @@
                 <div class="collapse navbar-collapse flex-grow-1" id="navbarSupportedContent">
                     <ul class="navbar-nav nav-center mx-lg-auto justify-content-lg-center align-items-center w-100">
                         <li class="nav-item">
-                            <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString()=="Home") ? "active" : "")"
-                               name="Home" href="@Url.Action("Index","Home")">
+                            <a class="nav-link" name="Home" href="@Url.Action("Index","Home")">
                                 <i class="fas fa-home mr-2"></i>Inicio
                             </a>
                         </li>
@@ -61,7 +60,7 @@
                         <li class="nav-item d-flex align-items-center">
                             <span id="userInitials" class="avatar mr-2">US</span>
                             <span id="userName" class="text-white font-weight-semibold">
-                                @(User?.Identity?.Name ?? "Santiago Gil")
+                                @(User.Identity.Name)
                             </span>
                         </li>
                         <li class="nav-item">
@@ -168,7 +167,11 @@
         $.MisUrls.urls({ _AjustarStock: '@Url.Action("AjustarStock", "Producto")' });
         $.MisUrls.urls({ _ActualizarPrecioVenta: '@Url.Action("ActualizarPrecioVenta","Producto")' });
 
-
+        //CONTROLADOR MOVIMIENTO STOCK
+        $.MisUrls.urls({ _ObtenerMovimientos: '@Url.Action("Obtener", "MovimientoStock")' });
+        $.MisUrls.urls({ _ObtenerMovimientosAgrupados: '@Url.Action("ObtenerAgrupados", "MovimientoStock")' });
+        $.MisUrls.urls({ _GuardarMovimiento: '@Url.Action("Guardar", "MovimientoStock")' });
+        $.MisUrls.urls({ _ObtenerProductosPorTienda: '@Url.Action("ObtenerProductosPorTienda", "MovimientoStock")' });
 
         //lenguaje español datatable
         $.MisUrls.urls({ Url_datatable_spanish: '@Url.Content("~/content/plugins/datatables/js/datatable_spanish.json")' });

@@ -1,4 +1,4 @@
-﻿using CapaModelo;
+using CapaModelo;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -128,21 +128,31 @@ namespace CapaDatos
                                                    Descripcion = dato.Element("Descripcion").Value
                                                }).FirstOrDefault();
 
-                            rptUsuario.oListaMenu = (from menu in doc.Element("Usuario").Element("DetalleMenu").Elements("Menu")
-                                                     select new Menu()
-                                                     {
-                                                         Nombre = menu.Element("NombreMenu").Value,
-                                                         Icono = menu.Element("Icono").Value,
-                                                         oSubMenu = (from submenu in menu.Element("DetalleSubMenu").Elements("SubMenu")
-                                                                     select new SubMenu()
-                                                                     {
-                                                                         Nombre = submenu.Element("NombreSubMenu").Value,
-                                                                         Controlador = submenu.Element("Controlador").Value,
-                                                                         Vista = submenu.Element("Vista").Value,
-                                                                         Icono = submenu.Element("Icono").Value,
-                                                                         Activo = (submenu.Element("Activo").Value == "1")
-                                                                     }).ToList()
-                                                     }).ToList();
+                            var detalleMenuElement = doc.Element("Usuario")?.Element("DetalleMenu");
+                            if (detalleMenuElement != null && detalleMenuElement.HasElements)
+                            {
+                                rptUsuario.oListaMenu = (from menu in detalleMenuElement.Elements("Menu")
+                                                         select new Menu()
+                                                         {
+                                                             Nombre = menu.Element("NombreMenu")?.Value ?? "",
+                                                             Icono = menu.Element("Icono")?.Value ?? "",
+                                                             oSubMenu = menu.Element("DetalleSubMenu") != null
+                                                                 ? (from submenu in menu.Element("DetalleSubMenu").Elements("SubMenu")
+                                                                    select new SubMenu()
+                                                                    {
+                                                                        Nombre = submenu.Element("NombreSubMenu")?.Value ?? "",
+                                                                        Controlador = submenu.Element("Controlador")?.Value ?? "",
+                                                                        Vista = submenu.Element("Vista")?.Value ?? "",
+                                                                        Icono = submenu.Element("Icono")?.Value ?? "",
+                                                                        Activo = (submenu.Element("Activo")?.Value == "1")
+                                                                    }).ToList()
+                                                                 : new List<SubMenu>()
+                                                         }).ToList();
+                            }
+                            else
+                            {
+                                rptUsuario.oListaMenu = new List<Menu>();
+                            }
                         }
                     }
                 }
