@@ -65,7 +65,7 @@ SELECT
     s.IdSubMenu,
     s.Nombre AS SubMenu,
     s.Controlador,
-    s.VistaAccion,
+    s.Vista,
     s.Icono AS IconoSubMenu
 FROM MENU m
 INNER JOIN SUBMENU s ON m.IdMenu = s.IdMenu
