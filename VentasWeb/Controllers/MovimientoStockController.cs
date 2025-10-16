@@ -61,6 +61,7 @@ namespace VentasWeb.Controllers
                 IdProducto = pt.oProducto.IdProducto,
                 Codigo = pt.oProducto.Codigo,
                 Nombre = pt.oProducto.Nombre,
+                Descripcion = pt.oProducto.Descripcion,
                 oCategoria = new { Descripcion = pt.oProducto.oCategoria != null ? pt.oProducto.oCategoria.Descripcion : "Sin Categoría" },
                 StockActual = pt.Stock
             }).ToList();

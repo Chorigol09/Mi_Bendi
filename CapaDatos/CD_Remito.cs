@@ -100,7 +100,7 @@ namespace CapaDatos
             return respuesta;
         }
 
-        public bool ActualizarEstadoRemito(int idRemito, string estado)
+        public bool ActualizarEstadoRemito(int idRemito, string estado, int idUsuario)
         {
             bool respuesta = false;
             using (SqlConnection oConexion = new SqlConnection(Conexion.CN))
@@ -110,6 +110,7 @@ namespace CapaDatos
                     SqlCommand cmd = new SqlCommand("usp_ActualizarEstadoRemito", oConexion);
                     cmd.Parameters.AddWithValue("@IdRemito", idRemito);
                     cmd.Parameters.AddWithValue("@Estado", estado);
+                    cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
                     cmd.Parameters.Add("@Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
 

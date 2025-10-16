@@ -31,7 +31,15 @@ namespace VentasWeb.Controllers
         [HttpPost]
         public JsonResult ActualizarEstado(int idRemito, string estado)
         {
-            bool respuesta = CD_Remito.Instancia.ActualizarEstadoRemito(idRemito, estado);
+            // Obtener usuario de la sesión
+            Usuario SesionUsuario = (Usuario)Session["Usuario"];
+            
+            if (SesionUsuario == null)
+            {
+                return Json(new { resultado = false, mensaje = "Sesión expirada" }, JsonRequestBehavior.AllowGet);
+            }
+            
+            bool respuesta = CD_Remito.Instancia.ActualizarEstadoRemito(idRemito, estado, SesionUsuario.IdUsuario);
             return Json(new { resultado = respuesta }, JsonRequestBehavior.AllowGet);
         }
     }
