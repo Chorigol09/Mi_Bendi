@@ -1,4 +1,4 @@
-
+﻿
 var tabladata;
 var tablaproveedor;
 var tablatienda;
@@ -314,7 +314,7 @@ $('#btnTerminarGuardarCompra').on('click', function () {
     compra = compra.replace("!totalcosto¡", totalcostocompra.toString());
     $xml = $xml + compra + detallecompra + detalle + "</DETALLE_COMPRA></DETALLE>";
 
-    // Enviar XML directamente como parámetro
+    // Enviar XML directamente como parametro
     console.log("XML a enviar:", $xml);
 
     jQuery.ajax({

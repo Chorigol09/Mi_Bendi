@@ -83,13 +83,13 @@
                                 <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Nombre)</span></td>
                             </tr>
                             <tr>
-                                <td colspan="1" style="width:50px !important">Dirección:</td>
+                                <td colspan="1" style="width:50px !important">Direccion:</td>
                                 <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Direccion)</span></td>
                             </tr>
                             <tr>
                                 <td style="width:50px">Nro.Documento:</td>
                                 <td style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.NumeroDocumento)</span></td>
-                                <td style="width:50px"> Teléfono:</td>
+                                <td style="width:50px"> Telefono:</td>
                                 <td style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Telefono)</span></td>
                                 <td style="width:50px"> Fecha:</td>
                                 <td style="border-bottom:1px solid #000"><span>@(Model?.FechaRegistro)</span></td>
@@ -110,7 +110,7 @@
                             <thead>
                                 <tr style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">
                                     <th style="width: 15%;">Cantidad</th>
-                                    <th style="width: 45%;">Descripción</th>
+                                    <th style="width: 45%;">Descripcion</th>
                                     <th style="width: 20%;">P.Unit</th>
                                     <th style="width: 20%;">Importe Total</th>
                                 </tr>
@@ -127,7 +127,7 @@
                                 }
                                 @if (!detalles.Any())
                                 {
-                                    <tr><td colspan="4" style="text-align:center">Sin ítems</td></tr>
+                                    <tr><td colspan="4" style="text-align:center">Sin items</td></tr>
                                 }
                             </tbody>
                         </table>

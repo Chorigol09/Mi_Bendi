@@ -1,4 +1,4 @@
-@using VentasWeb.Helpers
+﻿@using VentasWeb.Helpers
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,14 +35,14 @@
                     <span class="brand-text">Mi Bendi</span>
                 </a>
 
-                <!-- Toggler móvil -->
+                <!-- Toggler movil -->
                 <button class="navbar-toggler ml-auto d-lg-none" type="button" data-toggle="collapse"
                         data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- Centro: Menú -->
+                <!-- Centro: Menu -->
                 <div class="collapse navbar-collapse flex-grow-1" id="navbarSupportedContent">
                     <ul class="navbar-nav nav-center mx-lg-auto justify-content-lg-center align-items-center w-100">
                         <li class="nav-item">
@@ -51,7 +51,7 @@
                             </a>
                         </li>
 
-                        @* Menús dinámicos por permisos *@
+                        @* Menus dinamicos por permisos *@
                         @Html.ActionLinkAllow()
                     </ul>
 
@@ -173,13 +173,13 @@
         $.MisUrls.urls({ _GuardarMovimiento: '@Url.Action("Guardar", "MovimientoStock")' });
         $.MisUrls.urls({ _ObtenerProductosPorTienda: '@Url.Action("ObtenerProductosPorTienda", "MovimientoStock")' });
 
-        //lenguaje español datatable
+        //lenguaje espanol datatable
         $.MisUrls.urls({ Url_datatable_spanish: '@Url.Content("~/content/plugins/datatables/js/datatable_spanish.json")' });
 
 </script>
 
     <script>
-        // Marca activo via name (si lo usás en vistas)
+        // Marca activo via name (si lo usas en vistas)
         function activarMenu(menuactivo) {
             var ul = $("ul.navbar-nav");
             ul.find("li.nav-item").each(function (i, li) {
@@ -202,7 +202,7 @@
             });
         }
 
-        // Iniciales automáticas del usuario
+        // Iniciales automaticas del usuario
         (function () {
             var nameNode = document.getElementById('userName');
             var initialsNode = document.getElementById('userInitials');

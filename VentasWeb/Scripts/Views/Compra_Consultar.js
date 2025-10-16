@@ -11,9 +11,9 @@ $(document).ready(function () {
         currentText: 'Hoy',
         monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
         monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
-        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+        dayNames: ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'],
+        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Juv', 'Vie', 'Sab'],
+        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
         weekHeader: 'Sm',
         dateFormat: 'dd/mm/yy',
         firstDay: 1,
@@ -160,10 +160,22 @@ $(document).ready(function () {
         "language": {
             "url": $.MisUrls.url.Url_datatable_spanish
         },
+        "order": [[1, "desc"]], // Orden por defecto: ID descendente (mas recientes primero)
         responsive: true
     });
 
-    // Evento para cambiar estado de Orden de Compra automáticamente
+    // Evento para cambiar orden de la tabla
+    $('#cboOrden').on('change', function () {
+        var orden = $(this).val(); // 'asc' o 'desc'
+        
+        if (orden == 'asc') {
+            tabladata.order([[1, 'asc']]).draw(); // Mas antiguos primero
+        } else {
+            tabladata.order([[1, 'desc']]).draw(); // Mas recientes primero
+        }
+    });
+
+    // Evento para cambiar estado de Orden de Compra automaticamente
     $('#tbCompras tbody').on('change', '.select-estado', function () {
         var $select = $(this);
         var idCompra = $select.data('id');
@@ -182,16 +194,16 @@ $(document).ready(function () {
             success: function (data) {
                 $select.prop('disabled', false);
                 if (data.resultado) {
-                    // Cambiar color del select según el estado
+                    // Cambiar color del select segun el estado
                     if (nuevoEstado == 'Abierta') {
                         $select.removeClass('bg-success text-white').addClass('bg-warning');
                     } else {
                         $select.removeClass('bg-warning').addClass('bg-success text-white');
                     }
                     
-                    swal("Éxito", "Estado actualizado a: " + nuevoEstado, "success");
+                    swal("Exito", "Estado actualizado a: " + nuevoEstado, "success");
                 } else {
-                    // Revertir selección si falla
+                    // Revertir seleccion si falla
                     $select.val(estadoAnterior);
                     swal("Error", "No se pudo actualizar el estado", "error");
                 }

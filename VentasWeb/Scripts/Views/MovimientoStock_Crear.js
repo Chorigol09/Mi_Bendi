@@ -1,4 +1,4 @@
-
+﻿
 var tablaMovimientos;
 var tablaProductos;
 var productoSeleccionado = null;
@@ -13,7 +13,7 @@ $(document).ready(function () {
     // Inicializar tabla de detalle
     actualizarTablaDetalle();
 
-    // Validación del formulario
+    // Validacion del formulario
     $("#formMovimiento").validate({
         rules: {
             IdTienda: { required: true, min: 1 },
@@ -326,7 +326,7 @@ function guardarMovimientos(idTienda, tipoMovimiento, motivo) {
     console.log("TipoMovimiento:", tipoMovimiento);
     console.log("Total productos:", detalleMovimiento.length);
     
-    // Generar IdLote único para este grupo de movimientos
+    // Generar IdLote unico para este grupo de movimientos
     var idLote = "LOTE_" + Date.now();
     console.log("IdLote generado:", idLote);
     
@@ -363,7 +363,7 @@ function guardarMovimientos(idTienda, tipoMovimiento, motivo) {
                     console.log("Error al guardar movimiento:", data.mensaje);
                 }
 
-                // Si es el último movimiento, mostrar resultado
+                // Si es el ultimo movimiento, mostrar resultado
                 if ((movimientosGuardados + movimientosError) === totalMovimientos) {
                     if (movimientosError === 0) {
                         swal("Exito", "Se registraron " + movimientosGuardados + " movimientos correctamente", "success");
@@ -380,7 +380,7 @@ function guardarMovimientos(idTienda, tipoMovimiento, motivo) {
                 console.log("Status:", error.status);
                 console.log("Response:", error.responseText);
 
-                // Si es el último movimiento, mostrar resultado
+                // Si es el ultimo movimiento, mostrar resultado
                 if ((movimientosGuardados + movimientosError) === totalMovimientos) {
                     swal("Error", "Se registraron " + movimientosGuardados + " movimientos. " + movimientosError + " fallaron", "error");
                     tablaMovimientos.ajax.reload();
@@ -413,7 +413,7 @@ $('#btnFiltrar').on('click', function () {
     tablaMovimientos.ajax.url($.MisUrls.url._ObtenerMovimientosAgrupados + "?idTienda=" + idTienda).load();
 });
 
-// Función para ver detalle del lote de movimientos
+// Funcion para ver detalle del lote de movimientos
 function verDetalleLote(idLote) {
     console.log("Ver detalle del lote:", idLote);
     
@@ -429,7 +429,7 @@ function verDetalleLote(idLote) {
             if (movimientosLote.length > 0) {
                 var primerMovimiento = movimientosLote[0];
                 
-                // Llenar información general
+                // Llenar informacion general
                 var fechaData = primerMovimiento.FechaRegistro;
                 var fechaStr = fechaData.replace('/Date(', '').replace(')/', '');
                 var fecha = new Date(parseInt(fechaStr));

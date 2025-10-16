@@ -15,7 +15,7 @@ echo.
 echo Ejecutando script de PowerShell...
 echo.
 
-PowerShell.exe -ExecutionPolicy Bypass -File "%~dp0QUITAR_ACENTOS_INTERFAZ.ps1"
+PowerShell.exe -ExecutionPolicy Bypass -File "%~dp0QUITAR_ACENTOS_INTERFAZ_V2.ps1"
 
 echo.
 echo ========================================

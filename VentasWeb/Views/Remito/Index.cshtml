@@ -16,12 +16,19 @@
     <div class="col-sm-12">
         <div class="card border-info">
             <div class="card-header bg-info text-white">
-                <i class="fas fa-file-invoice"></i> Gestión de Remitos
+                <i class="fas fa-file-invoice"></i> Gestion de Remitos
             </div>
             <div class="card-body p-2">
                 <div class="row mb-3">
-                    <div class="col-sm-12">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Los remitos se generan automáticamente al registrar una Orden de Compra</p>
+                    <div class="col-sm-9">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Los remitos se generan automaticamente al registrar una Orden de Compra</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="cboOrdenRemito" class="col-form-label col-form-label-sm">Orden:</label>
+                        <select class="form-control form-control-sm" id="cboOrdenRemito">
+                            <option value="desc">Mas recientes primero</option>
+                            <option value="asc">Mas antiguos primero</option>
+                        </select>
                     </div>
                 </div>
                 <hr />
@@ -30,7 +37,7 @@
                         <table id="tbRemitos" class="table table-striped table-bordered nowrap compact" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Número Remito</th>
+                                    <th>Numero Remito</th>
                                     <th>ID Orden Compra</th>
                                     <th>Proveedor</th>
                                     <th>Fecha</th>
@@ -131,7 +138,18 @@
                 "language": {
                     "url": $.MisUrls.url.Url_datatable_spanish
                 },
+                "order": [[1, "desc"]], // Orden por defecto: ID Orden descendente (mas recientes primero)
                 responsive: true
+            });
+
+            // Evento para cambiar orden de la tabla
+            $('#cboOrdenRemito').on('change', function () {
+                var orden = $(this).val();
+                if (orden == 'asc') {
+                    tableRemitos.order([[1, 'asc']]).draw(); // Mas antiguos primero
+                } else {
+                    tableRemitos.order([[1, 'desc']]).draw(); // Mas recientes primero
+                }
             });
 
             // Evento para marcar como recibido
@@ -139,12 +157,12 @@
                 var idRemito = $(this).data('id');
 
                 swal({
-                    title: "¿Está seguro?",
+                    title: "¿Esta seguro?",
                     text: "¿Desea marcar este remito como recibido?",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonClass: "btn-success",
-                    confirmButtonText: "Sí, marcar recibido",
+                    confirmButtonText: "Si, marcar recibido",
                     cancelButtonText: "Cancelar",
                     closeOnConfirm: false
                 },
@@ -157,7 +175,7 @@
                         contentType: "application/json; charset=utf-8",
                         success: function (data) {
                             if (data.resultado) {
-                                swal("Éxito", "Remito marcado como recibido", "success");
+                                swal("Exito", "Remito marcado como recibido", "success");
                                 tableRemitos.ajax.reload();
                             } else {
                                 swal("Error", "No se pudo actualizar el remito", "error");

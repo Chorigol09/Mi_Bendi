@@ -1,9 +1,9 @@
-/* REEMPLAZO COMPLETO: Scripts/Views/Reporte_Producto.js */
+﻿/* REEMPLAZO COMPLETO: Scripts/Views/Reporte_Producto.js */
 console.log("Reporte_Producto.js v8 cargado");
 
 (function () {
 
-    // -------- helpers numéricos --------
+    // -------- helpers numericos --------
     function toNumberLoose(v) {
         if (v == null) return 0;
         if (typeof v === 'number') return v;
@@ -87,7 +87,7 @@ console.log("Reporte_Producto.js v8 cargado");
                         // --- Precio Venta (readonly) ---
                         '<td>' + precioDisplay + '</td>' +
 
-                        // --- Botón Modificar Precio ---
+                        // --- Boton Modificar Precio ---
                         '<td>' +
                         '<button class="btn btn-warning btn-sm btn-modificar-precio" ' +
                         'data-row=\'' + JSON.stringify(rowData).replace(/'/g, "&apos;") + '\' ' +
@@ -130,7 +130,7 @@ console.log("Reporte_Producto.js v8 cargado");
         var nuevoPrecio = $("#txtNuevoPrecioVentaModal").val();
 
         if (!nuevoPrecio || parseFloat(nuevoPrecio) < 0) {
-            swal("Mensaje", "Por favor ingrese un precio válido", "warning");
+            swal("Mensaje", "Por favor ingrese un precio valido", "warning");
             return;
         }
 
@@ -147,9 +147,9 @@ console.log("Reporte_Producto.js v8 cargado");
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 if (data.resultado) {
-                    swal("Éxito", "Precio de venta actualizado correctamente", "success");
+                    swal("Exito", "Precio de venta actualizado correctamente", "success");
                     $('#modalPrecioVenta').modal('hide');
-                    // Recargar la búsqueda
+                    // Recargar la busqueda
                     $('#btnBuscar').click();
                 } else {
                     swal("Error", data.mensaje || "No se pudo actualizar el precio de venta", "error");
@@ -190,7 +190,7 @@ console.log("Reporte_Producto.js v8 cargado");
 
         postAjuste(idP, idT, delta).done(function (response) {
             if (response.ok) {
-                // si quedó en 0, deshabilitar down
+                // si quedo en 0, deshabilitar down
                 var $down = $tr.find('.btn-stock-down');
                 if (nuevo <= 0) $down.prop('disabled', true);
                 else $down.prop('disabled', false);

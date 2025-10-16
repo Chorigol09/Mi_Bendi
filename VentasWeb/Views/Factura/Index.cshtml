@@ -16,12 +16,19 @@
     <div class="col-sm-12">
         <div class="card border-info">
             <div class="card-header bg-info text-white">
-                <i class="fas fa-file-invoice-dollar"></i> Gestión de Facturas
+                <i class="fas fa-file-invoice-dollar"></i> Gestion de Facturas
             </div>
             <div class="card-body p-2">
                 <div class="row mb-3">
-                    <div class="col-sm-12">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Las facturas se generan automáticamente al registrar una Orden de Compra</p>
+                    <div class="col-sm-9">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Las facturas se generan automaticamente al registrar una Orden de Compra</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="cboOrdenFactura" class="col-form-label col-form-label-sm">Orden:</label>
+                        <select class="form-control form-control-sm" id="cboOrdenFactura">
+                            <option value="desc">Mas recientes primero</option>
+                            <option value="asc">Mas antiguos primero</option>
+                        </select>
                     </div>
                 </div>
                 <hr />
@@ -30,7 +37,7 @@
                         <table id="tbFacturas" class="table table-striped table-bordered nowrap compact" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Número Factura</th>
+                                    <th>Numero Factura</th>
                                     <th>ID Orden Compra</th>
                                     <th>Proveedor</th>
                                     <th>Fecha</th>
@@ -138,7 +145,18 @@
                 "language": {
                     "url": $.MisUrls.url.Url_datatable_spanish
                 },
+                "order": [[1, "desc"]], // Orden por defecto: ID Orden descendente (mas recientes primero)
                 responsive: true
+            });
+
+            // Evento para cambiar orden de la tabla
+            $('#cboOrdenFactura').on('change', function () {
+                var orden = $(this).val();
+                if (orden == 'asc') {
+                    tableFacturas.order([[1, 'asc']]).draw(); // Mas antiguos primero
+                } else {
+                    tableFacturas.order([[1, 'desc']]).draw(); // Mas recientes primero
+                }
             });
 
             // Evento para marcar como pagado
@@ -146,12 +164,12 @@
                 var idFactura = $(this).data('id');
 
                 swal({
-                    title: "¿Está seguro?",
-                    text: "¿Desea marcar esta factura como pagada?",
+                    title: "¿Esta seguro?",
+                    text: "¿Marcar esta factura como pagada?",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonClass: "btn-success",
-                    confirmButtonText: "Sí, marcar pagado",
+                    confirmButtonText: "Si, marcar como pagada",
                     cancelButtonText: "Cancelar",
                     closeOnConfirm: false
                 },
@@ -164,7 +182,7 @@
                         contentType: "application/json; charset=utf-8",
                         success: function (data) {
                             if (data.resultado) {
-                                swal("Éxito", "Factura marcada como pagada", "success");
+                                swal("Exito", "Factura marcada como pagada", "success");
                                 tableFacturas.ajax.reload();
                             } else {
                                 swal("Error", "No se pudo actualizar la factura", "error");

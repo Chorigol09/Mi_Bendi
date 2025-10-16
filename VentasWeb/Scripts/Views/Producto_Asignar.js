@@ -1,4 +1,4 @@
-
+﻿
 var tabladata;
 var tablatienda;
 var tablaproducto;
@@ -238,7 +238,7 @@ function asignarProducto() {
                     $("#txtDescripcion").val("");
                 } else {
 
-                    swal("Mensaje", "No se pudo registrar la asignación", "warning")
+                    swal("Mensaje", "No se pudo registrar la asignacion", "warning")
                 }
             },
             error: function (error) {
@@ -270,7 +270,7 @@ function guardarPrecioVenta() {
     var nuevoPrecio = $("#txtNuevoPrecioVenta").val();
 
     if (!nuevoPrecio || parseFloat(nuevoPrecio) < 0) {
-        swal("Mensaje", "Por favor ingrese un precio válido", "warning");
+        swal("Mensaje", "Por favor ingrese un precio valido", "warning");
         return;
     }
 
@@ -287,7 +287,7 @@ function guardarPrecioVenta() {
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             if (data.resultado) {
-                swal("Éxito", "Precio de venta actualizado correctamente", "success");
+                swal("Exito", "Precio de venta actualizado correctamente", "success");
                 $('#modalPrecio').modal('hide');
                 tabladata.ajax.reload();
             } else {
@@ -305,7 +305,7 @@ function eliminar($id) {
 
     swal({
         title: "Mensaje",
-        text: "¿Desea eliminar la asignación?",
+        text: "¿Desea eliminar la asignacion?",
         type: "warning",
         showCancelButton: true,
 
@@ -328,7 +328,7 @@ function eliminar($id) {
                     if (data.resultado) {
                         tabladata.ajax.reload();
                     } else {
-                        swal("Mensaje", "No se pudo eliminar la asignación?", "warning")
+                        swal("Mensaje", "No se pudo eliminar la asignacion?", "warning")
                     }
                 },
                 error: function (error) {
