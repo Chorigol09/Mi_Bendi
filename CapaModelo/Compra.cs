@@ -17,6 +17,7 @@ namespace CapaModelo
         public Tienda oTienda { get; set; }
         public List<DetalleCompra> oListaDetalleCompra { get; set; }
         public decimal TotalCosto { get; set; }
+        public string TextoTotalCosto { get; set; }
         public string TipoComprobante { get; set; }
         public string Estado { get; set; } // "Abierta" o "Cerrada"
         public int CantidadProductos { get; set; }

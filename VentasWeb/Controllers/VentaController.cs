@@ -1,4 +1,4 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaModelo;
 using System;
 using System.Collections.Generic;
@@ -32,8 +32,11 @@ namespace VentasWeb.Controllers
 
 
 
-            NumberFormatInfo formato = new CultureInfo("es-PE").NumberFormat;
-            formato.CurrencyGroupSeparator = ".";
+            // Configurar formato: $X.XXX,XX (punto para miles, coma para decimales)
+            NumberFormatInfo formato = new CultureInfo("es-AR").NumberFormat;
+            formato.NumberGroupSeparator = ".";
+            formato.NumberDecimalSeparator = ",";
+            formato.NumberDecimalDigits = 2;
 
 
             if (oVenta == null)
@@ -46,14 +49,14 @@ namespace VentasWeb.Controllers
                                                  Cantidad = dv.Cantidad,
                                                  NombreProducto = dv.NombreProducto,
                                                  PrecioUnidad = dv.PrecioUnidad,
-                                                 TextoPrecioUnidad = dv.PrecioUnidad.ToString("N", formato), //numero.ToString("C", formato)
+                                                 TextoPrecioUnidad = "$" + dv.PrecioUnidad.ToString("N", formato),
                                                  ImporteTotal = dv.ImporteTotal,
-                                                 TextoImporteTotal = dv.ImporteTotal.ToString("N", formato)
+                                                 TextoImporteTotal = "$" + dv.ImporteTotal.ToString("N", formato)
                                              }).ToList();
 
-                oVenta.TextoImporteRecibido = oVenta.ImporteRecibido.ToString("N", formato);
-                oVenta.TextoImporteCambio = oVenta.ImporteCambio.ToString("N", formato);
-                oVenta.TextoTotalCosto = oVenta.TotalCosto.ToString("N", formato);
+                oVenta.TextoImporteRecibido = "$" + oVenta.ImporteRecibido.ToString("N", formato);
+                oVenta.TextoImporteCambio = "$" + oVenta.ImporteCambio.ToString("N", formato);
+                oVenta.TextoTotalCosto = "$" + oVenta.TotalCosto.ToString("N", formato);
             }
                
 

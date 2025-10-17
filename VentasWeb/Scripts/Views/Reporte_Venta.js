@@ -1,4 +1,4 @@
-﻿
+
 var table;
 
 
@@ -77,6 +77,12 @@ $('#btnBuscar').on('click', function () {
 
 
                 $.each(data, function (i, row) {
+                    // Formatear TotalVenta como $X.XXX,XX (punto para miles, coma para decimales)
+                    var totalVenta = parseFloat(row["TotalVenta"] || 0).toFixed(2);
+                    var partes = totalVenta.split('.');
+                    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    var decimal = partes[1];
+                    var totalFormateado = "$" + entero + "," + decimal;
 
                     $("<tr>").append(
                         $("<td>").text(row["FechaVenta"]),
@@ -87,7 +93,7 @@ $('#btnBuscar').on('click', function () {
                         $("<td>").text(row["NombreEmpleado"]),
                         $("<td>").text(row["CantidadUnidadesVendidas"]),
                         $("<td>").text(row["CantidadProductos"]),
-                        $("<td>").text(row["TotalVenta"])
+                        $("<td>").text(totalFormateado)
 
                     ).appendTo("#tbReporte tbody");
 

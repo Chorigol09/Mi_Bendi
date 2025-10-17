@@ -1,7 +1,8 @@
-﻿@model CapaModelo.Venta
+@model CapaModelo.Venta
+@using System.Linq
 @{
     Layout = null;
-    var detalles = Model?.oListaDetalleVenta ?? Enumerable.Empty<CapaModelo.DetalleVenta>();
+    var detalles = Model != null && Model.oListaDetalleVenta != null ? Model.oListaDetalleVenta : Enumerable.Empty<CapaModelo.DetalleVenta>();
 }
 
 <!DOCTYPE html>
@@ -58,15 +59,15 @@
                                 <td style="width:290px">
                                     <table style="width:100%">
                                         <tr><td><label style="font-size:16px;font-weight:bold;text-align:center;width:100%;display:block">MI TIENDA ONLINE S.A.C TEST</label></td></tr>
-                                        <tr><td colspan="4" align="center" style="font-size:14px">Atendido por: <span>@(Model?.oUsuario?.Nombres) @(Model?.oUsuario?.Apellidos)</span></td></tr>
-                                        <tr><td colspan="4" align="center" style="font-size:14px"><span>@(Model?.oTienda?.Direccion)</span></td></tr>
+                                        <tr><td colspan="4" align="center" style="font-size:14px">Atendido por: <span>@(Model != null && Model.oUsuario != null ? Model.oUsuario.Nombres : "") @(Model != null && Model.oUsuario != null ? Model.oUsuario.Apellidos : "")</span></td></tr>
+                                        <tr><td colspan="4" align="center" style="font-size:14px"><span>@(Model != null && Model.oTienda != null ? Model.oTienda.Direccion : "")</span></td></tr>
                                     </table>
                                 </td>
                                 <td style="width:200px;">
                                     <table style="width: 100%; height: 100px; font-weight: bold;border:2px solid #17a2b8;font-size:14px ">
-                                        <tr><td align="center">R.U.C. <span>@(Model?.oTienda?.RUC)</span></td></tr>
-                                        <tr style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;font-size:16px !important"><td align="center"><span>@(Model?.TipoDocumento)</span></td></tr>
-                                        <tr><td align="center">NRO - <span>@(Model?.Codigo)</span> </td></tr>
+                                        <tr><td align="center">R.U.C. <span>@(Model != null && Model.oTienda != null ? Model.oTienda.RUC : "")</span></td></tr>
+                                        <tr style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;font-size:16px !important"><td align="center"><span>@(Model != null ? Model.TipoDocumento : "")</span></td></tr>
+                                        <tr><td align="center">NRO - <span>@(Model != null ? Model.Codigo : "")</span> </td></tr>
                                     </table>
                                 </td>
                             </tr>
@@ -80,19 +81,19 @@
                         <table style="width: 100%;" border="0">
                             <tr>
                                 <td colspan="1" style="width:50px !important">Cliente:</td>
-                                <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Nombre)</span></td>
+                                <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model != null && Model.oCliente != null ? Model.oCliente.Nombre : "")</span></td>
                             </tr>
                             <tr>
                                 <td colspan="1" style="width:50px !important">Direccion:</td>
-                                <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Direccion)</span></td>
+                                <td colspan="5" style="border-bottom:1px solid #000"><span>@(Model != null && Model.oCliente != null ? Model.oCliente.Direccion : "")</span></td>
                             </tr>
                             <tr>
                                 <td style="width:50px">Nro.Documento:</td>
-                                <td style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.NumeroDocumento)</span></td>
+                                <td style="border-bottom:1px solid #000"><span>@(Model != null && Model.oCliente != null ? Model.oCliente.NumeroDocumento : "")</span></td>
                                 <td style="width:50px"> Telefono:</td>
-                                <td style="border-bottom:1px solid #000"><span>@(Model?.oCliente?.Telefono)</span></td>
+                                <td style="border-bottom:1px solid #000"><span>@(Model != null && Model.oCliente != null ? Model.oCliente.Telefono : "")</span></td>
                                 <td style="width:50px"> Fecha:</td>
-                                <td style="border-bottom:1px solid #000"><span>@(Model?.FechaRegistro)</span></td>
+                                <td style="border-bottom:1px solid #000"><span>@(Model != null ? Model.FechaRegistro : "")</span></td>
                             </tr>
                         </table>
                     </td>
@@ -142,19 +143,19 @@
                                 <td colspan="4">
                                     <table width='250' style="border:1px solid #17a2b8;">
                                         <tr style="border:1px solid #17a2b8;">
-                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Pago con S/.</td>
-                                            <td><span>@(Model?.TextoImporteRecibido)</span></td>
-                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Cambio S/.</td>
-                                            <td><span>@(Model?.TextoImporteCambio)</span></td>
+                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Pago con</td>
+                                            <td><span>@(Model != null ? Model.TextoImporteRecibido : "")</span></td>
+                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Cambio</td>
+                                            <td><span>@(Model != null ? Model.TextoImporteCambio : "")</span></td>
                                         </tr>
                                     </table>
                                 </td>
                                 <td colspan="2" align="right">
                                     <table style="font-weight: bold; width: 150px;border:1px solid #17a2b8;">
                                         <tr>
-                                            <td>Total S/.</td>
+                                            <td>Total</td>
                                             <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;border:1px solid #17a2b8;">
-                                                <span id="totalcosto">@(Model?.TextoTotalCosto)</span>
+                                                <span id="totalcosto">@(Model != null ? Model.TextoTotalCosto : "")</span>
                                             </td>
                                         </tr>
                                     </table>
