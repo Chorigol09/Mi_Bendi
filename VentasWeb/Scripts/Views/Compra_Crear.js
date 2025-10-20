@@ -1,8 +1,29 @@
-﻿
+
 var tabladata;
 var tablaproveedor;
 var tablatienda;
 var tablaproducto;
+
+// Función para formatear precio en formato argentino: $1.200,00
+function formatearPrecio(valor) {
+    if (!valor || isNaN(valor)) return '$0,00';
+    var numero = parseFloat(valor);
+    var partes = numero.toFixed(2).split('.');
+    partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return '$' + partes[0] + ',' + partes[1];
+}
+
+// Función para convertir formato argentino a número
+function desformatearPrecio(valor) {
+    if (!valor) return 0;
+    // Remover $ y espacios
+    valor = valor.toString().replace(/\$/g, '').replace(/\s/g, '');
+    // Remover puntos (separador de miles)
+    valor = valor.replace(/\./g, '');
+    // Reemplazar coma por punto (separador decimal)
+    valor = valor.replace(/,/g, '.');
+    return parseFloat(valor) || 0;
+}
 
 
 $(document).ready(function () {
@@ -207,8 +228,71 @@ $("#txtCantidadProducto").inputFilter(function (value) {
     return /^-?\d*$/.test(value);
 });
 
-$("#txtPrecioCompraProducto").inputFilter(function (value) {
-    return /^-?\d*[.]?\d{0,2}$/.test(value);
+// Formatear precio en tiempo real - el usuario solo escribe números
+$("#txtPrecioCompraProducto").on('input', function() {
+    var input = $(this);
+    var valor = input.val();
+    
+    // Remover todo excepto números y coma
+    var limpio = valor.replace(/[^0-9,]/g, '');
+    
+    // Si está vacío, mostrar $0,00
+    if (limpio === '' || limpio === '0') {
+        input.val('$0,00');
+        return;
+    }
+    
+    // Separar parte entera y decimal si hay coma
+    var partes = limpio.split(',');
+    var parteEntera = partes[0];
+    var parteDecimal = partes[1] || '';
+    
+    // Limitar decimales a 2 dígitos
+    if (parteDecimal.length > 2) {
+        parteDecimal = parteDecimal.substring(0, 2);
+    }
+    
+    // Agregar separador de miles a la parte entera
+    if (parteEntera.length > 0) {
+        parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    
+    // Construir valor formateado
+    var valorFormateado = '$' + (parteEntera || '0');
+    if (limpio.includes(',')) {
+        valorFormateado += ',' + parteDecimal;
+    }
+    
+    input.val(valorFormateado);
+});
+
+// Al enfocar, si es $0,00 limpiar el campo
+$("#txtPrecioCompraProducto").on('focus', function() {
+    if ($(this).val() === '$0,00') {
+        $(this).val('');
+    }
+});
+
+// Al perder el foco, completar con ,00 si no tiene decimales
+$("#txtPrecioCompraProducto").on('blur', function() {
+    var valor = $(this).val();
+    if (valor === '' || valor === '$') {
+        $(this).val('$0,00');
+        return;
+    }
+    
+    // Si no tiene decimales, agregar ,00
+    if (!valor.includes(',')) {
+        $(this).val(valor + ',00');
+    } else {
+        // Si tiene coma pero no tiene 2 decimales, completar
+        var partes = valor.split(',');
+        if (partes[1] && partes[1].length === 1) {
+            $(this).val(valor + '0');
+        } else if (partes[1] && partes[1].length === 0) {
+            $(this).val(valor + '00');
+        }
+    }
 });
 
 
@@ -221,7 +305,7 @@ $('#btnAgregarCompra').on('click', function () {
         parseInt($("#txtIdTienda").val()) == 0 ||
         parseInt($("#txtIdProducto").val()) == 0 ||
         parseFloat($("#txtCantidadProducto").val()) == 0 ||
-        parseFloat($("#txtPrecioCompraProducto").val()) == 0
+        desformatearPrecio($("#txtPrecioCompraProducto").val()) == 0
     ) {
         swal("Mensaje", "Debe completar todos los campos", "warning")
         return;
@@ -239,6 +323,10 @@ $('#btnAgregarCompra').on('click', function () {
     });
 
     if (!existe_codigo) {
+        var cantidad = parseFloat($("#txtCantidadProducto").val());
+        var precioUnitario = desformatearPrecio($("#txtPrecioCompraProducto").val());
+        var total = cantidad * precioUnitario;
+
         $("<tr>").append(
             $("<td>").append(
                 $("<button>").addClass("btn btn-danger btn-sm").text("Eliminar")
@@ -247,15 +335,19 @@ $('#btnAgregarCompra').on('click', function () {
             $("<td>").append($("#txtRucTienda").val()),
             $("<td>").addClass("codigoproducto").data("idproducto", $("#txtIdProducto").val()).append($("#txtCodigoProducto").val()),
             $("<td>").append($("#txtNombreProducto").val()),
-            $("<td>").addClass("cantidad").append($("#txtCantidadProducto").val()),
-            $("<td>").addClass("preciocompra").append($("#txtPrecioCompraProducto").val())
+            $("<td>").addClass("cantidad").append(cantidad),
+            $("<td>").addClass("preciocompra").data("precio", precioUnitario).append(formatearPrecio(precioUnitario)),
+            $("<td>").addClass("totalproducto").data("total", total).append(formatearPrecio(total))
         ).appendTo("#tbCompra tbody");
+
+        // Actualizar total general
+        actualizarTotalGeneral();
 
         $("#txtIdProducto").val("0");
         $("#txtCodigoProducto").val("");
         $("#txtNombreProducto").val("");
         $("#txtCantidadProducto").val("0");
-        $("#txtPrecioCompraProducto").val("0");
+        $("#txtPrecioCompraProducto").val("$0,00");
 
     } else {
         swal("Mensaje", "El producto ya existe en la compra", "warning")
@@ -264,7 +356,26 @@ $('#btnAgregarCompra').on('click', function () {
 
 $('#tbCompra tbody').on('click', 'button[class="btn btn-danger btn-sm"]', function () {
     $(this).parents("tr").remove();
+    actualizarTotalGeneral();
 })
+
+// Función para actualizar el total general
+function actualizarTotalGeneral() {
+    var totalGeneral = 0;
+    $('#tbCompra > tbody > tr').each(function() {
+        var total = parseFloat($(this).find('td.totalproducto').data('total')) || 0;
+        totalGeneral += total;
+    });
+    
+    // Actualizar o crear fila de total
+    $('#totalGeneralRow').remove();
+    if ($('#tbCompra > tbody > tr').length > 0) {
+        $("<tr id='totalGeneralRow'>").append(
+            $("<td colspan='7' class='text-right'>").html("<strong>TOTAL GENERAL:</strong>"),
+            $("<td colspan='1'>").html("<strong>" + formatearPrecio(totalGeneral) + "</strong>")
+        ).appendTo("#tbCompra tbody");
+    }
+}
 
 
 
@@ -294,27 +405,40 @@ $('#btnTerminarGuardarCompra').on('click', function () {
     $('#tbCompra > tbody  > tr').each(function (index, tr) {
 
         var fila = tr;
+        // Saltar la fila del total general
+        if ($(fila).attr('id') === 'totalGeneralRow') {
+            return true; // continue
+        }
+        
         var idproducto = parseFloat($(fila).find("td.codigoproducto").data("idproducto"));
         var cantidad = parseFloat($(fila).find("td.cantidad").text());
-        var preciocompra = parseFloat($(fila).find("td.preciocompra").text());
+        var preciocompra = parseFloat($(fila).find("td.preciocompra").data("precio"));
         var totalcosto = parseFloat(cantidad) * parseFloat(preciocompra);
+
+        // Debug: verificar valores
+        console.log("Producto ID:", idproducto);
+        console.log("Cantidad:", cantidad);
+        console.log("Precio Compra:", preciocompra);
+        console.log("Total Costo:", totalcosto);
 
         detalle = detalle + "<DETALLE>" +
             "<IdCompra>0</IdCompra>" +
             "<IdProducto>" + idproducto + "</IdProducto>" +
             "<Cantidad>" + cantidad + "</Cantidad>" +
-            "<PrecioUnidadCompra>" + preciocompra + "</PrecioUnidadCompra>" +
+            "<PrecioUnidadCompra>" + preciocompra.toFixed(2) + "</PrecioUnidadCompra>" +
             "<PrecioUnidadVenta>0</PrecioUnidadVenta>" +
-            "<TotalCosto>" + totalcosto.toString() + "</TotalCosto>" +
+            "<TotalCosto>" + totalcosto.toFixed(2) + "</TotalCosto>" +
             "</DETALLE>";
         totalcostocompra = totalcostocompra + totalcosto;
 
     });
 
-    compra = compra.replace("!totalcosto¡", totalcostocompra.toString());
+    // Asegurar formato decimal correcto (punto como separador)
+    compra = compra.replace("!totalcosto¡", totalcostocompra.toFixed(2));
     $xml = $xml + compra + detallecompra + detalle + "</DETALLE_COMPRA></DETALLE>";
 
-    // Enviar XML directamente como parametro
+    // Debug: verificar total
+    console.log("Total Costo Compra:", totalcostocompra.toFixed(2));
     console.log("XML a enviar:", $xml);
 
     jQuery.ajax({
@@ -326,6 +450,25 @@ $('#btnTerminarGuardarCompra').on('click', function () {
             $.LoadingOverlay("hide");
 
             if (data.resultado) {
+                // Construir mensaje con detalles
+                var mensaje = "Orden de compra registrada exitosamente\n\n";
+                mensaje += "Proveedor: " + $("#txtRazonSocialProveedor").val() + "\n";
+                mensaje += "Tienda: " + $("#txtNombreTienda").val() + "\n\n";
+                mensaje += "Detalle de productos:\n";
+                
+                $('#tbCompra > tbody > tr').each(function() {
+                    if ($(this).attr('id') !== 'totalGeneralRow') {
+                        var codigo = $(this).find('td.codigoproducto').text();
+                        var nombre = $(this).find('td').eq(4).text();
+                        var cantidad = $(this).find('td.cantidad').text();
+                        var precio = $(this).find('td.preciocompra').text();
+                        var total = $(this).find('td.totalproducto').text();
+                        mensaje += "• " + nombre + " (" + codigo + ")\n";
+                        mensaje += "  Cantidad: " + cantidad + " | Precio Unit.: " + precio + " | Total: " + total + "\n";
+                    }
+                });
+                
+                mensaje += "\nTOTAL: " + formatearPrecio(totalcostocompra);
 
                 //PROVEEDOR
                 $("#txtIdProveedor").val("0");
@@ -342,11 +485,11 @@ $('#btnTerminarGuardarCompra').on('click', function () {
                 $("#txtCodigoProducto").val("");
                 $("#txtNombreProducto").val("");
                 $("#txtCantidadProducto").val("0");
-                $("#txtPrecioCompraProducto").val("0");
+                $("#txtPrecioCompraProducto").val("$0,00");
 
                 $("#tbCompra tbody").html("");
 
-                swal("Mensaje", "Se registro la compra", "success")
+                swal("Orden de Compra Registrada", mensaje, "success")
             } else {
 
                 swal("Mensaje", "No se pudo registrar la compra", "warning")

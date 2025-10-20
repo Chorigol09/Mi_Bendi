@@ -1,4 +1,4 @@
-﻿/* ====== NAVBAR MINIMALISTA ====== */
+/* ====== NAVBAR MINIMALISTA ====== */
 .navbar.bg-info,
 .bg-info.navbar,
 .navbar.navbar-inverse.bg-info,
@@ -320,4 +320,25 @@ footer {
     left: 0;
     width: 100%;
     font-size: 14px;
+}
+
+/* ====== TABLA DE COMPRAS - FILA TOTAL ====== */
+#tbCompra #totalGeneralRow {
+    background-color: #E3F2FD !important;
+    border-top: 2px solid #1E88E5 !important;
+    font-weight: bold;
+}
+
+#tbCompra #totalGeneralRow td {
+    font-size: 1.05em;
+    padding: 12px 8px !important;
+    vertical-align: middle;
+}
+
+/* Formato de precios en tabla */
+#tbCompra td.preciocompra,
+#tbCompra td.totalproducto {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
 }

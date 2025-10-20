@@ -179,7 +179,7 @@ namespace CapaDatos
                             oProveedor = new Proveedor() { RazonSocial = dr["RazonSocial"].ToString() },
                             oTienda = new Tienda() { Nombre = dr["Nombre"].ToString() },
                             FechaCompra = dr["FechaCompra"].ToString(),
-                            TotalCosto = Convert.ToDecimal(dr["TotalCosto"].ToString(), new CultureInfo("es-PE")),
+                            TotalCosto = Convert.ToDecimal(dr["TotalCosto"]),
                             Estado = dr["Estado"].ToString(),
                             CantidadProductos = Convert.ToInt32(dr["CantidadProductos"].ToString()),
                             Productos = dr["Productos"] != DBNull.Value ? dr["Productos"].ToString() : ""
