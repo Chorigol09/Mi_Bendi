@@ -24,6 +24,13 @@ namespace VentasWeb.Controllers
         }
 
         [HttpGet]
+        public JsonResult ObtenerTiposMov()
+        {
+            List<TipoMov> lista = CD_TipoMov.Instancia.ObtenerTiposMov();
+            return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public JsonResult ObtenerAgrupados(int idTienda = 0)
         {
             List<MovimientoStock> lista = CD_MovimientoStock.Instancia.ObtenerMovimientos(idTienda);
@@ -37,7 +44,9 @@ namespace VentasWeb.Controllers
                     FechaRegistro = g.First().FechaRegistro,
                     oTienda = g.First().oTienda,
                     TipoMovimiento = g.First().TipoMovimiento,
+                    oTipoMov = g.First().oTipoMov,
                     Motivo = g.First().Motivo,
+                    NumeroRemito = g.First().NumeroRemito,
                     oUsuario = g.First().oUsuario,
                     CantidadProductos = g.Count(),
                     ProductosResumen = string.Join(", ", g.Take(2).Select(m => m.oProducto.Nombre)) + (g.Count() > 2 ? "..." : ""),
@@ -90,7 +99,7 @@ namespace VentasWeb.Controllers
                     return Json(new { resultado = false, mensaje = "La cantidad debe ser mayor a cero" }, JsonRequestBehavior.AllowGet);
                 }
 
-                if (string.IsNullOrEmpty(objeto.TipoMovimiento))
+                if (objeto.oTipoMov == null || objeto.oTipoMov.IdTipoMov == 0)
                 {
                     return Json(new { resultado = false, mensaje = "Debe seleccionar un tipo de movimiento" }, JsonRequestBehavior.AllowGet);
                 }

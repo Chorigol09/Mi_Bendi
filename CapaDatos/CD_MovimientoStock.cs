@@ -61,8 +61,15 @@ namespace CapaDatos
                                 Nombre = dr["NombreProducto"].ToString()
                             },
                             TipoMovimiento = dr["TipoMovimiento"].ToString(),
+                            oTipoMov = new TipoMov()
+                            {
+                                IdTipoMov = Convert.ToInt32(dr["IdTipoMov"].ToString()),
+                                Descripcion = dr["DescripcionTipoMov"].ToString(),
+                                TipoOperacion = dr["TipoOperacion"].ToString()
+                            },
                             Cantidad = Convert.ToInt32(dr["Cantidad"].ToString()),
                             Motivo = dr["Motivo"].ToString(),
+                            NumeroRemito = dr["NumeroRemito"] != DBNull.Value ? dr["NumeroRemito"].ToString() : null,
                             oUsuario = new Usuario()
                             {
                                 IdUsuario = Convert.ToInt32(dr["IdUsuario"].ToString()),
@@ -96,11 +103,12 @@ namespace CapaDatos
                     SqlCommand cmd = new SqlCommand("usp_RegistrarMovimientoStock", oConexion);
                     cmd.Parameters.AddWithValue("IdTienda", oMovimiento.oTienda.IdTienda);
                     cmd.Parameters.AddWithValue("IdProducto", oMovimiento.oProducto.IdProducto);
-                    cmd.Parameters.AddWithValue("TipoMovimiento", oMovimiento.TipoMovimiento);
+                    cmd.Parameters.AddWithValue("IdTipoMov", oMovimiento.oTipoMov.IdTipoMov);
                     cmd.Parameters.AddWithValue("Cantidad", oMovimiento.Cantidad);
                     cmd.Parameters.AddWithValue("Motivo", oMovimiento.Motivo);
                     cmd.Parameters.AddWithValue("IdUsuario", oMovimiento.oUsuario.IdUsuario);
                     cmd.Parameters.AddWithValue("IdLote", oMovimiento.IdLote ?? string.Empty);
+                    cmd.Parameters.AddWithValue("NumeroRemito", (object)oMovimiento.NumeroRemito ?? DBNull.Value);
                     cmd.Parameters.Add("Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
 

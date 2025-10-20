@@ -1,4 +1,4 @@
-﻿
+
 var tablaMovimientos;
 var tablaProductos;
 var productoSeleccionado = null;
@@ -7,11 +7,24 @@ var detalleMovimiento = [];
 $(document).ready(function () {
     activarMenu("Inventario");
 
-    // Cargar tiendas en los combos
+    // Cargar tiendas y tipos de movimiento
     cargarTiendas();
+    cargarTiposMov();
 
     // Inicializar tabla de detalle
     actualizarTablaDetalle();
+
+    // Detectar cambio en tipo de movimiento para mostrar/ocultar número de remito
+    $("#cboTipoMovimiento").on('change', function() {
+        var selectedText = $(this).find('option:selected').text();
+        if (selectedText.toLowerCase().includes('recepcion de remito') || selectedText.toLowerCase().includes('recepción de remito')) {
+            $("#divNumeroRemito").show();
+            $("#colMotivo").removeClass('col-sm-4').addClass('col-sm-3');
+        } else {
+            $("#divNumeroRemito").hide();
+            $("#colMotivo").removeClass('col-sm-3').addClass('col-sm-4');
+        }
+    });
 
     // Validacion del formulario
     $("#formMovimiento").validate({
@@ -74,11 +87,12 @@ $(document).ready(function () {
                 }
             },
             {
-                "data": "TipoMovimiento", "render": function (data) {
+                "data": "TipoMovimiento", "render": function (data, type, row) {
+                    var descripcion = row.oTipoMov ? row.oTipoMov.Descripcion : data;
                     if (data === "Ingreso") {
-                        return '<span class="badge badge-success"><i class="fa fa-arrow-up"></i> Ingreso</span>';
+                        return '<span class="badge badge-success"><i class="fa fa-arrow-down"></i> ' + descripcion + '</span>';
                     } else {
-                        return '<span class="badge badge-danger"><i class="fa fa-arrow-down"></i> Egreso</span>';
+                        return '<span class="badge badge-danger"><i class="fa fa-arrow-up"></i> ' + descripcion + '</span>';
                     }
                 }
             },
@@ -125,6 +139,34 @@ $(document).ready(function () {
         responsive: true
     });
 });
+
+function cargarTiposMov() {
+    jQuery.ajax({
+        url: $.MisUrls.url._ObtenerTiposMov,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            $("#cboTipoMovimiento").html("");
+            $("#cboTipoMovimiento").append('<option value="0">-- Seleccione --</option>');
+
+            $.each(data.data, function (i, item) {
+                if (item.Activo) {
+                    var icono = item.TipoOperacion === 'Ingreso' ? '↓' : '↑';
+                    $("#cboTipoMovimiento").append(
+                        '<option value="' + item.IdTipoMov + '" data-tipo="' + item.TipoOperacion + '">' + 
+                        icono + ' ' + item.Descripcion + ' (' + item.TipoOperacion + ')' + 
+                        '</option>'
+                    );
+                }
+            });
+        },
+        error: function (error) {
+            console.log(error);
+            swal("Error", "No se pudieron cargar los tipos de movimiento", "error");
+        }
+    });
+}
 
 function cargarTiendas() {
     jQuery.ajax({
@@ -201,7 +243,7 @@ function seleccionarProducto(producto) {
 $('#btnAgregarProducto').on('click', function () {
     var idTienda = parseInt($("#cboTienda").val());
     var idProducto = parseInt($("#txtIdProducto").val());
-    var tipoMovimiento = $("#cboTipoMovimiento").val();
+    var idTipoMov = parseInt($("#cboTipoMovimiento").val());
     var cantidad = parseInt($("#txtCantidad").val());
 
     // Validaciones
@@ -209,10 +251,20 @@ $('#btnAgregarProducto').on('click', function () {
         swal("Mensaje", "Debe seleccionar una tienda", "warning");
         return;
     }
-    if (!tipoMovimiento) {
+    if (idTipoMov == 0) {
         swal("Mensaje", "Debe seleccionar un tipo de movimiento", "warning");
         return;
     }
+    
+    // Si ya hay productos, verificar que el tipo de movimiento sea el mismo
+    if (detalleMovimiento.length > 0) {
+        var primerIdTipoMov = detalleMovimiento[0].IdTipoMov;
+        if (primerIdTipoMov !== idTipoMov) {
+            swal("Mensaje", "El tipo de movimiento debe ser el mismo para todos los productos del registro", "warning");
+            return;
+        }
+    }
+    
     if (idProducto == 0) {
         swal("Mensaje", "Debe seleccionar un producto", "warning");
         return;
@@ -229,13 +281,25 @@ $('#btnAgregarProducto').on('click', function () {
         return;
     }
 
-    // Agregar al array (sin motivo individual)
+    // Agregar al array
     detalleMovimiento.push({
         IdProducto: idProducto,
+        IdTipoMov: idTipoMov,
         Codigo: productoSeleccionado.Codigo,
         Nombre: productoSeleccionado.Nombre,
         Cantidad: cantidad
     });
+    
+    // Deshabilitar cambio de configuración si ya hay productos
+    if (detalleMovimiento.length > 0) {
+        $("#cboTipoMovimiento").prop('disabled', true);
+        $("#cboTienda").prop('disabled', true);
+        $("#txtMotivo").prop('readonly', true);
+        $("#txtNumeroRemito").prop('readonly', true);
+        // Cambiar estilo visual para indicar bloqueo
+        $(".card.border-primary .card-header").removeClass("bg-primary").addClass("bg-secondary");
+        $(".card.border-primary .card-header i").removeClass("fa-lock").addClass("fa-lock");
+    }
 
     // Actualizar tabla
     actualizarTablaDetalle();
@@ -271,6 +335,16 @@ function actualizarTablaDetalle() {
 function eliminarProducto(index) {
     detalleMovimiento.splice(index, 1);
     actualizarTablaDetalle();
+    
+    // Habilitar cambios si no quedan productos
+    if (detalleMovimiento.length === 0) {
+        $("#cboTipoMovimiento").prop('disabled', false);
+        $("#cboTienda").prop('disabled', false);
+        $("#txtMotivo").prop('readonly', false);
+        $("#txtNumeroRemito").prop('readonly', false);
+        // Restaurar estilo visual
+        $(".card.border-primary .card-header").removeClass("bg-secondary").addClass("bg-primary");
+    }
 }
 
 $('#btnGuardarMovimiento').on('click', function () {
@@ -279,7 +353,7 @@ $('#btnGuardarMovimiento').on('click', function () {
 
 function guardarMovimiento() {
     var idTienda = parseInt($("#cboTienda").val());
-    var tipoMovimiento = $("#cboTipoMovimiento").val();
+    var idTipoMov = parseInt($("#cboTipoMovimiento").val());
     var motivo = $("#txtMotivo").val();
 
     // Validaciones
@@ -288,7 +362,7 @@ function guardarMovimiento() {
         return;
     }
 
-    if (!tipoMovimiento) {
+    if (idTipoMov == 0) {
         swal("Mensaje", "Debe seleccionar un tipo de movimiento", "warning");
         return;
     }
@@ -315,20 +389,23 @@ function guardarMovimiento() {
         closeOnConfirm: false
     }, function (isConfirm) {
         if (isConfirm) {
-            guardarMovimientos(idTienda, tipoMovimiento, motivo);
+            guardarMovimientos(idTienda, idTipoMov, motivo);
         }
     });
 }
 
-function guardarMovimientos(idTienda, tipoMovimiento, motivo) {
+function guardarMovimientos(idTienda, idTipoMov, motivo) {
     console.log("Iniciando guardado de movimientos...");
     console.log("IdTienda:", idTienda);
-    console.log("TipoMovimiento:", tipoMovimiento);
+    console.log("IdTipoMov:", idTipoMov);
     console.log("Total productos:", detalleMovimiento.length);
     
     // Generar IdLote unico para este grupo de movimientos
     var idLote = "LOTE_" + Date.now();
     console.log("IdLote generado:", idLote);
+    
+    // Obtener número de remito si está visible
+    var numeroRemito = $("#divNumeroRemito").is(':visible') ? $("#txtNumeroRemito").val() : null;
     
     var movimientosGuardados = 0;
     var movimientosError = 0;
@@ -340,9 +417,10 @@ function guardarMovimientos(idTienda, tipoMovimiento, motivo) {
             objeto: {
                 oTienda: { IdTienda: idTienda },
                 oProducto: { IdProducto: item.IdProducto },
-                TipoMovimiento: tipoMovimiento,
+                oTipoMov: { IdTipoMov: idTipoMov },
                 Cantidad: item.Cantidad,
                 Motivo: motivo,
+                NumeroRemito: numeroRemito,
                 IdLote: idLote
             }
         };
@@ -396,15 +474,19 @@ $('#btnLimpiar').on('click', function () {
 });
 
 function limpiarFormulario() {
-    $("#cboTienda").val("0");
-    $("#cboTipoMovimiento").val("");
+    $("#cboTienda").val("0").prop('disabled', false);
+    $("#cboTipoMovimiento").val("0").prop('disabled', false);
+    $("#txtMotivo").val("").prop('readonly', false);
+    $("#txtNumeroRemito").val("").prop('readonly', false);
+    $("#divNumeroRemito").hide();
     $("#txtIdProducto").val("0");
     $("#txtProducto").val("");
     $("#txtCantidad").val("1");
-    $("#txtMotivo").val("");
     productoSeleccionado = null;
     detalleMovimiento = [];
     actualizarTablaDetalle();
+    // Restaurar estilo visual
+    $(".card.border-primary .card-header").removeClass("bg-secondary").addClass("bg-primary");
     $("#formMovimiento").validate().resetForm();
 }
 
@@ -446,6 +528,25 @@ function verDetalleLote(idLote) {
                 
                 $("#detalleFecha").text(dia + '/' + mes + '/' + anio + ' ' + hora + ':' + min);
                 $("#detalleUsuario").text(primerMovimiento.oUsuario.Nombres);
+                
+                // Mostrar tipo de movimiento con icono y badge
+                var tipoMov = primerMovimiento.oTipoMov ? primerMovimiento.oTipoMov.Descripcion : primerMovimiento.TipoMovimiento;
+                var tipoOperacion = primerMovimiento.oTipoMov ? primerMovimiento.oTipoMov.TipoOperacion : primerMovimiento.TipoMovimiento;
+                var badgeClass = tipoOperacion === 'Ingreso' ? 'badge-success' : 'badge-danger';
+                var icono = tipoOperacion === 'Ingreso' ? '↓' : '↑';
+                $("#detalleTipoMovimiento").html('<span class="badge ' + badgeClass + '">' + icono + ' ' + tipoMov + '</span>');
+                
+                // Mostrar número de remito si existe
+                console.log("NumeroRemito:", primerMovimiento.NumeroRemito);
+                if (primerMovimiento.NumeroRemito && primerMovimiento.NumeroRemito !== null && primerMovimiento.NumeroRemito.trim() !== '') {
+                    $("#detalleNumeroRemito").text(primerMovimiento.NumeroRemito);
+                    $("#detalleRemitoRow").show();
+                    console.log("Mostrando número de remito:", primerMovimiento.NumeroRemito);
+                } else {
+                    $("#detalleRemitoRow").hide();
+                    console.log("Ocultando número de remito - valor:", primerMovimiento.NumeroRemito);
+                }
+                
                 $("#detalleMotivo").text(primerMovimiento.Motivo);
                 
                 // Llenar tabla de productos

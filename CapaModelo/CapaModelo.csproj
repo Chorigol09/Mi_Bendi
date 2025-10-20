@@ -71,6 +71,7 @@
     <Compile Include="Rol.cs" />
     <Compile Include="SubMenu.cs" />
     <Compile Include="Tienda.cs" />
+    <Compile Include="TipoMov.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="Venta.cs" />
   </ItemGroup>
