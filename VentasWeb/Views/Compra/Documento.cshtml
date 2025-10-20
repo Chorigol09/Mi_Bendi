@@ -1,4 +1,4 @@
-﻿@model CapaModelo.Compra
+@model CapaModelo.Compra
 @{
     Layout = null;
 }
@@ -139,8 +139,8 @@
                                     <tr>
                                         <td>@Html.DisplayFor(modelItem => item.Cantidad)</td>
                                         <td>@Html.DisplayFor(modelItem => item.oProducto.Nombre)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.PrecioUnitarioCompra)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.TotalCosto)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.TextoPrecioUnitarioCompra)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.TextoTotalCosto)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -152,8 +152,8 @@
                         <table style="font-weight: bold; width: 150px;">
                             <tbody>
                                 <tr>
-                                    <td>Total S/.</td>
-                                    <td style="border:1px solid black;"><span>@Html.DisplayTextFor(model => model.TotalCosto)</span></td>
+                                    <td>Total</td>
+                                    <td style="border:1px solid black;"><span>@Html.DisplayTextFor(model => model.TextoTotalCosto)</span></td>
                                 </tr>
                             </tbody>
                         </table>

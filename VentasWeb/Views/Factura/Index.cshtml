@@ -118,7 +118,12 @@
                     {
                         "data": "Total",
                         "render": function (data) {
-                            return "S./ " + (data || 0).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+                            // Formatear como $X.XXX,XX (punto para miles, coma para decimales)
+                            var numero = parseFloat(data || 0).toFixed(2);
+                            var partes = numero.split('.');
+                            var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            var decimal = partes[1];
+                            return "$" + entero + "," + decimal;
                         }
                     },
                     {

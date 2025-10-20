@@ -19,62 +19,81 @@
             </div>
             <div class="card-body">
                 <form id="formMovimiento">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label for="cboTienda">Tienda <span class="text-danger">(*)</span></label>
-                                <select class="form-control form-control-sm" id="cboTienda" name="IdTienda">
-                                    <option value="0">-- Seleccione Tienda --</option>
-                                </select>
-                            </div>
+                    <!-- SECCION FIJA: Tienda y Tipo de Movimiento -->
+                    <div class="card border-primary mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fa fa-lock"></i> Configuracion del Movimiento
                         </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label for="cboTipoMovimiento">Tipo de Movimiento <span class="text-danger">(*)</span></label>
-                                <select class="form-control form-control-sm" id="cboTipoMovimiento" name="TipoMovimiento">
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="Ingreso">Ingreso</option>
-                                    <option value="Egreso">Egreso</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label for="txtProducto">Producto <span class="text-danger">(*)</span></label>
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control form-control-sm" id="txtProducto" readonly placeholder="Seleccione un producto">
-                                    <input type="hidden" id="txtIdProducto" name="IdProducto" value="0">
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary btn-sm" id="btnBuscarProducto">
-                                            <i class="fa fa-search"></i>
-                                        </button>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="cboTienda">Tienda <span class="text-danger">(*)</span></label>
+                                        <select class="form-control form-control-sm" id="cboTienda" name="IdTienda">
+                                            <option value="0">-- Seleccione Tienda --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="cboTipoMovimiento">Tipo de Movimiento <span class="text-danger">(*)</span></label>
+                                        <select class="form-control form-control-sm" id="cboTipoMovimiento" name="IdTipoMov">
+                                            <option value="0">-- Seleccione --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3" id="divNumeroRemito" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="txtNumeroRemito">Numero de Remito <span class="text-danger">(*)</span></label>
+                                        <input type="text" class="form-control form-control-sm" id="txtNumeroRemito" name="NumeroRemito" placeholder="Ej: REM-20251020-001">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3" id="colMotivo">
+                                    <div class="form-group">
+                                        <label for="txtMotivo">Motivo del Movimiento <span class="text-danger">(*)</span></label>
+                                        <input type="text" class="form-control form-control-sm" id="txtMotivo" name="Motivo" placeholder="Ej: Ajuste de inventario, devolucion, etc.">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="txtMotivo">Motivo del Movimiento <span class="text-danger">(*)</span></label>
-                                <input type="text" class="form-control form-control-sm" id="txtMotivo" name="Motivo" placeholder="Ej: Ajuste de inventario, devolucion, etc.">
-                                <small class="form-text text-muted">Este motivo se aplicara a todos los productos de este registro</small>
-                            </div>
+
+                    <!-- SECCION VARIABLE: Productos -->
+                    <div class="card border-success mb-3">
+                        <div class="card-header bg-success text-white">
+                            <i class="fa fa-box"></i> Agregar Productos
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label for="txtCantidad">Cantidad <span class="text-danger">(*)</span></label>
-                                <input type="number" class="form-control form-control-sm" id="txtCantidad" name="Cantidad" min="1" value="1">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="txtProducto">Producto <span class="text-danger">(*)</span></label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control form-control-sm" id="txtProducto" readonly placeholder="Seleccione un producto">
+                                            <input type="hidden" id="txtIdProducto" name="IdProducto" value="0">
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-primary btn-sm" id="btnBuscarProducto">
+                                                    <i class="fa fa-search"></i> Buscar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="txtCantidad">Cantidad <span class="text-danger">(*)</span></label>
+                                        <input type="number" class="form-control form-control-sm" id="txtCantidad" name="Cantidad" min="1" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <button type="button" class="btn btn-primary btn-sm btn-block" id="btnAgregarProducto">
+                                            <i class="fa fa-plus"></i> Agregar Producto
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <button type="button" class="btn btn-primary btn-sm" id="btnAgregarProducto">
-                                <i class="fa fa-plus"></i> Agregar Producto
-                            </button>
                         </div>
                     </div>
                     <hr />
@@ -141,7 +160,7 @@
                                     <th>Tienda</th>
                                     <th>Productos</th>
                                     <th>Cantidad</th>
-                                    <th>Tipo</th>
+                                    <th>Tipo Movimiento</th>
                                     <th>Motivo</th>
                                     <th>Usuario</th>
                                     <th></th>
@@ -207,6 +226,16 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-sm-12">
+                        <strong>Tipo de Movimiento:</strong> <span id="detalleTipoMovimiento"></span>
+                    </div>
+                </div>
+                <div class="row mb-3" id="detalleRemitoRow" style="display:none;">
+                    <div class="col-sm-12">
+                        <strong>Numero de Remito:</strong> <span id="detalleNumeroRemito"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-12">
                         <strong>Motivo:</strong> <span id="detalleMotivo"></span>
                     </div>
                 </div>
@@ -231,5 +260,5 @@
 </div>
 
 @section scripts{
-    <script src="@Url.Content("~/Scripts/Views/MovimientoStock_Crear.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/Views/MovimientoStock_Crear.js?v=9")" type="text/javascript"></script>
 }

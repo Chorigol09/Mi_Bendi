@@ -1,4 +1,4 @@
-﻿/* REEMPLAZO COMPLETO: Scripts/Views/Reporte_Producto.js */
+/* REEMPLAZO COMPLETO: Scripts/Views/Reporte_Producto.js */
 console.log("Reporte_Producto.js v8 cargado");
 
 (function () {
@@ -62,7 +62,17 @@ console.log("Reporte_Producto.js v8 cargado");
                     var idProdTienda = r.IdProductoTienda;
                     var idTnd = r.IdTienda;
                     var pv = r.PrecioVenta || 0;
-                    var precioDisplay = pv > 0 ? 'S./ ' + pv.toFixed(2) : '<span class="text-muted">Sin precio</span>';
+                    var precioDisplay;
+                    if (pv > 0) {
+                        // Formatear como $X.XXX,XX (punto para miles, coma para decimales)
+                        var numero = pv.toFixed(2);
+                        var partes = numero.split('.');
+                        var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                        var decimal = partes[1];
+                        precioDisplay = "$" + entero + "," + decimal;
+                    } else {
+                        precioDisplay = '<span class="text-muted">Sin precio</span>';
+                    }
 
                     var downDisabled = stock <= 0 ? "disabled" : "";
 

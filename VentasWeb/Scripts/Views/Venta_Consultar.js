@@ -1,4 +1,4 @@
-﻿
+
 var tabladata;
 
 
@@ -58,8 +58,12 @@ $(document).ready(function () {
             },
             {
                 "data": "TotalCosto", render: function (data) {
-
-                    return "S./ " + (data).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+                    // Formatear como $X.XXX,XX (punto para miles, coma para decimales)
+                    var numero = parseFloat(data).toFixed(2);
+                    var partes = numero.split('.');
+                    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    var decimal = partes[1];
+                    return "$" + entero + "," + decimal;
                 }
             },
 

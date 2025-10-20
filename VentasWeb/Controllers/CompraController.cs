@@ -25,10 +25,37 @@ namespace VentasWeb.Controllers
             
             Compra oCompra = CD_Compra.Instancia.ObtenerDetalleCompra(idcompra);
 
+            // Configurar formato: $X.XXX,XX (punto para miles, coma para decimales)
+            System.Globalization.NumberFormatInfo formato = new System.Globalization.CultureInfo("es-AR").NumberFormat;
+            formato.NumberGroupSeparator = ".";
+            formato.NumberDecimalSeparator = ",";
+            formato.NumberDecimalDigits = 2;
+
             if (oCompra == null) {
                 oCompra = new Compra();
+            } else {
+                // Formatear el total
+                oCompra.TextoTotalCosto = "$" + oCompra.TotalCosto.ToString("N", formato);
+                
+                // Formatear los detalles
+                if (oCompra.oListaDetalleCompra != null) {
+                    oCompra.oListaDetalleCompra = (from dc in oCompra.oListaDetalleCompra
+                                                   select new DetalleCompra()
+                                                   {
+                                                       IdDetalleCompra = dc.IdDetalleCompra,
+                                                       IdCompra = dc.IdCompra,
+                                                       oProducto = dc.oProducto,
+                                                       Cantidad = dc.Cantidad,
+                                                       PrecioUnitarioCompra = dc.PrecioUnitarioCompra,
+                                                       TextoPrecioUnitarioCompra = "$" + dc.PrecioUnitarioCompra.ToString("N", formato),
+                                                       PrecioUnitarioVenta = dc.PrecioUnitarioVenta,
+                                                       TotalCosto = dc.TotalCosto,
+                                                       TextoTotalCosto = "$" + dc.TotalCosto.ToString("N", formato),
+                                                       Activo = dc.Activo,
+                                                       FechaRegistro = dc.FechaRegistro
+                                                   }).ToList();
+                }
             }
-
 
             return View(oCompra);
         }

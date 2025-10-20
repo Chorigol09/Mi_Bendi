@@ -1,4 +1,4 @@
-﻿
+
 var tabladata;
 var tablatienda;
 var tablaproducto;
@@ -97,7 +97,12 @@ $(document).ready(function () {
                 "data": "PrecioUnidadVenta", 
                 "render": function (data) { 
                     if (data && data > 0) {
-                        return "S./ " + parseFloat(data).toFixed(2);
+                        // Formatear como $X.XXX,XX (punto para miles, coma para decimales)
+                        var numero = parseFloat(data).toFixed(2);
+                        var partes = numero.split('.');
+                        var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                        var decimal = partes[1];
+                        return "$" + entero + "," + decimal;
                     }
                     return '<span class="text-muted">Sin precio</span>';
                 }

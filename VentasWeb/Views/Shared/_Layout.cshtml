@@ -1,4 +1,4 @@
-﻿@using VentasWeb.Helpers
+@using VentasWeb.Helpers
 <!DOCTYPE html>
 <html>
 <head>
@@ -172,6 +172,7 @@
         $.MisUrls.urls({ _ObtenerMovimientosAgrupados: '@Url.Action("ObtenerAgrupados", "MovimientoStock")' });
         $.MisUrls.urls({ _GuardarMovimiento: '@Url.Action("Guardar", "MovimientoStock")' });
         $.MisUrls.urls({ _ObtenerProductosPorTienda: '@Url.Action("ObtenerProductosPorTienda", "MovimientoStock")' });
+        $.MisUrls.urls({ _ObtenerTiposMov: '@Url.Action("ObtenerTiposMov", "MovimientoStock")' });
 
         //lenguaje espanol datatable
         $.MisUrls.urls({ Url_datatable_spanish: '@Url.Content("~/content/plugins/datatables/js/datatable_spanish.json")' });
