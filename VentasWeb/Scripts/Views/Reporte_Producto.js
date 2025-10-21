@@ -1,5 +1,5 @@
 /* REEMPLAZO COMPLETO: Scripts/Views/Reporte_Producto.js */
-console.log("Reporte_Producto.js v8 cargado");
+console.log("Reporte_Producto.js v10 cargado - Sin columna Editar Stock");
 
 (function () {
 
@@ -74,8 +74,6 @@ console.log("Reporte_Producto.js v8 cargado");
                         precioDisplay = '<span class="text-muted">Sin precio</span>';
                     }
 
-                    var downDisabled = stock <= 0 ? "disabled" : "";
-
                     // Escapar comillas para JSON
                     var rowData = {
                         IdProductoTienda: idProdTienda,
@@ -104,14 +102,6 @@ console.log("Reporte_Producto.js v8 cargado");
                         'title="Modificar Precio">' +
                         '<i class="fas fa-edit"></i> Modificar' +
                         '</button>' +
-                        '</td>' +
-
-                        // --- Editar Stock (flechas) ---
-                        '<td>' +
-                        '<div class="btn-group btn-group-sm" role="group">' +
-                        '<button class="btn btn-outline-success btn-stock-up"  data-idproducto="' + idProd + '" data-idtienda="' + idTnd + '" title="Sumar 1"><i class="fas fa-arrow-up"></i></button>' +
-                        '<button class="btn btn-outline-danger  btn-stock-down" data-idproducto="' + idProd + '" data-idtienda="' + idTnd + '" ' + downDisabled + ' title="Restar 1"><i class="fas fa-arrow-down"></i></button>' +
-                        '</div>' +
                         '</td>' +
                         '</tr>';
 
@@ -169,50 +159,6 @@ console.log("Reporte_Producto.js v8 cargado");
                 console.log(error);
                 swal("Error", "Error al actualizar el precio", "error");
             }
-        });
-    });
-
-    // -------- editar stock (↑ ↓) --------
-    function postAjuste(idProducto, idTienda, delta) {
-        return $.ajax({
-            url: $.MisUrls.url._AjustarStock,
-            type: "POST",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ idProducto: idProducto, idTienda: idTienda, delta: delta })
-        });
-    }
-
-    // actualiza la celda visualmente y luego llama al servidor; si falla, revierte
-    $('#tbReporte').on('click', '.btn-stock-up, .btn-stock-down', function () {
-        var $btn = $(this);
-        var idP = $btn.data('idproducto');
-        var idT = $btn.data('idtienda');
-        var delta = $btn.hasClass('btn-stock-up') ? +1 : -1;
-
-        var $tr = $btn.closest('tr');
-        var $stockCell = $tr.find('.col-stock');
-        var actual = toNumberLoose($stockCell.text());
-        var nuevo = actual + delta;
-        if (nuevo < 0) return; // no bajo de 0
-
-        // optimista
-        $stockCell.text(nuevo);
-
-        postAjuste(idP, idT, delta).done(function (response) {
-            if (response.ok) {
-                // si quedo en 0, deshabilitar down
-                var $down = $tr.find('.btn-stock-down');
-                if (nuevo <= 0) $down.prop('disabled', true);
-                else $down.prop('disabled', false);
-            } else {
-                // revertir
-                $stockCell.text(actual);
-                alert(response.mensaje || "No se pudo ajustar el stock");
-            }
-        }).fail(function (xhr) {
-            // revertir
-            $stockCell.text(actual);
-            alert("Error al ajustar stock: " + (xhr.responseText || "Error desconocido"));
         });
     });
 

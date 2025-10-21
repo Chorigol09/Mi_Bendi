@@ -1,3 +1,4 @@
+console.log("✅ Producto_Asignar.js v1.0 cargado - Con formateo de precios corregido");
 
 var tabladata;
 var tablatienda;
@@ -134,6 +135,72 @@ $(document).ready(function () {
 
 })
 
+// Formatear precio en tiempo real en el modal
+$(document).on('input', '#txtNuevoPrecioVenta', function() {
+    var input = $(this);
+    var valor = input.val();
+    
+    // Remover todo excepto números y coma
+    var limpio = valor.replace(/[^0-9,]/g, '');
+    
+    // Si está vacío, mostrar $0,00
+    if (limpio === '' || limpio === '0') {
+        input.val('$0,00');
+        return;
+    }
+    
+    // Separar parte entera y decimal si hay coma
+    var partes = limpio.split(',');
+    var parteEntera = partes[0];
+    var parteDecimal = partes[1] || '';
+    
+    // Limitar decimales a 2 dígitos
+    if (parteDecimal.length > 2) {
+        parteDecimal = parteDecimal.substring(0, 2);
+    }
+    
+    // Agregar separador de miles a la parte entera
+    if (parteEntera.length > 0) {
+        parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    
+    // Construir valor formateado
+    var valorFormateado = '$' + (parteEntera || '0');
+    if (limpio.includes(',')) {
+        valorFormateado += ',' + parteDecimal;
+    }
+    
+    input.val(valorFormateado);
+});
+
+// Al enfocar, si es $0,00 limpiar el campo
+$(document).on('focus', '#txtNuevoPrecioVenta', function() {
+    if ($(this).val() === '$0,00') {
+        $(this).val('');
+    }
+});
+
+// Al perder el foco, completar con ,00 si no tiene decimales
+$(document).on('blur', '#txtNuevoPrecioVenta', function() {
+    var valor = $(this).val();
+    if (valor === '' || valor === '$') {
+        $(this).val('$0,00');
+        return;
+    }
+    
+    // Si no tiene decimales, agregar ,00
+    if (!valor.includes(',')) {
+        $(this).val(valor + ',00');
+    } else {
+        // Si tiene coma pero no tiene 2 decimales, completar
+        var partes = valor.split(',');
+        if (partes[1] && partes[1].length === 1) {
+            $(this).val(valor + '0');
+        } else if (partes[1] && partes[1].length === 0) {
+            $(this).val(valor + '00');
+        }
+    }
+});
 
 function buscarTienda() {
     tablatienda.ajax.reload();
@@ -261,18 +328,41 @@ function asignarProducto() {
 
 }
 
+// Funciones de formateo de precios (formato argentino: $X.XXX,XX)
+function formatearPrecio(valor) {
+    if (valor == null || valor === '') return '$0,00';
+    var numero = parseFloat(valor);
+    if (isNaN(numero)) return '$0,00';
+    
+    var partes = numero.toFixed(2).split('.');
+    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    var decimal = partes[1];
+    return '$' + entero + ',' + decimal;
+}
+
+function desformatearPrecio(valor) {
+    if (!valor) return 0;
+    // Remover $, puntos (separador de miles) y reemplazar coma por punto
+    var limpio = valor.toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.');
+    var numero = parseFloat(limpio);
+    return isNaN(numero) ? 0 : numero;
+}
 
 function abrirModalPrecio(row) {
     $("#txtIdProductoTiendaPrecio").val(row.IdProductoTienda);
     $("#txtProductoNombrePrecio").val(row.oProducto.Nombre);
     $("#txtTiendaNombrePrecio").val(row.oTienda.Nombre);
-    $("#txtNuevoPrecioVenta").val(row.PrecioUnidadVenta || '');
+    $("#txtNuevoPrecioVenta").val(formatearPrecio(row.PrecioUnidadVenta || 0));
     $('#modalPrecio').modal('show');
 }
 
 function guardarPrecioVenta() {
     var idProductoTienda = $("#txtIdProductoTiendaPrecio").val();
-    var nuevoPrecio = $("#txtNuevoPrecioVenta").val();
+    var valorFormateado = $("#txtNuevoPrecioVenta").val();
+    var nuevoPrecio = desformatearPrecio(valorFormateado);
+
+    console.log("Valor en campo:", valorFormateado);
+    console.log("Valor desformateado:", nuevoPrecio);
 
     if (!nuevoPrecio || parseFloat(nuevoPrecio) < 0) {
         swal("Mensaje", "Por favor ingrese un precio valido", "warning");
@@ -283,6 +373,8 @@ function guardarPrecioVenta() {
         idProductoTienda: parseInt(idProductoTienda),
         precioVenta: parseFloat(nuevoPrecio)
     };
+    
+    console.log("Request a enviar:", request);
 
     jQuery.ajax({
         url: $.MisUrls.url._ActualizarPrecioVentaTienda,
