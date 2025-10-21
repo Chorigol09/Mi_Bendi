@@ -1,4 +1,6 @@
-﻿var tablaproducto;
+console.log("✅ Venta_Crear.js v2.1 cargado - Con formateo completo: precios, cantidad y monto de pago");
+
+var tablaproducto;
 var tablacliente;
 
 
@@ -135,8 +137,105 @@ $("#txtproductocantidad").inputFilter(function (value) {
     return /^-?\d*$/.test(value);
 });
 
-$("#txtmontopago").inputFilter(function (value) {
-    return /^-?\d*[.]?\d{0,2}$/.test(value);
+// Limpiar el campo de cantidad cuando se hace clic y tiene valor 0
+$("#txtproductocantidad").on('focus', function() {
+    if ($(this).val() === '0') {
+        $(this).val('');
+    }
+});
+
+// Si el campo queda vacío al salir, volver a poner 0
+$("#txtproductocantidad").on('blur', function() {
+    if ($(this).val() === '') {
+        $(this).val('0');
+    }
+});
+
+// Funciones de formateo de precios (formato argentino: $X.XXX,XX)
+function formatearPrecio(valor) {
+    if (valor == null || valor === '') return '$0,00';
+    var numero = parseFloat(valor);
+    if (isNaN(numero)) return '$0,00';
+    
+    var partes = numero.toFixed(2).split('.');
+    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    var decimal = partes[1];
+    return '$' + entero + ',' + decimal;
+}
+
+function desformatearPrecio(valor) {
+    if (!valor) return 0;
+    // Remover $, puntos (separador de miles) y reemplazar coma por punto
+    var limpio = valor.toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.');
+    var numero = parseFloat(limpio);
+    return isNaN(numero) ? 0 : numero;
+}
+
+// Formatear monto de pago en tiempo real
+$("#txtmontopago").on('input', function() {
+    var input = $(this);
+    var valor = input.val();
+    
+    // Remover todo excepto números y coma
+    var limpio = valor.replace(/[^0-9,]/g, '');
+    
+    // Si está vacío, mostrar $0,00
+    if (limpio === '' || limpio === '0') {
+        input.val('$0,00');
+        return;
+    }
+    
+    // Separar parte entera y decimal si hay coma
+    var partes = limpio.split(',');
+    var parteEntera = partes[0];
+    var parteDecimal = partes[1] || '';
+    
+    // Limitar decimales a 2 dígitos
+    if (parteDecimal.length > 2) {
+        parteDecimal = parteDecimal.substring(0, 2);
+    }
+    
+    // Agregar separador de miles a la parte entera
+    if (parteEntera.length > 0) {
+        parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    
+    // Construir valor formateado
+    var valorFormateado = '$' + (parteEntera || '0');
+    if (limpio.includes(',')) {
+        valorFormateado += ',' + parteDecimal;
+    }
+    
+    input.val(valorFormateado);
+});
+
+// Al enfocar, si es $0,00 limpiar el campo
+$("#txtmontopago").on('focus', function() {
+    if ($(this).val() === '$0,00') {
+        $(this).val('');
+    }
+});
+
+// Al perder el foco, completar con ,00 si no tiene decimales
+$("#txtmontopago").on('blur', function() {
+    var valor = $(this).val();
+    if (valor === '' || valor === '$') {
+        $(this).val('$0,00');
+        return;
+    }
+    
+    // Si no tiene decimales, agregar ,00
+    if (!valor.includes(',')) {
+        $(this).val(valor + ',00');
+    } else {
+        // Si tiene coma pero no tiene 2 decimales, completar
+        var partes = valor.split(',');
+        if (partes[1] && partes[1].length === 1) {
+            $(this).val(valor + '0');
+        } else if (partes[1] && partes[1].length === 0) {
+            $(this).val(valor + '00');
+        }
+    }
 });
 
 $('#btnBuscarProducto').on('click', function () {
@@ -160,7 +259,7 @@ function productoSelect(json) {
     $("#txtproductonombre").val(json.oProducto.Nombre);
     $("#txtproductodescripcion").val(json.oProducto.Descripcion);
     $("#txtproductostock").val(json.Stock);
-    $("#txtproductoprecio").val(json.PrecioUnidadVenta);
+    $("#txtproductoprecio").val(formatearPrecio(json.PrecioUnidadVenta));
     $("#txtproductocantidad").val("0");
     $('#modalProducto').modal('hide');
 }
@@ -201,7 +300,7 @@ $("#txtproductocodigo").on('keypress', function (e) {
                             $("#txtproductonombre").val(item.oProducto.Nombre);
                             $("#txtproductodescripcion").val(item.oProducto.Descripcion);
                             $("#txtproductostock").val(item.Stock);
-                            $("#txtproductoprecio").val(item.PrecioUnidadVenta);
+                            $("#txtproductoprecio").val(formatearPrecio(item.PrecioUnidadVenta));
                             encontrado = true;
                             return false;
                         }
@@ -263,16 +362,19 @@ $('#btnAgregar').on('click', function () {
 
         controlarStock(parseInt($("#txtIdProducto").val()), parseInt($("#txtIdTienda").val()), parseInt($("#txtproductocantidad").val()), true);
 
-        var importetotal = parseFloat($("#txtproductoprecio").val()) * parseFloat($("#txtproductocantidad").val());
+        var precioUnitario = desformatearPrecio($("#txtproductoprecio").val());
+        var cantidad = parseFloat($("#txtproductocantidad").val());
+        var importetotal = precioUnitario * cantidad;
+        
         $("<tr>").append(
             $("<td>").append(
                 $("<button>").addClass("btn btn-danger btn-sm").text("Eliminar").data("idproducto", parseInt($("#txtIdProducto").val())).data("cantidadproducto", parseInt($("#txtproductocantidad").val()))
             ),
-            $("<td>").addClass("productocantidad").text($("#txtproductocantidad").val()),
+            $("<td>").addClass("productocantidad").text(cantidad),
             $("<td>").addClass("producto").data("idproducto", $("#txtIdProducto").val()).text($("#txtproductonombre").val()),
             $("<td>").text($("#txtproductodescripcion").val()),
-            $("<td>").addClass("productoprecio").text($("#txtproductoprecio").val()),
-            $("<td>").addClass("importetotal").text(importetotal)
+            $("<td>").addClass("productoprecio").data("precio", precioUnitario).text(formatearPrecio(precioUnitario)),
+            $("<td>").addClass("importetotal").data("total", importetotal).text(formatearPrecio(importetotal))
         ).appendTo("#tbVenta tbody");
 
         $("#txtIdProducto").val("0");
@@ -335,8 +437,8 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         var fila = tr;
         var productocantidad = parseInt($(fila).find("td.productocantidad").text());
         var idproducto = $(fila).find("td.producto").data("idproducto");
-        var productoprecio = parseFloat($(fila).find("td.productoprecio").text());
-        var importetotal = parseFloat($(fila).find("td.importetotal").text());
+        var productoprecio = parseFloat($(fila).find("td.productoprecio").data("precio"));
+        var importetotal = parseFloat($(fila).find("td.importetotal").data("total"));
 
         $totalproductos = $totalproductos + productocantidad;
         $totalimportes = $totalimportes + importetotal;
@@ -345,8 +447,8 @@ $('#btnTerminarGuardarVenta').on('click', function () {
             "<IdVenta>0</IdVenta >" +
             "<IdProducto>" + idproducto + "</IdProducto>" +
             "<Cantidad>" + productocantidad + "</Cantidad>" +
-            "<PrecioUnidad>" + productoprecio + "</PrecioUnidad>" +
-            "<ImporteTotal>" + importetotal + "</ImporteTotal>" +
+            "<PrecioUnidad>" + productoprecio.toFixed(2) + "</PrecioUnidad>" +
+            "<ImporteTotal>" + importetotal.toFixed(2) + "</ImporteTotal>" +
             "</DATOS>"
     });
 
@@ -358,9 +460,9 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         "<TipoDocumento>" + $("#cboventatipodocumento").val() + "</TipoDocumento>" +
         "<CantidadProducto>" + $('#tbVenta tbody tr').length + "</CantidadProducto>" +
         "<CantidadTotal>" + $totalproductos + "</CantidadTotal>" +
-        "<TotalCosto>" + $totalimportes + "</TotalCosto>" +
-        "<ImporteRecibido>" + $("#txtmontopago").val() + "</ImporteRecibido>" +
-        "<ImporteCambio>" + $("#txtcambio").val() + "</ImporteCambio>" +
+        "<TotalCosto>" + $totalimportes.toFixed(2) + "</TotalCosto>" +
+        "<ImporteRecibido>" + desformatearPrecio($("#txtmontopago").val()).toFixed(2) + "</ImporteRecibido>" +
+        "<ImporteCambio>" + desformatearPrecio($("#txtcambio").val()).toFixed(2) + "</ImporteCambio>" +
         "</VENTA >";
 
     DETALLE_CLIENTE = "<DETALLE_CLIENTE><DATOS>" +
@@ -442,12 +544,12 @@ $('#btnTerminarGuardarVenta').on('click', function () {
 })
 
 function calcularCambio() {
-    var montopago = $("#txtmontopago").val().trim() == "" ? 0 : parseFloat($("#txtmontopago").val().trim());
-    var totalcosto = parseFloat($("#txttotal").val().trim());
+    var montopago = desformatearPrecio($("#txtmontopago").val().trim());
+    var totalcosto = desformatearPrecio($("#txttotal").val().trim());
     var cambio = 0;
     cambio = (montopago <= totalcosto ? totalcosto : montopago) - totalcosto;
 
-    $("#txtcambio").val(cambio.toFixed(2));
+    $("#txtcambio").val(formatearPrecio(cambio));
 }
 
 $('#btncalcular').on('click', function () {
@@ -461,16 +563,15 @@ function calcularPrecios() {
     var sumatotal = 0;
     $('#tbVenta > tbody  > tr').each(function (index, tr) {
         var fila = tr;
-        var importetotal = parseFloat($(fila).find("td.importetotal").text());
+        var importetotal = parseFloat($(fila).find("td.importetotal").data("total"));
         sumatotal = sumatotal + importetotal;
     });
     igv = sumatotal * 0.18;
     subtotal = sumatotal - igv;
 
-
-    $("#txtsubtotal").val(subtotal.toFixed(2));
-    $("#txtigv").val(igv.toFixed(2));
-    $("#txttotal").val(sumatotal.toFixed(2));
+    $("#txtsubtotal").val(formatearPrecio(subtotal));
+    $("#txtigv").val(formatearPrecio(igv));
+    $("#txttotal").val(formatearPrecio(sumatotal));
 }
 
 

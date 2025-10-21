@@ -9,7 +9,7 @@
     <meta http-equiv="Last-Modified" content="0">
     <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
     <meta http-equiv="Pragma" content="no-cache">
-    <title>Mi Tienda Online</title>
+    <title>Mi Bendi</title>
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
@@ -78,11 +78,83 @@
     <!-- CONTENIDO -->
     <div class="container-fluid mt-4">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy;Copyright - @DateTime.Now.Year - Todos los derechos reservados - Mi Bendi - Administracion</p>
+        
+        <!-- FOOTER -->
+        <div class="mbd-footer-spacer"></div>
+        <footer class="mbd-footer">
+            <div class="mbd-footer-sep"></div>
+            <div class="mbd-footer-content">
+                <p class="mbd-footer-text">&copy; @DateTime.Now.Year Mi Bendi. Todos los derechos reservados.</p>
+            </div>
         </footer>
     </div>
+    
+    <style>
+        /* ========== FOOTER MI BENDI (prefijo mbd-) ========== */
+        
+        .mbd-footer-spacer {
+            height: 48px;
+        }
+        
+        .mbd-footer {
+            position: relative;
+            background: linear-gradient(180deg, #fafbfc 0%, #f8f9fa 100%);
+            margin-top: 0;
+        }
+        
+        .mbd-footer-sep {
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 0, 0, 0.06) 20%, 
+                rgba(0, 0, 0, 0.06) 80%, 
+                transparent 100%);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+        
+        .mbd-footer-content {
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .mbd-footer-text {
+            margin: 0;
+            font-size: 12.5px;
+            color: #6b7280;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        /* Estados de enlaces si existen */
+        .mbd-footer a {
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .mbd-footer a:hover {
+            color: #374151;
+            text-decoration: underline;
+        }
+        
+        .mbd-footer a:focus-visible {
+            outline: 2px solid #1976D2;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+        
+        /* Responsive: ajuste de padding en mobile */
+        @@media (max-width: 767.98px) {
+            .mbd-footer-content {
+                padding: 18px 1rem;
+                padding-bottom: calc(18px + env(safe-area-inset-bottom));
+            }
+            
+            .mbd-footer-text {
+                font-size: 12px;
+            }
+        }
+    </style>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

@@ -228,6 +228,20 @@ $("#txtCantidadProducto").inputFilter(function (value) {
     return /^-?\d*$/.test(value);
 });
 
+// Limpiar el campo de cantidad cuando se hace clic y tiene valor 0
+$("#txtCantidadProducto").on('focus', function() {
+    if ($(this).val() === '0') {
+        $(this).val('');
+    }
+});
+
+// Si el campo queda vacío al salir, volver a poner 0
+$("#txtCantidadProducto").on('blur', function() {
+    if ($(this).val() === '') {
+        $(this).val('0');
+    }
+});
+
 // Formatear precio en tiempo real - el usuario solo escribe números
 $("#txtPrecioCompraProducto").on('input', function() {
     var input = $(this);
