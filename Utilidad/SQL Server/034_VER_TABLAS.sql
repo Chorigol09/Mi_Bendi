@@ -1,0 +1,33 @@
+USE DBVENTAS_WEB
+GO
+
+PRINT '=========================================='
+PRINT 'LISTADO DE TODAS LAS TABLAS'
+PRINT '=========================================='
+PRINT ''
+
+SELECT 
+    TABLE_NAME as NombreTabla,
+    TABLE_TYPE as Tipo
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+ORDER BY TABLE_NAME
+
+PRINT ''
+PRINT '=========================================='
+PRINT 'BUSCAR TABLAS RELACIONADAS CON COMPRAS'
+PRINT '=========================================='
+PRINT ''
+
+SELECT 
+    TABLE_NAME as NombreTabla
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+AND (
+    TABLE_NAME LIKE '%COMPRA%' OR 
+    TABLE_NAME LIKE '%ORDEN%' OR
+    TABLE_NAME LIKE '%ORDER%'
+)
+ORDER BY TABLE_NAME
+
+GO

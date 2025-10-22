@@ -3,8 +3,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<meta charset="UTF-8">
-
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="#">Compras</a></li>
@@ -20,10 +18,15 @@
             </div>
             <div class="card-body p-2">
                 <div class="row mb-3">
-                    <div class="col-sm-9">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Las facturas se generan automaticamente al registrar una Orden de Compra</p>
+                    <div class="col-sm-4">
+                        <a href="@Url.Action("Crear", "Factura")" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Registrar Nueva Factura
+                        </a>
+                        <button type="button" class="btn btn-info ml-2" onclick="recargarTabla()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-3 offset-sm-2">
                         <label for="cboOrdenFactura" class="col-form-label col-form-label-sm">Orden:</label>
                         <select class="form-control form-control-sm" id="cboOrdenFactura">
                             <option value="desc">Mas recientes primero</option>
@@ -37,15 +40,15 @@
                         <table id="tbFacturas" class="table table-striped table-bordered nowrap compact" style="width:100%">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Numero Factura</th>
-                                    <th>ID Orden Compra</th>
+                                    <th>Nro. Orden Compra</th>
                                     <th>Proveedor</th>
                                     <th>Fecha</th>
                                     <th>Productos</th>
-                                    <th>Cantidad</th>
+                                    <th class="text-right">Cantidad</th>
                                     <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
+                                    <th>Pago</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -64,6 +67,17 @@
         $(document).ready(function () {
             activarMenu("Compras");
 
+            // Verificar si venimos de registrar una factura
+            var urlParams = new URLSearchParams(window.location.search);
+            var recienRegistrada = urlParams.get('nueva');
+
+            // Recargar tabla automáticamente cada 30 segundos
+            setInterval(function() {
+                if (tableFacturas) {
+                    tableFacturas.ajax.reload(null, false); // false = mantener paginación
+                }
+            }, 30000); // 30 segundos
+
             // Inicializar DataTable
             tableFacturas = $('#tbFacturas').DataTable({
                 "ajax": {
@@ -72,23 +86,41 @@
                     "datatype": "json"
                 },
                 "columns": [
+                    {
+                        "data": "IdFactura",
+                        "render": function (data) {
+                            return '<button class="btn btn-success btn-sm" type="button" onclick="VerFactura(' + data + ')"><i class="far fa-clipboard"></i> Ver</button>';
+                        },
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "60px"
+                    },
                     { 
                         "data": "NumeroFactura",
                         "render": function (data) {
                             return '<span class="badge badge-primary">' + data + '</span>';
-                        }
+                        },
+                        "className": "text-center",
+                        "width": "100px"
                     },
                     { 
                         "data": "IdOrdenCompra",
                         "render": function (data) {
                             return '<span class="badge badge-secondary">#' + data + '</span>';
-                        }
+                        },
+                        "className": "text-center",
+                        "width": "80px"
                     },
                     {
                         "data": "oProveedor",
                         "render": function (data) {
-                            return data ? data.RazonSocial : '';
-                        }
+                            var texto = data ? data.RazonSocial : '';
+                            if (texto.length > 25) {
+                                return '<span title="' + texto + '">' + texto.substring(0, 25) + '...</span>';
+                            }
+                            return texto;
+                        },
+                        "width": "150px"
                     },
                     {
                         "data": "FechaOrdenCompra",
@@ -97,23 +129,28 @@
                                 return data;
                             }
                             return '';
-                        }
+                        },
+                        "className": "text-center",
+                        "width": "90px"
                     },
                     {
                         "data": "Productos",
                         "render": function (data) {
-                            if (!data || data == '') return '<em class="text-muted">Sin productos</em>';
-                            if (data.length > 80) {
-                                return '<span title="' + data + '">' + data.substring(0, 80) + '...</span>';
+                            if (!data || data == '') return '<em class="text-muted">-</em>';
+                            if (data.length > 40) {
+                                return '<span title="' + data + '">' + data.substring(0, 40) + '...</span>';
                             }
                             return data;
-                        }
+                        },
+                        "width": "180px"
                     },
                     {
                         "data": "CantidadProductos",
                         "render": function (data) {
-                            return '<span class="badge badge-info">' + data + '</span>';
-                        }
+                            return data;
+                        },
+                        "className": "text-right",
+                        "width": "60px"
                     },
                     {
                         "data": "Total",
@@ -124,34 +161,49 @@
                             var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                             var decimal = partes[1];
                             return "$" + entero + "," + decimal;
-                        }
+                        },
+                        "className": "text-right",
+                        "width": "100px"
                     },
                     {
                         "data": "Estado",
                         "render": function (data) {
-                            var badgeClass = data == 'Pendiente' ? 'badge-warning' : 'badge-success';
-                            return '<span class="badge ' + badgeClass + '">' + data + '</span>';
-                        }
-                    },
-                    {
-                        "data": null,
-                        "render": function (data, type, row) {
-                            var btnCambiarEstado = '';
-                            if (row.Estado == 'Pendiente') {
-                                btnCambiarEstado = '<button class="btn btn-sm btn-success btn-pagar" data-id="' + row.IdFactura + '">Marcar Pagado</button>';
+                            var badgeClass = '';
+                            var badgeSize = 'badge-pill px-2 py-1';
+                            var texto = '';
+                            
+                            if (data == 'Pendiente') {
+                                badgeClass = 'badge-warning';
+                                texto = 'PENDIENTE';
+                            } else if (data == 'Pagada' || data == 'Pagado') {
+                                badgeClass = 'badge-success';
+                                texto = 'PAGADO';
+                            } else if (data == 'Cancelada') {
+                                badgeClass = 'badge-danger';
+                                texto = 'CANCELADO';
                             } else {
-                                btnCambiarEstado = '<span class="text-success"><i class="fas fa-check"></i> Pagado</span>';
+                                badgeClass = 'badge-secondary';
+                                texto = data.toUpperCase();
                             }
-                            return btnCambiarEstado;
+                            
+                            return '<span class="badge ' + badgeClass + ' ' + badgeSize + '" style="font-size: 0.85rem; display: block;">' + texto + '</span>';
                         },
-                        "orderable": false
+                        "width": "100px"
                     }
                 ],
                 "language": {
                     "url": $.MisUrls.url.Url_datatable_spanish
                 },
                 "order": [[1, "desc"]], // Orden por defecto: ID Orden descendente (mas recientes primero)
-                responsive: true
+                "autoWidth": false,
+                "initComplete": function(settings, json) {
+                    // Si venimos de registrar una factura, mostrar mensaje
+                    if (recienRegistrada) {
+                        console.log("Factura recién registrada. Tabla actualizada automáticamente.");
+                        // Limpiar el parámetro de la URL sin recargar
+                        window.history.replaceState({}, document.title, "/Factura/Index");
+                    }
+                }
             });
 
             // Evento para cambiar orden de la tabla
@@ -164,42 +216,24 @@
                 }
             });
 
-            // Evento para marcar como pagado
-            $('#tbFacturas tbody').on('click', '.btn-pagar', function () {
-                var idFactura = $(this).data('id');
-
-                swal({
-                    title: "¿Esta seguro?",
-                    text: "¿Marcar esta factura como pagada?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonClass: "btn-success",
-                    confirmButtonText: "Si, marcar como pagada",
-                    cancelButtonText: "Cancelar",
-                    closeOnConfirm: false
-                },
-                function () {
-                    jQuery.ajax({
-                        url: $.MisUrls.url._ActualizarEstadoFactura,
-                        type: "POST",
-                        data: JSON.stringify({ idFactura: idFactura, estado: 'Pagado' }),
-                        dataType: "json",
-                        contentType: "application/json; charset=utf-8",
-                        success: function (data) {
-                            if (data.resultado) {
-                                swal("Exito", "Factura marcada como pagada", "success");
-                                tableFacturas.ajax.reload();
-                            } else {
-                                swal("Error", "No se pudo actualizar la factura", "error");
-                            }
-                        },
-                        error: function () {
-                            swal("Error", "Error al actualizar la factura", "error");
-                        }
-                    });
-                });
-            });
-
         });
+
+        function VerFactura(id) {
+            var texto = $.MisUrls.url._DocumentoFactura + "?idfactura=" + id;
+            // Abrir en nueva pestaña
+            window.open(texto);
+        }
+
+        function recargarTabla() {
+            console.log("Recargando tabla de facturas...");
+            tableFacturas.ajax.reload(function(json) {
+                console.log("Datos recibidos:", json);
+                if (json && json.data) {
+                    console.log("Cantidad de facturas:", json.data.length);
+                } else {
+                    console.log("No se recibieron datos o formato incorrecto");
+                }
+            }, false);
+        }
     </script>
 }

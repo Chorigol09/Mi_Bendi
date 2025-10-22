@@ -1,0 +1,35 @@
+USE DBVENTAS_WEB
+GO
+
+PRINT '=========================================='
+PRINT 'ESTRUCTURA DE TABLA FACTURA'
+PRINT '=========================================='
+PRINT ''
+
+-- Ver columnas de FACTURA
+SELECT 
+    COLUMN_NAME AS 'Columna',
+    DATA_TYPE AS 'Tipo',
+    CHARACTER_MAXIMUM_LENGTH AS 'Longitud',
+    IS_NULLABLE AS 'Permite NULL'
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'FACTURA'
+ORDER BY ORDINAL_POSITION
+
+PRINT ''
+PRINT '=========================================='
+PRINT 'ESTRUCTURA DE TABLA DETALLE_FACTURA'
+PRINT '=========================================='
+PRINT ''
+
+-- Ver columnas de DETALLE_FACTURA
+SELECT 
+    COLUMN_NAME AS 'Columna',
+    DATA_TYPE AS 'Tipo',
+    CHARACTER_MAXIMUM_LENGTH AS 'Longitud',
+    IS_NULLABLE AS 'Permite NULL'
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'DETALLE_FACTURA'
+ORDER BY ORDINAL_POSITION
+
+GO
