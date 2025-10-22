@@ -470,11 +470,13 @@ $('#btnTerminarGuardarFactura').on('click', function () {
     var detallefactura = ""
     var detalle = "";
     var totalfactura = 0;
+    var numeroOrdenCompra = $("#txtNumeroOrdenCompra").val().trim();
 
     $xml = "<DETALLE>";
     factura = "<FACTURA>" +
         "<IdProveedor>" + $("#txtIdProveedor").val() + "</IdProveedor>" +
         "<NumeroFactura>" + $("#txtNumeroFactura").val().trim() + "</NumeroFactura>" +
+        "<NumeroOrdenCompra>" + (numeroOrdenCompra || "No asociado a una OC") + "</NumeroOrdenCompra>" +
         "<FechaEmision>" + $("#txtFechaFactura").val() + "</FechaEmision>" +
         "<Total>¡totalfactura!</Total>" +
         "</FACTURA>";
@@ -541,8 +543,9 @@ $('#btnTerminarGuardarFactura').on('click', function () {
                 $("#txtRucTienda").val("");
                 $("#txtNombreTienda").val("");
 
-                //NUMERO FACTURA Y FECHA
+                //NUMERO FACTURA, ORDEN COMPRA Y FECHA
                 $("#txtNumeroFactura").val("");
+                $("#txtNumeroOrdenCompra").val("");
                 // Restablecer fecha actual
                 var hoy = new Date();
                 var dia = String(hoy.getDate()).padStart(2, '0');
@@ -558,8 +561,33 @@ $('#btnTerminarGuardarFactura').on('click', function () {
                 $("#txtPrecioUnitario").val("$0,00");
 
                 $("#tbFactura tbody").html("");
+                
+                // Desbloquear cabecera para nueva factura
+                desbloquearCabecera();
 
-                swal("Factura Registrada", mensaje, "success")
+                // Mostrar mensaje con opción de ir a ver facturas
+                swal({
+                    title: "Factura Registrada",
+                    text: mensaje,
+                    icon: "success",
+                    buttons: {
+                        nueva: {
+                            text: "Registrar Otra",
+                            value: "nueva",
+                            className: "btn-success"
+                        },
+                        ver: {
+                            text: "Ver Facturas",
+                            value: "ver",
+                            className: "btn-primary"
+                        }
+                    }
+                }).then((value) => {
+                    if (value === "ver") {
+                        // Redirigir con parámetro para indicar que hay una factura nueva
+                        window.location.href = "/Factura/Index?nueva=1";
+                    }
+                });
             } else {
 
                 swal("Mensaje", "No se pudo registrar la factura", "warning")

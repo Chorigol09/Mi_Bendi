@@ -18,12 +18,15 @@
             </div>
             <div class="card-body p-2">
                 <div class="row mb-3">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <a href="@Url.Action("Crear", "Factura")" class="btn btn-success">
                             <i class="fas fa-plus"></i> Registrar Nueva Factura
                         </a>
+                        <button type="button" class="btn btn-info ml-2" onclick="recargarTabla()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-3 offset-sm-2">
                         <label for="cboOrdenFactura" class="col-form-label col-form-label-sm">Orden:</label>
                         <select class="form-control form-control-sm" id="cboOrdenFactura">
                             <option value="desc">Mas recientes primero</option>
@@ -39,7 +42,7 @@
                                 <tr>
                                     <th></th>
                                     <th>Numero Factura</th>
-                                    <th>ID Orden Compra</th>
+                                    <th>Nro. Orden Compra</th>
                                     <th>Proveedor</th>
                                     <th>Fecha</th>
                                     <th>Productos</th>
@@ -63,6 +66,17 @@
 
         $(document).ready(function () {
             activarMenu("Compras");
+
+            // Verificar si venimos de registrar una factura
+            var urlParams = new URLSearchParams(window.location.search);
+            var recienRegistrada = urlParams.get('nueva');
+
+            // Recargar tabla automáticamente cada 30 segundos
+            setInterval(function() {
+                if (tableFacturas) {
+                    tableFacturas.ajax.reload(null, false); // false = mantener paginación
+                }
+            }, 30000); // 30 segundos
 
             // Inicializar DataTable
             tableFacturas = $('#tbFacturas').DataTable({
@@ -181,7 +195,15 @@
                     "url": $.MisUrls.url.Url_datatable_spanish
                 },
                 "order": [[1, "desc"]], // Orden por defecto: ID Orden descendente (mas recientes primero)
-                "autoWidth": false
+                "autoWidth": false,
+                "initComplete": function(settings, json) {
+                    // Si venimos de registrar una factura, mostrar mensaje
+                    if (recienRegistrada) {
+                        console.log("Factura recién registrada. Tabla actualizada automáticamente.");
+                        // Limpiar el parámetro de la URL sin recargar
+                        window.history.replaceState({}, document.title, "/Factura/Index");
+                    }
+                }
             });
 
             // Evento para cambiar orden de la tabla
@@ -200,6 +222,18 @@
             var texto = $.MisUrls.url._DocumentoFactura + "?idfactura=" + id;
             // Abrir en nueva pestaña
             window.open(texto);
+        }
+
+        function recargarTabla() {
+            console.log("Recargando tabla de facturas...");
+            tableFacturas.ajax.reload(function(json) {
+                console.log("Datos recibidos:", json);
+                if (json && json.data) {
+                    console.log("Cantidad de facturas:", json.data.length);
+                } else {
+                    console.log("No se recibieron datos o formato incorrecto");
+                }
+            }, false);
         }
     </script>
 }
