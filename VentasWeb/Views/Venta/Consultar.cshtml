@@ -1,4 +1,4 @@
-﻿
+
 @{
     ViewBag.Title = "Consultar";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,41 +18,50 @@
                 Consultar Ventas
             </div>
             <div class="card-body p-2">
-                <div class="row">
+                <div class="row align-items-end">
                     <div class="col-sm-2">
                         <div class="form-group mb-0">
-                            <label for="txtRucProveedor" class="col-form-label col-form-label-sm">Fecha Inicio:</label>
+                            <label for="txtFechaInicio" class="col-form-label col-form-label-sm">Fecha Inicio:</label>
                             <input type="text" class="form-control form-control-sm model" id="txtFechaInicio" name="FechaInicio" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group mb-0">
-                            <label for="txtRucProveedor" class="col-form-label col-form-label-sm">Fecha Fin:</label>
+                            <label for="txtFechaFin" class="col-form-label col-form-label-sm">Fecha Fin:</label>
                             <input type="text" class="form-control form-control-sm model" id="txtFechaFin" name="FechaFin" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group mb-0">
-                            <label for="txtRucProveedor" class="col-form-label col-form-label-sm">Codigo Venta:</label>
-                            <input type="text" class="form-control form-control-sm model" id="txtCodigoVenta" name="FechaInicio" autocomplete="off">
+                            <label for="txtCodigoVenta" class="col-form-label col-form-label-sm">Codigo Venta:</label>
+                            <input type="text" class="form-control form-control-sm model" id="txtCodigoVenta" name="CodigoVenta" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group mb-0">
-                            <label for="txtRucProveedor" class="col-form-label col-form-label-sm">Documento Cliente:</label>
-                            <input type="text" class="form-control form-control-sm model" id="txtDocumentoCliente" name="FechaInicio" autocomplete="off">
+                            <label for="txtDocumentoCliente" class="col-form-label col-form-label-sm">Documento Cliente:</label>
+                            <input type="text" class="form-control form-control-sm model" id="txtDocumentoCliente" name="DocumentoCliente" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group mb-0">
-                            <label for="txtRucProveedor" class="col-form-label col-form-label-sm">Nombre Cliente:</label>
-                            <input type="text" class="form-control form-control-sm model" id="txtNombreCliente" name="FechaInicio" autocomplete="off">
+                            <label for="txtNombreCliente" class="col-form-label col-form-label-sm">Nombre Cliente:</label>
+                            <input type="text" class="form-control form-control-sm model" id="txtNombreCliente" name="NombreCliente" autocomplete="off">
                         </div>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                         <div class="form-group mb-0">
-                            <label for="btnBuscar" class="col-form-label col-form-label-sm invisible">Direccion:</label>
-                            <button id="btnBuscar" type="button" class="btn btn-sm btn-primary btn-block" onclick="buscar()">Buscar</button>
+                            <label for="btnBuscar" class="col-form-label col-form-label-sm invisible">Buscar:</label>
+                            <button id="btnBuscar" type="button" class="btn btn-sm btn-primary btn-block" onclick="buscar()"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <div class="form-group mb-0">
+                            <label for="cboOrdenVenta" class="col-form-label col-form-label-sm">Orden:</label>
+                            <select class="form-control form-control-sm" id="cboOrdenVenta">
+                                <option value="desc">Recientes</option>
+                                <option value="asc">Antiguos</option>
+                            </select>
                         </div>
                     </div>
                 </div>

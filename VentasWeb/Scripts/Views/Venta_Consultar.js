@@ -27,15 +27,37 @@ $(document).ready(function () {
 
     $("#txtFechaInicio").datepicker();
     $("#txtFechaFin").datepicker();
-    $("#txtFechaInicio").val(ObtenerFecha());
-    $("#txtFechaFin").val(ObtenerFecha());
+    
+    // Establecer rango de fechas: último mes hasta hoy
+    var fechaFin = ObtenerFecha();
+    var fechaInicio = ObtenerFechaHaceUnMes();
+    
+    $("#txtFechaInicio").val(fechaInicio);
+    $("#txtFechaFin").val(fechaFin);
 
 
+    var urlCompleta = $.MisUrls.url._ObtenerVentas + "?codigo=&fechainicio=" + fechaInicio + "&fechafin=" + fechaFin + "&numerodocumento=&nombres=";
+    console.log("URL de petición:", urlCompleta);
+    
     tabladata = $('#tbVentas').DataTable({
         "ajax": {
-            "url": $.MisUrls.url._ObtenerVentas + "?codigo=&fechainicio=" + ObtenerFecha() + "&fechafin=" + ObtenerFecha() + "&numerodocumento=&nombres=",
+            "url": urlCompleta,
             "type": "GET",
-            "datatype": "json"
+            "datatype": "json",
+            "dataSrc": function(json) {
+                console.log("Datos de ventas recibidos:", json);
+                if (json.error) {
+                    console.error("Error en el servidor:", json.error);
+                }
+                if (json.data) {
+                    console.log("Cantidad de registros:", json.data.length);
+                }
+                return json.data || [];
+            },
+            "error": function(xhr, error, thrown) {
+                console.error("Error en la petición AJAX:", error, thrown);
+                console.error("Respuesta del servidor:", xhr.responseText);
+            }
         },
         "columns": [
             {
@@ -45,7 +67,17 @@ $(document).ready(function () {
             },
             { "data": "TipoDocumento" },
             { "data": "Codigo" },
-            { "data": "FechaRegistro" },
+            { 
+                "data": "FechaRegistro",
+                "render": function(data, type, row) {
+                    // Para ordenamiento, usar VFechaRegistro (DateTime)
+                    // Para display, usar FechaRegistro (string formateado)
+                    if (type === 'sort' || type === 'type') {
+                        return row.VFechaRegistro;
+                    }
+                    return data;
+                }
+            },
             {
                 "data": "oCliente", render: function (data) {
                     return data.NumeroDocumento
@@ -72,11 +104,19 @@ $(document).ready(function () {
         "language": {
             "url": $.MisUrls.url.Url_datatable_spanish
         },
+        "order": [[3, "desc"]], // Orden por defecto: Fecha descendente (más recientes primero)
         responsive: true
     });
 
-
-
+    // Evento para cambiar orden de la tabla
+    $('#cboOrdenVenta').on('change', function () {
+        var orden = $(this).val();
+        if (orden == 'asc') {
+            tabladata.order([[3, 'asc']]).draw(); // Más antiguos primero
+        } else {
+            tabladata.order([[3, 'desc']]).draw(); // Más recientes primero
+        }
+    });
 
 });
 
@@ -101,6 +141,16 @@ function buscar() {
 function ObtenerFecha() {
 
     var d = new Date();
+    var month = d.getMonth() + 1;
+    var day = d.getDate();
+    var output = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+    return output;
+}
+
+function ObtenerFechaHaceUnMes() {
+    var d = new Date();
+    d.setMonth(d.getMonth() - 1); // Restar un mes
     var month = d.getMonth() + 1;
     var day = d.getDate();
     var output = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();

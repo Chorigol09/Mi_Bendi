@@ -66,13 +66,23 @@ namespace VentasWeb.Controllers
 
         public JsonResult Obtener(string codigo, string fechainicio, string fechafin, string numerodocumento, string nombres)
         {
-            List<Venta> lista = CD_Venta.Instancia.ObtenerListaVenta(codigo, Convert.ToDateTime(fechainicio), Convert.ToDateTime(fechafin), numerodocumento, nombres);
+            try
+            {
+                // Parsear fechas con formato dd/MM/yyyy
+                DateTime dtInicio = DateTime.ParseExact(fechainicio, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime dtFin = DateTime.ParseExact(fechafin, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
+                List<Venta> lista = CD_Venta.Instancia.ObtenerListaVenta(codigo, dtInicio, dtFin, numerodocumento, nombres);
 
-            if (lista == null)
-                lista = new List<Venta>();
+                if (lista == null)
+                    lista = new List<Venta>();
 
-            return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+                return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = new List<Venta>(), error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 

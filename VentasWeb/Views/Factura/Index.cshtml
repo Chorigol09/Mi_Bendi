@@ -17,7 +17,7 @@
                 <i class="fas fa-file-invoice-dollar"></i> Gestion de Facturas
             </div>
             <div class="card-body p-2">
-                <div class="row mb-3">
+                <div class="row mb-2">
                     <div class="col-sm-4">
                         <a href="@Url.Action("Crear", "Factura")" class="btn btn-success">
                             <i class="fas fa-plus"></i> Registrar Nueva Factura
@@ -26,7 +26,22 @@
                             <i class="fas fa-sync-alt"></i> Actualizar
                         </button>
                     </div>
-                    <div class="col-sm-3 offset-sm-2">
+                    <div class="col-sm-3 offset-sm-1">
+                        <label for="cboProveedorFactura" class="col-form-label col-form-label-sm">Proveedor:</label>
+                        <select class="form-control form-control-sm" id="cboProveedorFactura">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="cboEstadoFactura" class="col-form-label col-form-label-sm">Estado:</label>
+                        <select class="form-control form-control-sm" id="cboEstadoFactura">
+                            <option value="">Todas</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Pagado">Pagadas</option>
+                            <option value="Cancelada">Canceladas</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
                         <label for="cboOrdenFactura" class="col-form-label col-form-label-sm">Orden:</label>
                         <select class="form-control form-control-sm" id="cboOrdenFactura">
                             <option value="desc">Mas recientes primero</option>
@@ -42,7 +57,6 @@
                                 <tr>
                                     <th></th>
                                     <th>Numero Factura</th>
-                                    <th>Nro. Orden Compra</th>
                                     <th>Proveedor</th>
                                     <th>Fecha</th>
                                     <th>Productos</th>
@@ -70,6 +84,26 @@
             // Verificar si venimos de registrar una factura
             var urlParams = new URLSearchParams(window.location.search);
             var recienRegistrada = urlParams.get('nueva');
+
+            // Cargar proveedores
+            jQuery.ajax({
+                url: $.MisUrls.url._ObtenerProveedores,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.data != null) {
+                        $.each(data.data, function (i, item) {
+                            if (item.Activo == true) {
+                                $("#cboProveedorFactura").append($("<option>").val(item.RazonSocial).text(item.RazonSocial));
+                            }
+                        })
+                    }
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
 
             // Recargar tabla automáticamente cada 30 segundos
             setInterval(function() {
@@ -102,14 +136,6 @@
                         },
                         "className": "text-center",
                         "width": "100px"
-                    },
-                    { 
-                        "data": "IdOrdenCompra",
-                        "render": function (data) {
-                            return '<span class="badge badge-secondary">#' + data + '</span>';
-                        },
-                        "className": "text-center",
-                        "width": "80px"
                     },
                     {
                         "data": "oProveedor",
@@ -194,7 +220,7 @@
                 "language": {
                     "url": $.MisUrls.url.Url_datatable_spanish
                 },
-                "order": [[1, "desc"]], // Orden por defecto: ID Orden descendente (mas recientes primero)
+                "order": [[3, "desc"]], // Orden por defecto: Fecha descendente (mas recientes primero)
                 "autoWidth": false,
                 "initComplete": function(settings, json) {
                     // Si venimos de registrar una factura, mostrar mensaje
@@ -210,10 +236,24 @@
             $('#cboOrdenFactura').on('change', function () {
                 var orden = $(this).val();
                 if (orden == 'asc') {
-                    tableFacturas.order([[1, 'asc']]).draw(); // Mas antiguos primero
+                    tableFacturas.order([[3, 'asc']]).draw(); // Mas antiguos primero
                 } else {
-                    tableFacturas.order([[1, 'desc']]).draw(); // Mas recientes primero
+                    tableFacturas.order([[3, 'desc']]).draw(); // Mas recientes primero
                 }
+            });
+
+            // Evento para filtrar por proveedor
+            $('#cboProveedorFactura').on('change', function () {
+                var proveedor = $(this).val();
+                // Filtrar por la columna de proveedor (columna 2)
+                tableFacturas.column(2).search(proveedor).draw();
+            });
+
+            // Evento para filtrar por estado
+            $('#cboEstadoFactura').on('change', function () {
+                var estado = $(this).val();
+                // Filtrar por la columna de estado (columna 7)
+                tableFacturas.column(7).search(estado).draw();
             });
 
         });

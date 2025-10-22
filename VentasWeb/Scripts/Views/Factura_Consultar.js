@@ -29,7 +29,11 @@ $(document).ready(function () {
         "ajax": {
             "url": $.MisUrls.url._ObtenerFacturas,
             "type": "GET",
-            "datatype": "json"
+            "datatype": "json",
+            "dataSrc": function(json) {
+                console.log("Datos recibidos del servidor:", json);
+                return json.data;
+            }
         },
         "columns": [
             { 
@@ -38,12 +42,13 @@ $(document).ready(function () {
                 "width": "100px"
             },
             { 
-                "data": "RazonSocial",
-                "render": function(data) {
-                    if (data && data.length > 25) {
-                        return '<span title="' + data + '">' + data.substring(0, 25) + '...</span>';
+                "data": "oProveedor",
+                "render": function(data, type, row) {
+                    var texto = data ? data.RazonSocial : '';
+                    if (texto && texto.length > 25) {
+                        return '<span title="' + texto + '">' + texto.substring(0, 25) + '...</span>';
                     }
-                    return data || '';
+                    return texto || '';
                 },
                 "width": "150px"
             },

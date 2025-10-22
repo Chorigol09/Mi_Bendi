@@ -521,9 +521,22 @@ $('#btnTerminarGuardarVenta').on('click', function () {
 
                 $("#tbVenta tbody").html("");
 
-           
+                // Mostrar mensaje de éxito y abrir PDF cuando se cierre el mensaje
                 var url = $.MisUrls.url._DocumentoVenta + "?IdVenta=" + data.valor;
-                window.open(url);
+                
+                swal({
+                    title: "¡Éxito!",
+                    text: "La venta se registró correctamente. ¿Desea ver el PDF?",
+                    type: "success",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, ver PDF",
+                    cancelButtonText: "No, continuar"
+                }, function(isConfirm) {
+                    if (isConfirm) {
+                        // Abrir PDF en nueva ventana
+                        window.open(url, '_blank');
+                    }
+                });
 
 
             } else {

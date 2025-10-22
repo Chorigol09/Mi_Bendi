@@ -47,7 +47,6 @@ namespace CapaDatos
                         lista.Add(new Factura()
                         {
                             IdFactura = Convert.ToInt32(dr["IdFactura"]),
-                            IdOrdenCompra = Convert.ToInt32(dr["IdOrdenCompra"]),
                             oProveedor = new Proveedor()
                             {
                                 IdProveedor = Convert.ToInt32(dr["IdProveedor"]),
