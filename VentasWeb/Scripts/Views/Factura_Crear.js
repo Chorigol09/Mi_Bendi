@@ -29,6 +29,13 @@ function desformatearPrecio(valor) {
 $(document).ready(function () {
     activarMenu("Compras");
 
+    // Establecer fecha actual por defecto
+    var hoy = new Date();
+    var dia = String(hoy.getDate()).padStart(2, '0');
+    var mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    var anio = hoy.getFullYear();
+    $('#txtFechaFactura').val(anio + '-' + mes + '-' + dia);
+
     //OBTENER PROVEEDORES
     tablaproveedor = $('#tbProveedor').DataTable({
         "ajax": {
@@ -116,6 +123,34 @@ $(document).ready(function () {
     });
 
 })
+
+// Función para bloquear campos de cabecera
+function bloquearCabecera() {
+    $('#btnBuscarProveedor').prop('disabled', true);
+    $('#btnBuscarTienda').prop('disabled', true);
+    $('#txtNumeroFactura').prop('readonly', true);
+    $('#txtFechaFactura').prop('readonly', true);
+    
+    // Agregar clase visual de bloqueado
+    $('#btnBuscarProveedor').addClass('disabled');
+    $('#btnBuscarTienda').addClass('disabled');
+    $('#txtNumeroFactura').addClass('bg-light');
+    $('#txtFechaFactura').addClass('bg-light');
+}
+
+// Función para desbloquear campos de cabecera
+function desbloquearCabecera() {
+    $('#btnBuscarProveedor').prop('disabled', false);
+    $('#btnBuscarTienda').prop('disabled', false);
+    $('#txtNumeroFactura').prop('readonly', false);
+    $('#txtFechaFactura').prop('readonly', false);
+    
+    // Remover clase visual de bloqueado
+    $('#btnBuscarProveedor').removeClass('disabled');
+    $('#btnBuscarTienda').removeClass('disabled');
+    $('#txtNumeroFactura').removeClass('bg-light');
+    $('#txtFechaFactura').removeClass('bg-light');
+}
 
 function buscarProveedor() {
     tablaproveedor.ajax.reload();
@@ -243,7 +278,7 @@ $("#txtCantidadProducto").on('blur', function() {
 });
 
 // Formatear precio en tiempo real - el usuario solo escribe números
-$("#txtPrecioCompraProducto").on('input', function() {
+$("#txtPrecioUnitario").on('input', function() {
     var input = $(this);
     var valor = input.val();
     
@@ -281,14 +316,14 @@ $("#txtPrecioCompraProducto").on('input', function() {
 });
 
 // Al enfocar, si es $0,00 limpiar el campo
-$("#txtPrecioCompraProducto").on('focus', function() {
+$("#txtPrecioUnitario").on('focus', function() {
     if ($(this).val() === '$0,00') {
         $(this).val('');
     }
 });
 
 // Al perder el foco, completar con ,00 si no tiene decimales
-$("#txtPrecioCompraProducto").on('blur', function() {
+$("#txtPrecioUnitario").on('blur', function() {
     var valor = $(this).val();
     if (valor === '' || valor === '$') {
         $(this).val('$0,00');
@@ -311,21 +346,23 @@ $("#txtPrecioCompraProducto").on('blur', function() {
 
 
 
-$('#btnAgregarCompra').on('click', function () {
+$('#btnAgregarProducto').on('click', function () {
 
     var existe_codigo = false;
     if (
         parseInt($("#txtIdProveedor").val()) == 0 ||
         parseInt($("#txtIdTienda").val()) == 0 ||
+        $("#txtNumeroFactura").val().trim() == "" ||
+        $("#txtFechaFactura").val().trim() == "" ||
         parseInt($("#txtIdProducto").val()) == 0 ||
         parseFloat($("#txtCantidadProducto").val()) == 0 ||
-        desformatearPrecio($("#txtPrecioCompraProducto").val()) == 0
+        desformatearPrecio($("#txtPrecioUnitario").val()) == 0
     ) {
-        swal("Mensaje", "Debe completar todos los campos", "warning")
+        swal("Mensaje", "Debe completar todos los campos (proveedor, número, fecha, tienda y producto)", "warning")
         return;
     }
 
-    $('#tbCompra > tbody  > tr').each(function (index, tr) {
+    $('#tbFactura > tbody  > tr').each(function (index, tr) {
         var fila = tr;
         var codigoproducto = $(fila).find("td.codigoproducto").text();
 
@@ -338,21 +375,22 @@ $('#btnAgregarCompra').on('click', function () {
 
     if (!existe_codigo) {
         var cantidad = parseFloat($("#txtCantidadProducto").val());
-        var precioUnitario = desformatearPrecio($("#txtPrecioCompraProducto").val());
+        var precioUnitario = desformatearPrecio($("#txtPrecioUnitario").val());
         var total = cantidad * precioUnitario;
 
         $("<tr>").append(
             $("<td>").append(
                 $("<button>").addClass("btn btn-danger btn-sm").text("Eliminar")
             ),
-            $("<td>").append($("#txtRucProveedor").val()),
-            $("<td>").append($("#txtRucTienda").val()),
             $("<td>").addClass("codigoproducto").data("idproducto", $("#txtIdProducto").val()).append($("#txtCodigoProducto").val()),
             $("<td>").append($("#txtNombreProducto").val()),
             $("<td>").addClass("cantidad text-right").append(cantidad),
-            $("<td>").addClass("preciocompra text-right").data("precio", precioUnitario).append(formatearPrecio(precioUnitario)),
+            $("<td>").addClass("preciounitario text-right").data("precio", precioUnitario).append(formatearPrecio(precioUnitario)),
             $("<td>").addClass("totalproducto text-right").data("total", total).append(formatearPrecio(total))
-        ).appendTo("#tbCompra tbody");
+        ).appendTo("#tbFactura tbody");
+
+        // BLOQUEAR CAMPOS DE CABECERA al agregar el primer producto
+        bloquearCabecera();
 
         // Actualizar total general
         actualizarTotalGeneral();
@@ -361,62 +399,88 @@ $('#btnAgregarCompra').on('click', function () {
         $("#txtCodigoProducto").val("");
         $("#txtNombreProducto").val("");
         $("#txtCantidadProducto").val("0");
-        $("#txtPrecioCompraProducto").val("$0,00");
+        $("#txtPrecioUnitario").val("$0,00");
 
     } else {
-        swal("Mensaje", "El producto ya existe en la compra", "warning")
+        swal("Mensaje", "El producto ya existe en la factura", "warning")
     }
 })
 
-$('#tbCompra tbody').on('click', 'button[class="btn btn-danger btn-sm"]', function () {
+$('#tbFactura tbody').on('click', 'button[class="btn btn-danger btn-sm"]', function () {
     $(this).parents("tr").remove();
     actualizarTotalGeneral();
+    
+    // DESBLOQUEAR CAMPOS si no quedan productos (excluyendo la fila de total)
+    var cantidadProductos = $('#tbFactura > tbody > tr').length;
+    // Restar 1 si existe la fila de total
+    if ($('#totalGeneralRow').length > 0) {
+        cantidadProductos--;
+    }
+    
+    if (cantidadProductos == 0) {
+        desbloquearCabecera();
+    }
 })
 
 // Función para actualizar el total general
 function actualizarTotalGeneral() {
     var totalGeneral = 0;
-    $('#tbCompra > tbody > tr').each(function() {
+    $('#tbFactura > tbody > tr').each(function() {
         var total = parseFloat($(this).find('td.totalproducto').data('total')) || 0;
         totalGeneral += total;
     });
     
     // Actualizar o crear fila de total
     $('#totalGeneralRow').remove();
-    if ($('#tbCompra > tbody > tr').length > 0) {
+    if ($('#tbFactura > tbody > tr').length > 0) {
         $("<tr id='totalGeneralRow'>").append(
-            $("<td colspan='7' class='text-right'>").html("<strong>TOTAL GENERAL:</strong>"),
+            $("<td colspan='5' class='text-right'>").html("<strong>TOTAL FACTURA:</strong>"),
             $("<td colspan='1' class='text-right'>").html("<strong>" + formatearPrecio(totalGeneral) + "</strong>")
-        ).appendTo("#tbCompra tbody");
+        ).appendTo("#tbFactura tbody");
     }
 }
 
 
 
-$('#btnTerminarGuardarCompra').on('click', function () {
+$('#btnTerminarGuardarFactura').on('click', function () {
 
 
-    if ($('#tbCompra > tbody  > tr').length == 0) {
+    if ($('#tbFactura > tbody  > tr').length == 0) {
         swal("Mensaje", "No existen detalles", "warning")
         return;
     }
 
+    if (parseInt($("#txtIdProveedor").val()) == 0) {
+        swal("Mensaje", "Debe seleccionar un proveedor", "warning")
+        return;
+    }
+
+    if (parseInt($("#txtIdTienda").val()) == 0) {
+        swal("Mensaje", "Debe seleccionar una tienda", "warning")
+        return;
+    }
+
+    if ($("#txtNumeroFactura").val().trim() == "") {
+        swal("Mensaje", "Debe ingresar el número de factura", "warning")
+        return;
+    }
+
     var $xml = "";
-    var compra = "";
-    var detallecompra = ""
+    var factura = "";
+    var detallefactura = ""
     var detalle = "";
-    var totalcostocompra = 0;
+    var totalfactura = 0;
 
     $xml = "<DETALLE>";
-    compra = "<COMPRA>" +
-        "<IdUsuario>!idusuario¡</IdUsuario>" +
+    factura = "<FACTURA>" +
         "<IdProveedor>" + $("#txtIdProveedor").val() + "</IdProveedor>" +
-        "<IdTienda>" + $("#txtIdTienda").val() + "</IdTienda>" +
-        "<TotalCosto>!totalcosto¡</TotalCosto>" +
-        "</COMPRA>";
-    detallecompra = "<DETALLE_COMPRA>"
+        "<NumeroFactura>" + $("#txtNumeroFactura").val().trim() + "</NumeroFactura>" +
+        "<FechaEmision>" + $("#txtFechaFactura").val() + "</FechaEmision>" +
+        "<Total>¡totalfactura!</Total>" +
+        "</FACTURA>";
+    detallefactura = "<DETALLE_FACTURA>"
 
-    $('#tbCompra > tbody  > tr').each(function (index, tr) {
+    $('#tbFactura > tbody  > tr').each(function (index, tr) {
 
         var fila = tr;
         // Saltar la fila del total general
@@ -426,49 +490,46 @@ $('#btnTerminarGuardarCompra').on('click', function () {
         
         var idproducto = parseFloat($(fila).find("td.codigoproducto").data("idproducto"));
         var cantidad = parseFloat($(fila).find("td.cantidad").text());
-        var preciocompra = parseFloat($(fila).find("td.preciocompra").data("precio"));
-        var totalcosto = parseFloat(cantidad) * parseFloat(preciocompra);
-
-        // Debug: verificar valores
-        console.log("Producto ID:", idproducto);
-        console.log("Cantidad:", cantidad);
-        console.log("Precio Compra:", preciocompra);
-        console.log("Total Costo:", totalcosto);
+        var preciounitario = parseFloat($(fila).find("td.preciounitario").data("precio"));
+        var subtotal = parseFloat(cantidad) * parseFloat(preciounitario);
 
         detalle = detalle + "<DETALLE>" +
-            "<IdCompra>0</IdCompra>" +
+            "<IdFactura>0</IdFactura>" +
             "<IdProducto>" + idproducto + "</IdProducto>" +
             "<Cantidad>" + cantidad + "</Cantidad>" +
-            "<PrecioUnidadCompra>" + preciocompra.toFixed(2) + "</PrecioUnidadCompra>" +
-            "<PrecioUnidadVenta>0</PrecioUnidadVenta>" +
-            "<TotalCosto>" + totalcosto.toFixed(2) + "</TotalCosto>" +
+            "<PrecioUnitario>" + preciounitario.toFixed(2) + "</PrecioUnitario>" +
+            "<Subtotal>" + subtotal.toFixed(2) + "</Subtotal>" +
             "</DETALLE>";
-        totalcostocompra = totalcostocompra + totalcosto;
+        totalfactura = totalfactura + subtotal;
 
     });
 
     // Asegurar formato decimal correcto (punto como separador)
-    compra = compra.replace("!totalcosto¡", totalcostocompra.toFixed(2));
-    $xml = $xml + compra + detallecompra + detalle + "</DETALLE_COMPRA></DETALLE>";
+    factura = factura.replace("¡totalfactura!", totalfactura.toFixed(2));
+    $xml = $xml + factura + detallefactura + detalle + "</DETALLE_FACTURA></DETALLE>";
 
-    // Debug: verificar total
-    console.log("Total Costo Compra:", totalcostocompra.toFixed(2));
+    // Debug: mostrar XML en consola
     console.log("XML a enviar:", $xml);
+    console.log("Total factura:", totalfactura.toFixed(2));
 
     jQuery.ajax({
-        url: $.MisUrls.url._GuardarCompra,
+        url: $.MisUrls.url._GuardarFacturaConDetalles,
         type: "POST",
         data: { xml: $xml },
         dataType: "json",
         success: function (data) {
             $.LoadingOverlay("hide");
+            
+            console.log("Respuesta del servidor:", data);
 
             if (data.resultado) {
                 // Mensaje simplificado
-                var mensaje = "Orden de compra registrada exitosamente\n\n";
+                var mensaje = "Factura registrada exitosamente\n\n";
+                mensaje += "Número: " + $("#txtNumeroFactura").val() + "\n";
                 mensaje += "Proveedor: " + $("#txtRazonSocialProveedor").val() + "\n";
                 mensaje += "Tienda: " + $("#txtNombreTienda").val() + "\n";
-                mensaje += "TOTAL: " + formatearPrecio(totalcostocompra);
+                mensaje += "TOTAL: " + formatearPrecio(totalfactura) + "\n";
+                mensaje += "Estado: PENDIENTE DE PAGO";
 
                 //PROVEEDOR
                 $("#txtIdProveedor").val("0");
@@ -480,23 +541,36 @@ $('#btnTerminarGuardarCompra').on('click', function () {
                 $("#txtRucTienda").val("");
                 $("#txtNombreTienda").val("");
 
+                //NUMERO FACTURA Y FECHA
+                $("#txtNumeroFactura").val("");
+                // Restablecer fecha actual
+                var hoy = new Date();
+                var dia = String(hoy.getDate()).padStart(2, '0');
+                var mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                var anio = hoy.getFullYear();
+                $('#txtFechaFactura').val(anio + '-' + mes + '-' + dia);
+
                 //PRODUCTO
                 $("#txtIdProducto").val("0");
                 $("#txtCodigoProducto").val("");
                 $("#txtNombreProducto").val("");
                 $("#txtCantidadProducto").val("0");
-                $("#txtPrecioCompraProducto").val("$0,00");
+                $("#txtPrecioUnitario").val("$0,00");
 
-                $("#tbCompra tbody").html("");
+                $("#tbFactura tbody").html("");
 
-                swal("Orden de Compra Registrada", mensaje, "success")
+                swal("Factura Registrada", mensaje, "success")
             } else {
 
-                swal("Mensaje", "No se pudo registrar la compra", "warning")
+                swal("Mensaje", "No se pudo registrar la factura", "warning")
             }
         },
         error: function (error) {
-            console.log(error)
+            console.log("Error completo:", error);
+            console.log("Status:", error.status);
+            console.log("Response:", error.responseText);
+            $.LoadingOverlay("hide");
+            swal("Error", "Error al registrar la factura: " + (error.responseText || error.statusText), "error")
         },
         beforeSend: function () {
             $.LoadingOverlay("show");
