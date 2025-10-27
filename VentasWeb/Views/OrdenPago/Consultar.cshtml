@@ -1,0 +1,211 @@
+@{
+    ViewBag.Title = "Consultar Ordenes de Pago";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Consultar Ordenes de Pago</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Inicio</a></li>
+                    <li class="breadcrumb-item active">Consultar Ordenes de Pago</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-search"></i> Listado de Ordenes de Pago
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label>Filtrar por Proveedor:</label>
+                        <select class="form-control form-control-sm" id="cboFiltroProveedor">
+                            <option value="0">-- Todos los proveedores --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-sm btn-primary btn-block" id="btnBuscar">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover table-sm" id="tbOrdenesPago">
+                        <thead>
+                            <tr>
+                                <th width="100px">Comprobante</th>
+                                <th>Nro Factura</th>
+                                <th>Proveedor</th>
+                                <th>Fecha</th>
+                                <th>Productos</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Metodo Pago</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Comprobante Orden de Pago -->
+<div class="modal fade" id="modalComprobanteOrdenPago">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h4 class="modal-title">
+                    <i class="fas fa-file-invoice-dollar"></i> Comprobante de Orden de Pago
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="divComprobanteOrdenPago" style="padding: 20px;">
+                    <!-- Encabezado con logo y datos de la tienda -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 text-center">
+                            <img src="~/Content/img/logo.png" alt="Logo" style="max-width: 150px;">
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <h3 id="txtNombreTienda" style="margin: 0; font-weight: bold;">MI TIENDA ONLINE S.A.C TEST</h3>
+                            <p id="txtCorreoTienda" style="margin: 5px 0;">test@gmail.com</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div style="border: 2px solid #17a2b8; padding: 10px; text-align: center; background-color: #17a2b8; color: white;">
+                                <h5 style="margin: 0; font-weight: bold;">ORDEN DE PAGO</h5>
+                                <p id="txtNumeroOrdenPago" style="margin: 5px 0; font-weight: bold; font-size: 16px;">OP-000001</p>
+                                <p id="txtFechaOrdenPago" style="margin: 5px 0;">Fecha - 23/10/2025</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalle Proveedor -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
+                                Detalle Proveedor
+                            </div>
+                            <table class="table table-bordered table-sm mb-0">
+                                <tr>
+                                    <td style="width: 15%; font-weight: bold;">Ruc:</td>
+                                    <td style="width: 35%;" id="txtRucProveedor">20567890124</td>
+                                    <td style="width: 15%; font-weight: bold;">Razon Social:</td>
+                                    <td style="width: 35%;" id="txtRazonSocialProveedor">PequeMundo S.A.</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Detalle Factura -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
+                                Detalle Factura
+                            </div>
+                            <table class="table table-bordered table-sm mb-0">
+                                <tr>
+                                    <td style="width: 15%; font-weight: bold;">Numero:</td>
+                                    <td style="width: 35%;" id="txtNumeroFactura">FACT-20251023-10</td>
+                                    <td style="width: 15%; font-weight: bold;">Fecha Emision:</td>
+                                    <td style="width: 35%;" id="txtFechaFactura">23/10/2025</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Estado de Pago -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
+                                Estado de Pago
+                            </div>
+                            <table class="table table-bordered table-sm mb-0">
+                                <tr>
+                                    <td style="width: 15%; font-weight: bold;">Estado:</td>
+                                    <td id="txtEstadoPago" style="text-align: center; font-weight: bold; font-size: 18px; color: #28a745;">Pagado</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Detalle Productos -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
+                                Detalle Productos
+                            </div>
+                            <table class="table table-bordered table-sm">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th style="text-align: center;">Cantidad</th>
+                                        <th>Concepto</th>
+                                        <th style="text-align: right;">P.Unitario</th>
+                                        <th style="text-align: right;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDetalleProductos">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" style="text-align: right; font-weight: bold;">Total</td>
+                                        <td id="txtTotalOrdenPago" style="text-align: right; font-weight: bold; font-size: 16px;">$ 2.000,00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Metodo de Pago -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
+                                Metodo de Pago
+                            </div>
+                            <table class="table table-bordered table-sm mb-0">
+                                <tr>
+                                    <td style="width: 15%; font-weight: bold;">Metodo:</td>
+                                    <td id="txtMetodoPago">Transferencia Bancaria</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Views/OrdenPago_Consultar.js"></script>
+}
