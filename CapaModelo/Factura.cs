@@ -16,6 +16,8 @@ namespace CapaModelo
         public Tienda oTienda { get; set; }
         public string NumeroFactura { get; set; }
         public decimal Total { get; set; }
+        public decimal MontoTotal { get; set; }
+        public string NombreProveedor { get; set; }
         public string TextoTotal { get; set; }
         public string TextoFechaEmision { get; set; }
         public string Estado { get; set; } // "Pendiente", "Pagada" o "Cancelada"
@@ -28,5 +30,6 @@ namespace CapaModelo
         public string FechaOrdenCompra { get; set; }
         public int CantidadProductos { get; set; }
         public string Productos { get; set; }
+        public int Cantidad { get; set; }
     }
 }

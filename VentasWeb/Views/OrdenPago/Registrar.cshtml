@@ -1,0 +1,174 @@
+@{
+    ViewBag.Title = "Registrar Orden de Pago";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Registrar Orden de Pago</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Inicio</a></li>
+                    <li class="breadcrumb-item active">Registrar Orden de Pago</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-file-invoice-dollar"></i> Nueva Orden de Pago
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="cboProveedor">Proveedor:</label>
+                            <select class="form-control form-control-sm" id="cboProveedor">
+                                <option value="0">-- Seleccione un proveedor --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div id="divFacturas" style="display:none;">
+                    <h5><i class="fas fa-file-invoice"></i> Facturas Pendientes</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm" id="tbFacturasPendientes">
+                            <thead>
+                                <tr>
+                                    <th width="80px"></th>
+                                    <th>Numero Factura</th>
+                                    <th>Proveedor</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="divMetodoPago" style="display:none;">
+                    <hr />
+                    <h5><i class="fas fa-credit-card"></i> Datos de Pago</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <strong>Factura Seleccionada:</strong> <span id="spanFacturaSeleccionada"></span><br>
+                                <strong>Monto a Pagar:</strong> <span id="spanMontoSeleccionado"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cboMetodoPago">Metodo de Pago: <span class="text-danger">*</span></label>
+                                <select class="form-control form-control-sm" id="cboMetodoPago">
+                                    <option value="0">-- Seleccione metodo de pago --</option>
+                                    <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Tarjeta de Credito">Tarjeta de Credito</option>
+                                    <option value="Tarjeta de Debito">Tarjeta de Debito</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn btn-success btn-block" id="btnGuardarOrdenPago" disabled>
+                                    <i class="fas fa-save"></i> Registrar Orden de Pago
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Confirmación Orden de Pago -->
+<div class="modal fade" id="modalConfirmarPago">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title">
+                    <i class="fas fa-check-circle"></i> Confirmar Orden de Pago
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Proveedor:</strong> <span id="spanProveedor"></span></p>
+                        <p><strong>Factura:</strong> <span id="spanFactura"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Monto Total:</strong> S/ <span id="spanMonto"></span></p>
+                        <p><strong>Método de Pago:</strong> <span id="spanMetodo"></span></p>
+                    </div>
+                </div>
+                <hr />
+                <p class="text-center">¿Está seguro de registrar esta orden de pago?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarPago">
+                    <i class="fas fa-save"></i> Registrar Orden de Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Comprobante -->
+<div class="modal fade" id="modalComprobante">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h4 class="modal-title">
+                    <i class="fas fa-file-invoice-dollar"></i> Comprobante de Pago
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="divComprobante">
+                    <!-- Se cargará dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Views/OrdenPago_Registrar.js"></script>
+}
