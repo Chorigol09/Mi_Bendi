@@ -1,0 +1,59 @@
+========================================
+AGREGAR ICONO AL MENÚ "ORDENES DE PAGO"
+========================================
+
+El menú "Ordenes de Pago" necesita tener un icono en la base de datos.
+
+OPCIÓN 1 - SQL Server Management Studio (RECOMENDADO):
+---------------------------------------------------------
+1. Abre SQL Server Management Studio
+2. Conéctate a tu servidor de base de datos
+3. Abre el archivo: ACTUALIZAR_ICONO_ORDEN_PAGO_SIMPLE.sql
+4. Ejecuta el script (presiona F5)
+5. Verifica que diga "COMPLETADO"
+
+OPCIÓN 2 - Consulta SQL Directa:
+---------------------------------------------------------
+Si prefieres, copia y pega esta consulta directamente en SSMS:
+
+    USE DBVENTAS_WEB
+    GO
+
+    UPDATE MENU 
+    SET Icono = 'fas fa-money-check-alt'
+    WHERE Nombre IN ('Órdenes de Pago', 'Ordenes de Pago')
+    GO
+
+    SELECT IdMenu, Nombre, Icono, Activo
+    FROM MENU
+    WHERE Nombre LIKE '%Orden%Pago%'
+    GO
+
+VERIFICAR LOS CAMBIOS EN LA APLICACIÓN:
+---------------------------------------------------------
+1. En la aplicación web, haz clic en "Salir" (esquina superior derecha)
+2. Vuelve a iniciar sesión con tu usuario
+3. Deberías ver el icono de billete/cheque (💵) junto a "Ordenes de Pago"
+
+ICONO QUE SE AGREGARÁ:
+---------------------------------------------------------
+- Clase Font Awesome: fas fa-money-check-alt
+- Representa: Un cheque o documento de pago
+- Es consistente con los otros iconos del sistema
+
+SOLUCIÓN DE PROBLEMAS:
+---------------------------------------------------------
+Si después de ejecutar el script NO ves el icono:
+
+1. Limpia la caché del navegador (Ctrl + Shift + Delete)
+2. Cierra completamente el navegador
+3. Reinicia la aplicación web en Visual Studio
+4. Vuelve a iniciar sesión
+
+Si aún no aparece:
+- Verifica en la base de datos que el registro se haya actualizado:
+  SELECT * FROM MENU WHERE Nombre LIKE '%Orden%Pago%'
+  
+- Asegúrate de que el campo "Icono" tenga el valor: fas fa-money-check-alt
+
+========================================

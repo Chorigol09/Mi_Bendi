@@ -16,7 +16,7 @@
     @Styles.Render("~/Content/PluginsCSS")
 
     <!-- Asegurar prioridad de Site.css -->
-    <link rel="stylesheet" href="@Url.Content("~/Content/Site.css")?v=6">
+    <link rel="stylesheet" href="@Url.Content("~/Content/Site.css")?v=7">
 
     @RenderSection("estilos", required: false)
 </head>
@@ -25,14 +25,14 @@
     <!-- NAVBAR -->
    
     <nav class="topbar navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid px-3">
+        <div class="container-fluid px-2">
             <!-- full ancho -->
             <div class="topbar-inner d-flex align-items-center w-100">
 
                 <!-- Izquierda: Brand -->
-                <a class="brand d-flex align-items-center text-white text-decoration-none mr-2" href="@Url.Action("Index","Home")">
-                    <span class="logo-sq mr-2">MB</span>
-                    <span class="brand-text">Mi Bendi</span>
+                <a class="brand d-flex align-items-center text-white text-decoration-none" href="@Url.Action("Index","Home")">
+                    <span class="logo-sq">MB</span>
+                    <span class="brand-text ml-2">Mi Bendi</span>
                 </a>
 
                 <!-- Toggler movil -->

@@ -217,8 +217,8 @@ footer {
 .topbar {
     background: linear-gradient(90deg,#0f97b0,#0a6fa7) !important;
     border-bottom: 1px solid rgba(255,255,255,.25);
-    padding: 18px 0; /* barra más alta */
-    min-height: 64px;
+    padding: 8px 0;
+    min-height: 56px;
 }
 
     /* Marca */
@@ -228,11 +228,15 @@ footer {
         color: #fff !important;
         white-space: nowrap;
     }
+    
+    .topbar .brand {
+        margin-right: 1rem !important;
+    }
 
     .topbar .logo-sq {
-        width: 36px;
-        height: 36px;
-        border-radius: 12px;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
         background: rgba(255,255,255,.25);
         display: inline-flex;
         align-items: center;
@@ -240,16 +244,19 @@ footer {
         color: #fff !important;
         font-weight: 800;
         letter-spacing: .5px;
+        font-size: 14px;
     }
 
     /* Links tipo pill */
     .topbar .navbar-nav .nav-link {
         color: #fff !important;
-        border-radius: 12px;
-        padding: 8px 14px;
-        line-height: 1;
+        border-radius: 10px;
+        padding: 6px 10px;
+        line-height: 1.2;
         opacity: .95;
         transition: background .15s ease;
+        font-size: 14px;
+        white-space: nowrap;
     }
 
         .topbar .navbar-nav .nav-link:hover {
@@ -262,12 +269,13 @@ footer {
 
     /* Avatar */
     .topbar .avatar {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: rgba(255,255,255,.3);
         color: #fff !important;
         font-weight: 700;
+        font-size: 13px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -276,14 +284,55 @@ footer {
     /* Iconos */
     .topbar .nav-link i {
         opacity: .95;
+        margin-right: 5px;
+        font-size: 14px;
+    }
+    
+    /* Asegurar que el texto no se rompa en múltiples líneas */
+    .topbar .navbar-nav .dropdown-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Dropdown menus más compactos */
+    .topbar .dropdown-menu {
+        margin-top: 8px;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .topbar .dropdown-item {
+        padding: 8px 16px;
+        font-size: 14px;
+        transition: background-color 0.15s ease;
+    }
+    
+    .topbar .dropdown-item i {
+        width: 18px;
+        margin-right: 8px;
+        font-size: 13px;
+    }
+    
+    /* Espaciado del nombre de usuario */
+    .topbar #userName {
+        font-size: 14px;
+        margin-left: 4px;
     }
 
 /* Centrado real del menú en >= lg */
 @media (min-width:992px) {
     .topbar .nav-center {
-        max-width: 60%;
+        max-width: none;
+        flex-grow: 1;
     }
-    /* ajustá 50–70% a gusto */
+    
+    /* Reducir padding del container en escritorio */
+    .topbar .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 
 /* Toggler visible en fondo oscuro */
@@ -296,7 +345,63 @@ footer {
 }
 
 .topbar .navbar-nav .nav-item {
-    margin: 0 4px;
+    margin: 0 1px;
+}
+
+/* Espaciado adicional para evitar solapamiento en escritorio */
+@media (min-width: 992px) {
+    .topbar .navbar-nav .nav-item {
+        margin: 0 3px;
+    }
+}
+
+/* Reducir espaciado en tablets */
+@media (min-width: 768px) and (max-width: 991px) {
+    .topbar .navbar-nav .nav-link {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+    .topbar .navbar-nav .nav-link i {
+        font-size: 13px;
+        margin-right: 4px;
+    }
+    
+    .topbar .brand-text {
+        font-size: 17px;
+    }
+    
+    .topbar .brand {
+        margin-right: 0.75rem !important;
+    }
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 991px) {
+    .topbar .topbar-inner {
+        justify-content: space-between;
+    }
+    
+    /* Asegurar que el menú colapse */
+    .topbar .navbar-collapse {
+        margin-top: 1rem;
+    }
+}
+
+/* Optimización para móviles */
+@media (max-width: 576px) {
+    .topbar .brand-text {
+        font-size: 16px;
+    }
+    
+    .topbar .logo-sq {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+    
+    .topbar {
+        padding: 10px 0;
+    }
 }
 
 .topbar {
