@@ -26,8 +26,9 @@ $(document).ready(function () {
 
     $("#txtFechaInicio").datepicker();
     $("#txtFechaFin").datepicker();
-    $("#txtFechaInicio").val(ObtenerFecha());
-    $("#txtFechaFin").val(ObtenerFecha());
+    // Dejar las fechas vacías para mostrar todas las órdenes
+    $("#txtFechaInicio").val("");
+    $("#txtFechaFin").val("");
   
 
     //OBTENER PROVEEDORES
@@ -92,7 +93,7 @@ $(document).ready(function () {
 
     tabladata = $('#tbCompras').DataTable({
         "ajax": {
-            "url": $.MisUrls.url._ObtenerCompras + "?fechainicio=" + ObtenerFecha() + "&fechafin=" + ObtenerFecha() + "&idproveedor=0&idtienda=0",
+            "url": $.MisUrls.url._ObtenerCompras + "?fechainicio=01/01/2000&fechafin=31/12/2099&idproveedor=0&idtienda=0",
             "type": "GET",
             "datatype": "json"
         },
@@ -225,15 +226,23 @@ $(document).ready(function () {
 
 
 function buscar() {
-
-    if ($("#txtFechaInicio").val().trim() == "" || $("#txtFechaFin").val().trim() == "") {
-        swal("Mensaje", "Debe ingresar fechas", "warning")
+    var fechaInicio = $("#txtFechaInicio").val().trim();
+    var fechaFin = $("#txtFechaFin").val().trim();
+    
+    // Si ambas fechas están vacías, buscar todas (rango amplio)
+    if (fechaInicio == "" && fechaFin == "") {
+        fechaInicio = "01/01/2000";
+        fechaFin = "31/12/2099";
+    }
+    // Si solo una fecha está vacía, mostrar error
+    else if (fechaInicio == "" || fechaFin == "") {
+        swal("Mensaje", "Debe ingresar ambas fechas o dejar ambas vacías para ver todas", "warning")
         return;
     }
 
     tabladata.ajax.url($.MisUrls.url._ObtenerCompras + "?"+
-        "fechainicio=" + $("#txtFechaInicio").val().trim() +
-        "&fechafin=" + $("#txtFechaFin").val().trim() +
+        "fechainicio=" + fechaInicio +
+        "&fechafin=" + fechaFin +
         "&idproveedor=" + $("#cboProveedor").val() +
         "&idtienda=" + $("#cboTienda").val()).load();
 }

@@ -174,14 +174,14 @@ namespace CapaDatos
                     {
                         rptListaCompra.Add(new Compra()
                         {
-                            IdCompra = Convert.ToInt32(dr["IdCompra"].ToString()),
+                            IdCompra = Convert.ToInt32(dr["IdCompra"]),
                             NumeroCompra = dr["NumeroCompra"].ToString(),
                             oProveedor = new Proveedor() { RazonSocial = dr["RazonSocial"].ToString() },
                             oTienda = new Tienda() { Nombre = dr["Nombre"].ToString() },
                             FechaCompra = dr["FechaCompra"].ToString(),
                             TotalCosto = Convert.ToDecimal(dr["TotalCosto"]),
-                            Estado = dr["Estado"].ToString(),
-                            CantidadProductos = Convert.ToInt32(dr["CantidadProductos"].ToString()),
+                            Estado = dr["Estado"] != DBNull.Value ? dr["Estado"].ToString() : "Abierta",
+                            CantidadProductos = dr["CantidadProductos"] != DBNull.Value ? Convert.ToInt32(dr["CantidadProductos"]) : 0,
                             Productos = dr["Productos"] != DBNull.Value ? dr["Productos"].ToString() : ""
                         });
                     }

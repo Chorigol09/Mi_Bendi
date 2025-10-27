@@ -63,8 +63,22 @@ namespace VentasWeb.Controllers
 
         public JsonResult Obtener(string fechainicio, string fechafin, int idproveedor, int idtienda)
         {
-            List<Compra> lista = CD_Compra.Instancia.ObtenerListaCompra(Convert.ToDateTime(fechainicio), Convert.ToDateTime(fechafin), idproveedor, idtienda);
-            return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                // Parsear fechas en formato dd/MM/yyyy (español)
+                System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo("es-AR");
+                DateTime dtInicio = DateTime.ParseExact(fechainicio, "dd/MM/yyyy", culture);
+                DateTime dtFin = DateTime.ParseExact(fechafin, "dd/MM/yyyy", culture);
+                
+                List<Compra> lista = CD_Compra.Instancia.ObtenerListaCompra(dtInicio, dtFin, idproveedor, idtienda);
+                return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // En caso de error, devolver lista vacía y registrar el error
+                System.Diagnostics.Debug.WriteLine("Error al obtener compras: " + ex.Message);
+                return Json(new { data = new List<Compra>() }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 

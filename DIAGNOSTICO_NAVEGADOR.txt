@@ -1,0 +1,41 @@
+DIAGNÓSTICO EN EL NAVEGADOR
+============================
+
+PASO 1: Abrir la consola del navegador
+---------------------------------------
+1. En la página de Consultar Compras
+2. Presionar F12
+3. Ir a la pestaña "Console"
+
+PASO 2: Ejecutar este código en la consola
+-------------------------------------------
+Copiar y pegar todo esto en la consola y presionar Enter:
+
+fetch('http://localhost:54927/Compra/Obtener?fechainicio=25/10/2025&fechafin=25/10/2025&idproveedor=0&idtienda=0')
+  .then(response => response.json())
+  .then(data => {
+    console.log('=== RESPUESTA DEL SERVIDOR ===');
+    console.log('Total de registros:', data.data ? data.data.length : 0);
+    console.log('Datos completos:', data);
+    if (data.data && data.data.length > 0) {
+      console.log('=== PRIMER REGISTRO ===');
+      console.log('Estructura:', data.data[0]);
+      console.log('oProveedor existe?', data.data[0].oProveedor !== undefined);
+      console.log('oTienda existe?', data.data[0].oTienda !== undefined);
+      if (data.data[0].oProveedor) {
+        console.log('oProveedor.RazonSocial:', data.data[0].oProveedor.RazonSocial);
+      }
+      if (data.data[0].oTienda) {
+        console.log('oTienda.Nombre:', data.data[0].oTienda.Nombre);
+      }
+    }
+  })
+  .catch(error => console.error('Error:', error));
+
+
+PASO 3: Copiar TODO lo que aparezca en la consola
+---------------------------------------------------
+Tomar una captura de pantalla de TODO lo que se imprima en la consola.
+
+NOTA: Puede que necesites cambiar el puerto 54927 por el que esté usando tu aplicación.
+Mira la URL en el navegador (ejemplo: localhost:XXXXX) y usa ese número.
