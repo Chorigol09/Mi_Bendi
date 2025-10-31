@@ -86,7 +86,7 @@
                     <!-- Encabezado con logo y datos de la tienda -->
                     <div class="row mb-4">
                         <div class="col-md-3 text-center">
-                            <img src="~/Content/img/logo.png" alt="Logo" style="max-width: 150px;">
+                            <img src="@Url.Content("~/Imagenes/mi-bendi-logo.png")" alt="Mi Bendi Logo" style="max-width: 180px; height: auto;">
                         </div>
                         <div class="col-md-6 text-center">
                             <h3 id="txtNombreTienda" style="margin: 0; font-weight: bold;">MI TIENDA ONLINE S.A.C TEST</h3>
@@ -207,5 +207,5 @@
 </div>
 
 @section scripts{
-    <script src="~/Scripts/Views/OrdenPago_Consultar.js"></script>
+    <script src="~/Scripts/Views/OrdenPago_Consultar.js?v=@DateTime.Now.Ticks"></script>
 }

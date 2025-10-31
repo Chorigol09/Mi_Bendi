@@ -93,7 +93,11 @@ $(document).ready(function () {
                 "defaultContent": "0.00",
                 "className": "text-right",
                 "render": function (data) {
-                    return 'AR$ ' + parseFloat(data || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                    var numero = parseFloat(data || 0).toFixed(2);
+                    var partes = numero.split('.');
+                    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    var decimal = partes[1];
+                    return 'AR$ ' + entero + ',' + decimal;
                 }
             }
         ],
@@ -174,7 +178,11 @@ $('#tbFacturasPendientes tbody').on('click', '.btn-seleccionar', function () {
     
     // Mostrar informacion de la factura seleccionada
     $("#spanFacturaSeleccionada").text(data.NumeroFactura);
-    $("#spanMontoSeleccionado").text("AR$ " + parseFloat(data.MontoTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+    var numero = parseFloat(data.MontoTotal).toFixed(2);
+    var partes = numero.split('.');
+    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    var decimal = partes[1];
+    $("#spanMontoSeleccionado").text("AR$ " + entero + ',' + decimal);
     
     // Mostrar seccion de metodo de pago
     $("#divMetodoPago").slideDown();

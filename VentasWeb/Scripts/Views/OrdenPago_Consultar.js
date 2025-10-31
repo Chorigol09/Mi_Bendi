@@ -104,7 +104,11 @@ $(document).ready(function () {
                 "defaultContent": "0.00",
                 "className": "text-right",
                 "render": function (data) {
-                    return 'AR$ ' + parseFloat(data || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                    var numero = parseFloat(data || 0).toFixed(2);
+                    var partes = numero.split('.');
+                    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    var decimal = partes[1];
+                    return 'AR$ ' + entero + ',' + decimal;
                 }
             },
             { "data": "MetodoPago", "defaultContent": "" },
@@ -246,11 +250,23 @@ $(document).ready(function () {
                     $("#tbodyDetalleProductos").html("");
                     if (detalle.DetalleProductos && detalle.DetalleProductos.length > 0) {
                         $.each(detalle.DetalleProductos, function (i, item) {
+                            // Formatear precio unitario
+                            var precioNum = parseFloat(item.PrecioUnitario).toFixed(2);
+                            var precioPartes = precioNum.split('.');
+                            var precioEntero = precioPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            var precioFormatado = "$ " + precioEntero + "," + precioPartes[1];
+                            
+                            // Formatear subtotal
+                            var subtotalNum = parseFloat(item.Subtotal).toFixed(2);
+                            var subtotalPartes = subtotalNum.split('.');
+                            var subtotalEntero = subtotalPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            var subtotalFormatado = "$ " + subtotalEntero + "," + subtotalPartes[1];
+                            
                             var fila = "<tr>" +
                                 "<td style='text-align: center;'>" + item.Cantidad + "</td>" +
                                 "<td>" + item.NombreProducto + "</td>" +
-                                "<td style='text-align: right;'>$ " + parseFloat(item.PrecioUnitario).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + "</td>" +
-                                "<td style='text-align: right;'>$ " + parseFloat(item.Subtotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + "</td>" +
+                                "<td style='text-align: right;'>" + precioFormatado + "</td>" +
+                                "<td style='text-align: right;'>" + subtotalFormatado + "</td>" +
                                 "</tr>";
                             $("#tbodyDetalleProductos").append(fila);
                         });
@@ -259,7 +275,10 @@ $(document).ready(function () {
                     }
 
                     // Total
-                    $("#txtTotalOrdenPago").text("$ " + parseFloat(detalle.MontoTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    var totalNum = parseFloat(detalle.MontoTotal).toFixed(2);
+                    var totalPartes = totalNum.split('.');
+                    var totalEntero = totalPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    $("#txtTotalOrdenPago").text("$ " + totalEntero + "," + totalPartes[1]);
 
                     // Metodo de Pago
                     $("#txtMetodoPago").text(detalle.MetodoPago);
