@@ -141,12 +141,17 @@
                         <table style="font-weight: bold; width:100%">
                             <tr>
                                 <td colspan="4">
-                                    <table width='250' style="border:1px solid #17a2b8;">
+                                    <table width='350' style="border:1px solid #17a2b8;">
                                         <tr style="border:1px solid #17a2b8;">
-                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Pago con</td>
-                                            <td><span>@(Model != null ? Model.TextoImporteRecibido : "")</span></td>
-                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Cambio</td>
-                                            <td><span>@(Model != null ? Model.TextoImporteCambio : "")</span></td>
+                                            <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Metodo Pago</td>
+                                            <td><span>@(Model != null && !string.IsNullOrEmpty(Model.MetodoPago) ? Model.MetodoPago : "Efectivo")</span></td>
+                                            @if (Model != null && (string.IsNullOrEmpty(Model.MetodoPago) || Model.MetodoPago == "Efectivo"))
+                                            {
+                                                <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Pago con</td>
+                                                <td><span>@(Model != null ? Model.TextoImporteRecibido : "")</span></td>
+                                                <td style="color:#fff;background-color:#17a2b8; -webkit-print-color-adjust: exact;">Cambio</td>
+                                                <td><span>@(Model != null ? Model.TextoImporteCambio : "")</span></td>
+                                            }
                                         </tr>
                                     </table>
                                 </td>

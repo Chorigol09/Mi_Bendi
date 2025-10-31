@@ -1,4 +1,4 @@
-﻿using CapaModelo;
+using CapaModelo;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -88,6 +88,7 @@ namespace CapaDatos
                                                    select new Venta()
                                                    {
                                                        TipoDocumento = dato.Element("TipoDocumento").Value,
+                                                       MetodoPago = dato.Element("MetodoPago") != null ? dato.Element("MetodoPago").Value : "Efectivo",
                                                        Codigo = dato.Element("Codigo").Value,
                                                        TotalCosto = float.Parse(dato.Element("TotalCosto").Value, NuevaCultura),
                                                        ImporteRecibido = float.Parse(dato.Element("ImporteRecibido").Value, NuevaCultura),
@@ -168,6 +169,7 @@ namespace CapaDatos
                         {
                             IdVenta = Convert.ToInt32(dr["IdVenta"].ToString()),
                             TipoDocumento = dr["TipoDocumento"].ToString(),
+                            MetodoPago = dr["MetodoPago"] != DBNull.Value ? dr["MetodoPago"].ToString() : "Efectivo",
                             Codigo = dr["Codigo"].ToString(),
                             FechaRegistro = Convert.ToDateTime(dr["FechaRegistro"].ToString()).ToString("dd/MM/yyyy"),
                             VFechaRegistro = Convert.ToDateTime(dr["FechaRegistro"].ToString()),

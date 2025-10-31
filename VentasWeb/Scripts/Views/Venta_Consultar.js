@@ -89,6 +89,13 @@ $(document).ready(function () {
                 }
             },
             {
+                "data": "MetodoPago", 
+                "defaultContent": "Efectivo",
+                "render": function (data) {
+                    return data || "Efectivo";
+                }
+            },
+            {
                 "data": "TotalCosto", render: function (data) {
                     // Formatear como $X.XXX,XX (punto para miles, coma para decimales)
                     var numero = parseFloat(data).toFixed(2);

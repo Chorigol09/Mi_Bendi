@@ -37,89 +37,252 @@ $(document).ready(function () {
     $('#txtFechaFactura').val(anio + '-' + mes + '-' + dia);
 
     //OBTENER PROVEEDORES
-    tablaproveedor = $('#tbProveedor').DataTable({
-        "ajax": {
-            "url": $.MisUrls.url._ObtenerProveedores,
-            "type": "GET",
-            "datatype": "json"
-        },
-        "columns": [
-            {
-                "data": "IdProveedor", "render": function (data, type, row, meta) {
-                    return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='proveedorSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>"
-                },
-                "orderable": false,
-                "searchable": false,
-                "width": "90px"
+    try {
+        tablaproveedor = $('#tbProveedor').DataTable({
+            "ajax": {
+                "url": $.MisUrls.url._ObtenerProveedores,
+                "type": "GET",
+                "datatype": "json"
             },
-            { "data": "Ruc" },
-            { "data": "RazonSocial" },
-            { "data": "Direccion" }
+            "columns": [
+                {
+                    "data": "IdProveedor", "render": function (data, type, row, meta) {
+                        return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='proveedorSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>"
+                    },
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "90px"
+                },
+                { "data": "Ruc" },
+                { "data": "RazonSocial" },
+                { "data": "Direccion" }
 
-        ],
-        "language": {
-            "url": $.MisUrls.url.Url_datatable_spanish
-        },
-        responsive: true
-    });
+            ],
+            "language": {
+                "url": $.MisUrls.url.Url_datatable_spanish
+            },
+            responsive: true
+        });
+    } catch (e) {
+        console.error('Error al inicializar tabla de proveedores:', e);
+    }
 
     //OBTENER TIENDAS
-    tablatienda = $('#tbTienda').DataTable({
-        "ajax": {
-            "url": $.MisUrls.url._ObtenerTiendas,
-            "type": "GET",
-            "datatype": "json"
-        },
-        "columns": [
-            {
-                "data": "IdTienda", "render": function (data, type, row, meta) {
-                    return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='tiendaSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>" 
-                },
-                "orderable": false,
-                "searchable": false,
-                "width": "90px"
+    try {
+        tablatienda = $('#tbTienda').DataTable({
+            "ajax": {
+                "url": $.MisUrls.url._ObtenerTiendas,
+                "type": "GET",
+                "datatype": "json"
             },
-            { "data": "RUC" },
-            { "data": "Nombre" },
-            { "data": "Direccion" }
+            "columns": [
+                {
+                    "data": "IdTienda", "render": function (data, type, row, meta) {
+                        return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='tiendaSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>" 
+                    },
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "90px"
+                },
+                { "data": "RUC" },
+                { "data": "Nombre" },
+                { "data": "Direccion" }
 
-        ],
-        "language": {
-            "url": $.MisUrls.url.Url_datatable_spanish
-        },
-        responsive: true
-    });
+            ],
+            "language": {
+                "url": $.MisUrls.url.Url_datatable_spanish
+            },
+            responsive: true
+        });
+    } catch (e) {
+        console.error('Error al inicializar tabla de tiendas:', e);
+    }
 
     //OBTENER PRODUCTOS
-    tablaproducto = $('#tbProducto').DataTable({
-        "ajax": {
-            "url": $.MisUrls.url._ObtenerProductosPorTienda + "?IdTienda=0",
-            "type": "GET",
-            "datatype": "json"
-        },
-        "columns": [
-            {
-                "data": "IdProducto", "render": function (data, type, row, meta) {
-                    return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='productoSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>"
-                },
-                "orderable": false,
-                "searchable": false,
-                "width": "90px"
+    try {
+        tablaproducto = $('#tbProducto').DataTable({
+            "ajax": {
+                "url": $.MisUrls.url._ObtenerProductosPorTienda + "?IdTienda=0",
+                "type": "GET",
+                "datatype": "json"
             },
-            { "data": "Codigo" },
-            { "data": "Nombre" },
-            { "data": "Descripcion" },
-            {
-                "data": "oCategoria", render: function (data) {
-                    return data.Descripcion
+            "columns": [
+                {
+                    "data": "IdProducto", "render": function (data, type, row, meta) {
+                        return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='productoSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>"
+                    },
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "90px"
+                },
+                { "data": "Codigo" },
+                { "data": "Nombre" },
+                { "data": "Descripcion" },
+                {
+                    "data": "oCategoria", render: function (data) {
+                        return data ? data.Descripcion : ''
+                    }
                 }
-            }
 
-        ],
-        "language": {
-            "url": $.MisUrls.url.Url_datatable_spanish
-        },
-        responsive: true
+            ],
+            "language": {
+                "url": $.MisUrls.url.Url_datatable_spanish
+            },
+            responsive: true
+        });
+    } catch (e) {
+        console.error('Error al inicializar tabla de productos:', e);
+    }
+
+    // Registrar evento del botón Guardar Factura
+    $('#btnTerminarGuardarFactura').on('click', function () {
+
+        if ($('#tbFactura > tbody  > tr').length == 0) {
+            swal("Mensaje", "No existen detalles", "warning")
+            return;
+        }
+
+        // Verificar si solo está la fila de total (sin productos reales)
+        var filasSinTotal = $('#tbFactura > tbody > tr').not('#totalGeneralRow').length;
+        if (filasSinTotal == 0) {
+            swal("Mensaje", "Debe agregar al menos un producto", "warning")
+            return;
+        }
+
+        if (parseInt($("#txtIdProveedor").val()) == 0) {
+            swal("Mensaje", "Debe seleccionar un proveedor", "warning")
+            return;
+        }
+
+        if (parseInt($("#txtIdTienda").val()) == 0) {
+            swal("Mensaje", "Debe seleccionar una tienda", "warning")
+            return;
+        }
+
+        if ($("#txtNumeroFactura").val().trim() == "") {
+            swal("Mensaje", "Debe ingresar el número de factura", "warning")
+            return;
+        }
+
+        var $xml = "";
+        var factura = "";
+        var detallefactura = ""
+        var detalle = "";
+        var totalfactura = 0;
+        var numeroOrdenCompra = $("#txtNumeroOrdenCompra").length > 0 ? $("#txtNumeroOrdenCompra").val().trim() : "";
+
+        $xml = "<DETALLE>";
+        factura = "<FACTURA>" +
+            "<IdProveedor>" + $("#txtIdProveedor").val() + "</IdProveedor>" +
+            "<NumeroFactura>" + $("#txtNumeroFactura").val().trim() + "</NumeroFactura>" +
+            "<NumeroOrdenCompra>" + (numeroOrdenCompra || "No asociado a una OC") + "</NumeroOrdenCompra>" +
+            "<FechaEmision>" + $("#txtFechaFactura").val() + "</FechaEmision>" +
+            "<Total>¡totalfactura!</Total>" +
+            "</FACTURA>";
+        detallefactura = "<DETALLE_FACTURA>"
+
+        $('#tbFactura > tbody  > tr').each(function (index, tr) {
+
+            var fila = tr;
+            // Saltar la fila del total general
+            if ($(fila).attr('id') === 'totalGeneralRow') {
+                return true; // continue
+            }
+            
+            var idproducto = parseFloat($(fila).find("td.codigoproducto").data("idproducto"));
+            var cantidad = parseFloat($(fila).find("td.cantidad").text());
+            var preciounitario = parseFloat($(fila).find("td.preciounitario").data("precio"));
+            var subtotal = parseFloat(cantidad) * parseFloat(preciounitario);
+
+            detalle = detalle + "<DETALLE>" +
+                "<IdFactura>0</IdFactura>" +
+                "<IdProducto>" + idproducto + "</IdProducto>" +
+                "<Cantidad>" + cantidad + "</Cantidad>" +
+                "<PrecioUnitario>" + preciounitario.toFixed(2) + "</PrecioUnitario>" +
+                "<Subtotal>" + subtotal.toFixed(2) + "</Subtotal>" +
+                "</DETALLE>";
+            totalfactura = totalfactura + subtotal;
+
+        });
+
+        // Asegurar formato decimal correcto (punto como separador)
+        factura = factura.replace("¡totalfactura!", totalfactura.toFixed(2));
+        $xml = $xml + factura + detallefactura + detalle + "</DETALLE_FACTURA></DETALLE>";
+
+        // Debug: mostrar XML en consola
+        console.log("XML a enviar:", $xml);
+        console.log("Total factura:", totalfactura.toFixed(2));
+
+        jQuery.ajax({
+            url: $.MisUrls.url._GuardarFacturaConDetalles,
+            type: "POST",
+            data: { xml: $xml },
+            dataType: "json",
+            success: function (data) {
+                $.LoadingOverlay("hide");
+                
+                console.log("Respuesta del servidor:", data);
+
+                if (data.resultado) {
+                    // Mensaje simplificado
+                    var mensaje = "Factura registrada exitosamente\n\n";
+                    mensaje += "Número: " + $("#txtNumeroFactura").val() + "\n";
+                    mensaje += "Proveedor: " + $("#txtRazonSocialProveedor").val() + "\n";
+                    mensaje += "Tienda: " + $("#txtNombreTienda").val() + "\n";
+                    mensaje += "TOTAL: " + formatearPrecio(totalfactura) + "\n";
+                    mensaje += "Estado: PENDIENTE DE PAGO";
+
+                    //PROVEEDOR
+                    $("#txtIdProveedor").val("0");
+                    $("#txtRucProveedor").val("");
+                    $("#txtRazonSocialProveedor").val("");
+
+                    //TIENDA
+                    $("#txtIdTienda").val("0");
+                    $("#txtRucTienda").val("");
+                    $("#txtNombreTienda").val("");
+
+                    //NUMERO FACTURA, ORDEN COMPRA Y FECHA
+                    $("#txtNumeroFactura").val("");
+                    $("#txtNumeroOrdenCompra").val("");
+                    // Restablecer fecha actual
+                    var hoy = new Date();
+                    var dia = String(hoy.getDate()).padStart(2, '0');
+                    var mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                    var anio = hoy.getFullYear();
+                    $('#txtFechaFactura').val(anio + '-' + mes + '-' + dia);
+
+                    //PRODUCTO
+                    $("#txtIdProducto").val("0");
+                    $("#txtCodigoProducto").val("");
+                    $("#txtNombreProducto").val("");
+                    $("#txtCantidadProducto").val("0");
+                    $("#txtPrecioUnitario").val("$0,00");
+
+                    $("#tbFactura tbody").html("");
+                    
+                    // Desbloquear cabecera para nueva factura
+                    desbloquearCabecera();
+
+                    // Mostrar mensaje de éxito
+                    swal("Factura Registrada", mensaje, "success");
+                } else {
+
+                    swal("Mensaje", "No se pudo registrar la factura", "warning")
+                }
+            },
+            error: function (error) {
+                console.log("Error completo:", error);
+                console.log("Status:", error.status);
+                console.log("Response:", error.responseText);
+                $.LoadingOverlay("hide");
+                swal("Error", "Error al registrar la factura: " + (error.responseText || error.statusText), "error")
+            },
+            beforeSend: function () {
+                $.LoadingOverlay("show");
+            },
+        });
+
     });
 
 })
@@ -439,172 +602,3 @@ function actualizarTotalGeneral() {
         ).appendTo("#tbFactura tbody");
     }
 }
-
-
-
-$('#btnTerminarGuardarFactura').on('click', function () {
-
-
-    if ($('#tbFactura > tbody  > tr').length == 0) {
-        swal("Mensaje", "No existen detalles", "warning")
-        return;
-    }
-
-    if (parseInt($("#txtIdProveedor").val()) == 0) {
-        swal("Mensaje", "Debe seleccionar un proveedor", "warning")
-        return;
-    }
-
-    if (parseInt($("#txtIdTienda").val()) == 0) {
-        swal("Mensaje", "Debe seleccionar una tienda", "warning")
-        return;
-    }
-
-    if ($("#txtNumeroFactura").val().trim() == "") {
-        swal("Mensaje", "Debe ingresar el número de factura", "warning")
-        return;
-    }
-
-    var $xml = "";
-    var factura = "";
-    var detallefactura = ""
-    var detalle = "";
-    var totalfactura = 0;
-    var numeroOrdenCompra = $("#txtNumeroOrdenCompra").val().trim();
-
-    $xml = "<DETALLE>";
-    factura = "<FACTURA>" +
-        "<IdProveedor>" + $("#txtIdProveedor").val() + "</IdProveedor>" +
-        "<NumeroFactura>" + $("#txtNumeroFactura").val().trim() + "</NumeroFactura>" +
-        "<NumeroOrdenCompra>" + (numeroOrdenCompra || "No asociado a una OC") + "</NumeroOrdenCompra>" +
-        "<FechaEmision>" + $("#txtFechaFactura").val() + "</FechaEmision>" +
-        "<Total>¡totalfactura!</Total>" +
-        "</FACTURA>";
-    detallefactura = "<DETALLE_FACTURA>"
-
-    $('#tbFactura > tbody  > tr').each(function (index, tr) {
-
-        var fila = tr;
-        // Saltar la fila del total general
-        if ($(fila).attr('id') === 'totalGeneralRow') {
-            return true; // continue
-        }
-        
-        var idproducto = parseFloat($(fila).find("td.codigoproducto").data("idproducto"));
-        var cantidad = parseFloat($(fila).find("td.cantidad").text());
-        var preciounitario = parseFloat($(fila).find("td.preciounitario").data("precio"));
-        var subtotal = parseFloat(cantidad) * parseFloat(preciounitario);
-
-        detalle = detalle + "<DETALLE>" +
-            "<IdFactura>0</IdFactura>" +
-            "<IdProducto>" + idproducto + "</IdProducto>" +
-            "<Cantidad>" + cantidad + "</Cantidad>" +
-            "<PrecioUnitario>" + preciounitario.toFixed(2) + "</PrecioUnitario>" +
-            "<Subtotal>" + subtotal.toFixed(2) + "</Subtotal>" +
-            "</DETALLE>";
-        totalfactura = totalfactura + subtotal;
-
-    });
-
-    // Asegurar formato decimal correcto (punto como separador)
-    factura = factura.replace("¡totalfactura!", totalfactura.toFixed(2));
-    $xml = $xml + factura + detallefactura + detalle + "</DETALLE_FACTURA></DETALLE>";
-
-    // Debug: mostrar XML en consola
-    console.log("XML a enviar:", $xml);
-    console.log("Total factura:", totalfactura.toFixed(2));
-
-    jQuery.ajax({
-        url: $.MisUrls.url._GuardarFacturaConDetalles,
-        type: "POST",
-        data: { xml: $xml },
-        dataType: "json",
-        success: function (data) {
-            $.LoadingOverlay("hide");
-            
-            console.log("Respuesta del servidor:", data);
-
-            if (data.resultado) {
-                // Mensaje simplificado
-                var mensaje = "Factura registrada exitosamente\n\n";
-                mensaje += "Número: " + $("#txtNumeroFactura").val() + "\n";
-                mensaje += "Proveedor: " + $("#txtRazonSocialProveedor").val() + "\n";
-                mensaje += "Tienda: " + $("#txtNombreTienda").val() + "\n";
-                mensaje += "TOTAL: " + formatearPrecio(totalfactura) + "\n";
-                mensaje += "Estado: PENDIENTE DE PAGO";
-
-                //PROVEEDOR
-                $("#txtIdProveedor").val("0");
-                $("#txtRucProveedor").val("");
-                $("#txtRazonSocialProveedor").val("");
-
-                //TIENDA
-                $("#txtIdTienda").val("0");
-                $("#txtRucTienda").val("");
-                $("#txtNombreTienda").val("");
-
-                //NUMERO FACTURA, ORDEN COMPRA Y FECHA
-                $("#txtNumeroFactura").val("");
-                $("#txtNumeroOrdenCompra").val("");
-                // Restablecer fecha actual
-                var hoy = new Date();
-                var dia = String(hoy.getDate()).padStart(2, '0');
-                var mes = String(hoy.getMonth() + 1).padStart(2, '0');
-                var anio = hoy.getFullYear();
-                $('#txtFechaFactura').val(anio + '-' + mes + '-' + dia);
-
-                //PRODUCTO
-                $("#txtIdProducto").val("0");
-                $("#txtCodigoProducto").val("");
-                $("#txtNombreProducto").val("");
-                $("#txtCantidadProducto").val("0");
-                $("#txtPrecioUnitario").val("$0,00");
-
-                $("#tbFactura tbody").html("");
-                
-                // Desbloquear cabecera para nueva factura
-                desbloquearCabecera();
-
-                // Mostrar mensaje con opción de ir a ver facturas
-                swal({
-                    title: "Factura Registrada",
-                    text: mensaje,
-                    icon: "success",
-                    buttons: {
-                        nueva: {
-                            text: "Registrar Otra",
-                            value: "nueva",
-                            className: "btn-success"
-                        },
-                        ver: {
-                            text: "Ver Facturas",
-                            value: "ver",
-                            className: "btn-primary"
-                        }
-                    }
-                }).then((value) => {
-                    if (value === "ver") {
-                        // Redirigir con parámetro para indicar que hay una factura nueva
-                        window.location.href = "/Factura/Index?nueva=1";
-                    }
-                });
-            } else {
-
-                swal("Mensaje", "No se pudo registrar la factura", "warning")
-            }
-        },
-        error: function (error) {
-            console.log("Error completo:", error);
-            console.log("Status:", error.status);
-            console.log("Response:", error.responseText);
-            $.LoadingOverlay("hide");
-            swal("Error", "Error al registrar la factura: " + (error.responseText || error.statusText), "error")
-        },
-        beforeSend: function () {
-            $.LoadingOverlay("show");
-        },
-    });
-
- 
-
-})

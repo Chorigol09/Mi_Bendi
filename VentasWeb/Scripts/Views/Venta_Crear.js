@@ -105,6 +105,22 @@ $(document).ready(function () {
         responsive: true
     });
 
+    // Manejar cambio de método de pago
+    $('#cboMetodoPago').on('change', function() {
+        var metodoPago = $(this).val();
+        
+        if (metodoPago === 'Efectivo') {
+            // Mostrar campos de monto y cambio
+            $('#seccionEfectivo').show();
+        } else {
+            // Ocultar campos de monto y cambio para otros métodos
+            $('#seccionEfectivo').hide();
+            // Limpiar valores
+            $('#txtmontopago').val('');
+            $('#txtcambio').val('');
+        }
+    });
+
 })
 
 function ObtenerFecha() {
@@ -416,8 +432,9 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         return;
     }
 
-    //VALIDACIONES DE MONTO PAGO
-    if ($("#txtmontopago").val().trim() == "") {
+    //VALIDACIONES DE MONTO PAGO - Solo para efectivo
+    var metodoPago = $("#cboMetodoPago").val();
+    if (metodoPago === "Efectivo" && $("#txtmontopago").val().trim() == "") {
         swal("Mensaje", "Ingrese el monto de pago", "warning");
         return;
     }
@@ -431,7 +448,10 @@ $('#btnTerminarGuardarVenta').on('click', function () {
     var DETALLE_VENTA = "";
     var DATOS_VENTA = "";
 
-    calcularCambio();
+    // Solo calcular cambio si es efectivo
+    if (metodoPago === "Efectivo") {
+        calcularCambio();
+    }
 
     $('#tbVenta > tbody  > tr').each(function (index, tr) {
         var fila = tr;
@@ -453,16 +473,30 @@ $('#btnTerminarGuardarVenta').on('click', function () {
     });
 
 
+    // Determinar importeRecibido e importeCambio según método de pago
+    var importeRecibido = 0;
+    var importeCambio = 0;
+    
+    if (metodoPago === "Efectivo") {
+        importeRecibido = desformatearPrecio($("#txtmontopago").val());
+        importeCambio = desformatearPrecio($("#txtcambio").val());
+    } else {
+        // Para otros métodos de pago, el importe recibido es igual al total
+        importeRecibido = $totalimportes;
+        importeCambio = 0;
+    }
+
     VENTA = "<VENTA>" +
         "<IdTienda>" + $("#txtIdTienda").val() + "</IdTienda>" +
         "<IdUsuario>" + $("#txtIdUsuario").val() + "</IdUsuario>" +
         "<IdCliente>0</IdCliente>" +
         "<TipoDocumento>" + $("#cboventatipodocumento").val() + "</TipoDocumento>" +
+        "<MetodoPago>" + metodoPago + "</MetodoPago>" +
         "<CantidadProducto>" + $('#tbVenta tbody tr').length + "</CantidadProducto>" +
         "<CantidadTotal>" + $totalproductos + "</CantidadTotal>" +
         "<TotalCosto>" + $totalimportes.toFixed(2) + "</TotalCosto>" +
-        "<ImporteRecibido>" + desformatearPrecio($("#txtmontopago").val()).toFixed(2) + "</ImporteRecibido>" +
-        "<ImporteCambio>" + desformatearPrecio($("#txtcambio").val()).toFixed(2) + "</ImporteCambio>" +
+        "<ImporteRecibido>" + importeRecibido.toFixed(2) + "</ImporteRecibido>" +
+        "<ImporteCambio>" + importeCambio.toFixed(2) + "</ImporteCambio>" +
         "</VENTA >";
 
     DETALLE_CLIENTE = "<DETALLE_CLIENTE><DATOS>" +
