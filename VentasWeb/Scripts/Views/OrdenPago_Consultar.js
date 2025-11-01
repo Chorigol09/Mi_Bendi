@@ -103,6 +103,7 @@ $(document).ready(function () {
                 "data": "MontoTotal",
                 "defaultContent": "0.00",
                 "className": "text-right",
+                "width": "140px",
                 "render": function (data) {
                     var numero = parseFloat(data || 0).toFixed(2);
                     var partes = numero.split('.');

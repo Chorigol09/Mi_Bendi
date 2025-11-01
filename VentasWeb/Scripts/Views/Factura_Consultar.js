@@ -70,7 +70,7 @@ $(document).ready(function () {
                 "render": function(data) {
                     return formatearPrecio(data);
                 },
-                "width": "100px"
+                "width": "140px"
             },
             { 
                 "data": "CantidadProductos",
