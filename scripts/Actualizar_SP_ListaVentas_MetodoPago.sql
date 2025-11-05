@@ -41,3 +41,6 @@ END
 GO
 
 PRINT 'Stored procedure usp_ObtenerListaVenta actualizado exitosamente'
+
+-- Ver el contenido del stored procedure
+EXEC sp_helptext 'usp_ObtenerListaVenta'

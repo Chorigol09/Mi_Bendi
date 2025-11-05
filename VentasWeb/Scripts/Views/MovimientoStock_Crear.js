@@ -45,6 +45,9 @@ $(document).ready(function () {
         errorElement: 'span'
     });
 
+    // Asegurar que el select de orden esté sincronizado al inicio
+    $("#cboOrdenFecha").val("desc");
+
     // Inicializar tabla de movimientos
     tablaMovimientos = $('#tbMovimientos').DataTable({
         "ajax": {
@@ -54,7 +57,8 @@ $(document).ready(function () {
         },
         "columns": [
             {
-                "data": "FechaRegistro", "render": function (data) {
+                "data": "FechaRegistro", 
+                "render": function (data, type, row) {
                     if (!data) return '';
                     
                     // Parsear fecha en formato compatible
@@ -70,6 +74,12 @@ $(document).ready(function () {
                         return 'Fecha invalida';
                     }
                     
+                    // Para ordenar, devolver el timestamp
+                    if (type === 'sort' || type === 'type') {
+                        return date.getTime();
+                    }
+                    
+                    // Para mostrar, devolver formato legible
                     var dia = ("0" + date.getDate()).slice(-2);
                     var mes = ("0" + (date.getMonth() + 1)).slice(-2);
                     var anio = date.getFullYear();
@@ -491,9 +501,32 @@ function limpiarFormulario() {
 }
 
 $('#btnFiltrar').on('click', function () {
-    var idTienda = parseInt($("#cboFiltroTienda").val());
-    tablaMovimientos.ajax.url($.MisUrls.url._ObtenerMovimientosAgrupados + "?idTienda=" + idTienda).load();
+    aplicarFiltrosYOrden();
 });
+
+// Detectar cambio en el orden de fecha
+$('#cboOrdenFecha').on('change', function () {
+    aplicarOrdenFecha();
+});
+
+// Función para aplicar filtros y orden
+function aplicarFiltrosYOrden() {
+    var idTienda = parseInt($("#cboFiltroTienda").val());
+    var orden = $("#cboOrdenFecha").val();
+    
+    // Recargar datos
+    tablaMovimientos.ajax.url($.MisUrls.url._ObtenerMovimientosAgrupados + "?idTienda=" + idTienda).load(function() {
+        // Aplicar orden después de cargar los datos
+        aplicarOrdenFecha();
+    });
+}
+
+// Función para aplicar solo el orden de fecha
+function aplicarOrdenFecha() {
+    var orden = $("#cboOrdenFecha").val();
+    // Columna 0 es la fecha
+    tablaMovimientos.order([0, orden]).draw();
+}
 
 // Funcion para ver detalle del lote de movimientos
 function verDetalleLote(idLote) {
