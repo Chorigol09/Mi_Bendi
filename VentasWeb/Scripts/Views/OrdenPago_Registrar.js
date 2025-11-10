@@ -1,5 +1,5 @@
 var tabladata;
-var facturaSeleccionada = null;
+var facturasSeleccionadas = [];
 
 $(document).ready(function () {
     activarMenu("Ordenes de Pago");
@@ -30,10 +30,12 @@ $(document).ready(function () {
     // CARGAR FACTURAS PENDIENTES AL SELECCIONAR PROVEEDOR
     $("#cboProveedor").change(function () {
         var idProveedor = $(this).val();
-        facturaSeleccionada = null;
+        facturasSeleccionadas = [];
         $("#btnGuardarOrdenPago").prop("disabled", true);
         $("#divMetodoPago").hide();
         $("#cboMetodoPago").val("0");
+        $("#spanFacturasSeleccionadas").text("");
+        $("#spanMontoSeleccionado").text("AR$ 0,00");
         
         if (idProveedor != 0) {
             cargarFacturasPendientes(idProveedor);
@@ -47,7 +49,7 @@ $(document).ready(function () {
 
     // INICIALIZAR DATATABLE (sin datos iniciales)
     tabladata = $('#tbFacturasPendientes').DataTable({
-        responsive: true,
+        responsive: false,
         paging: false,
         searching: false,
         info: false,
@@ -56,42 +58,35 @@ $(document).ready(function () {
         data: [], // Inicializar vacio
         "columns": [
             {
-                "defaultContent": '<button class="btn btn-primary btn-sm btn-seleccionar"><i class="fas fa-check"></i> Seleccionar</button>',
+                "data": null,
                 "orderable": false,
                 "searchable": false,
-                "width": "100px"
-            },
-            { 
-                "data": "NumeroFactura",
-                "defaultContent": ""
-            },
-            { 
-                "data": "NombreProveedor",
-                "defaultContent": ""
-            },
-            { 
-                "data": "TextoFechaEmision",
-                "defaultContent": ""
-            },
-            { 
-                "data": "Productos",
-                "defaultContent": "Sin productos",
-                "render": function (data) {
-                    if (data && data.length > 40) {
-                        return data.substring(0, 40) + '...';
-                    }
-                    return data || 'Sin productos';
+                "width": "35px",
+                "className": "text-center",
+                "render": function (data, type, row) {
+                    return '<input type="checkbox" class="chk-factura" data-idfactura="' + row.IdFactura + '" data-monto="' + row.MontoTotal + '">';
                 }
             },
             { 
-                "data": "Cantidad",
-                "defaultContent": "0",
-                "className": "text-center"
+                "data": "NumeroFactura",
+                "defaultContent": "",
+                "width": "22%"
+            },
+            { 
+                "data": "NombreProveedor",
+                "defaultContent": "",
+                "width": "38%"
+            },
+            { 
+                "data": "TextoFechaEmision",
+                "defaultContent": "",
+                "width": "15%"
             },
             { 
                 "data": "MontoTotal",
                 "defaultContent": "0.00",
                 "className": "text-right",
+                "width": "20%",
                 "render": function (data) {
                     var numero = parseFloat(data || 0).toFixed(2);
                     var partes = numero.split('.');
@@ -109,11 +104,60 @@ $(document).ready(function () {
     
     // HABILITAR BOTON AL SELECCIONAR METODO DE PAGO
     $("#cboMetodoPago").change(function () {
-        if ($(this).val() != "0" && facturaSeleccionada != null) {
-            $("#btnGuardarOrdenPago").prop("disabled", false);
+        var metodoPago = $(this).val();
+        
+        // Mostrar/ocultar campos adicionales segun metodo de pago
+        if (metodoPago != "0" && metodoPago != "Efectivo") {
+            $("#divCamposAdicionales").slideDown();
+            
+            // Cambiar etiquetas y placeholders segun metodo
+            if (metodoPago == "Transferencia Bancaria" || metodoPago == "Cheque") {
+                $("#lblReferencia").text("Numero de Comprobante");
+                $("#txtReferencia").attr("placeholder", "Ingrese numero de comprobante");
+                $("#helpReferencia").text("Numero del comprobante bancario o cheque");
+            } else if (metodoPago == "Tarjeta de Credito" || metodoPago == "Tarjeta de Debito") {
+                $("#lblReferencia").text("Ultimos 4 Digitos");
+                $("#txtReferencia").attr("placeholder", "Ingrese ultimos 4 digitos");
+                $("#txtReferencia").attr("maxlength", "4");
+                $("#helpReferencia").text("Ultimos 4 digitos de la tarjeta");
+            }
+            
+            // Deshabilitar boton hasta que se llenen los campos
+            $("#btnGuardarOrdenPago").prop("disabled", true);
+        } else if (metodoPago == "Efectivo") {
+            $("#divCamposAdicionales").slideUp();
+            $("#txtReferencia").val("");
+            $("#txtNumeroTransaccion").val("");
+            
+            // Habilitar boton si hay facturas seleccionadas
+            if (facturasSeleccionadas.length > 0) {
+                $("#btnGuardarOrdenPago").prop("disabled", false);
+            }
         } else {
+            $("#divCamposAdicionales").slideUp();
             $("#btnGuardarOrdenPago").prop("disabled", true);
         }
+    });
+    
+    // VALIDAR CAMPOS ADICIONALES PARA HABILITAR BOTON
+    $("#txtReferencia, #txtNumeroTransaccion").on("keyup change", function() {
+        var metodoPago = $("#cboMetodoPago").val();
+        
+        if (metodoPago != "0" && metodoPago != "Efectivo") {
+            var referencia = $("#txtReferencia").val().trim();
+            var numTransaccion = $("#txtNumeroTransaccion").val().trim();
+            
+            if (facturasSeleccionadas.length > 0 && referencia != "" && numTransaccion != "") {
+                $("#btnGuardarOrdenPago").prop("disabled", false);
+            } else {
+                $("#btnGuardarOrdenPago").prop("disabled", true);
+            }
+        }
+    });
+    
+    // MANEJAR SELECCION DE FACTURAS CON CHECKBOXES
+    $(document).on('change', '.chk-factura', function () {
+        actualizarFacturasSeleccionadas();
     });
 });
 
@@ -160,58 +204,120 @@ function cargarFacturasPendientes(idProveedor) {
         error: function (xhr, status, error) {
             console.error("Error AJAX:", status, error);
             console.error("Respuesta del servidor:", xhr.responseText);
-            swal("Error", "No se pudieron cargar las facturas. Revisa la consola (F12) para mas detalles.", "error");
+            swal("Error", "No se pudieron cargar las facturas. Revisa la consola (F12) para mas detalles", "error");
         }
     });
 }
 
-// SELECCIONAR FACTURA
-$('#tbFacturasPendientes tbody').on('click', '.btn-seleccionar', function () {
-    var filaSeleccionada = $(this).closest('tr');
-    var data = tabladata.row(filaSeleccionada).data();
+// ACTUALIZAR FACTURAS SELECCIONADAS
+function actualizarFacturasSeleccionadas() {
+    facturasSeleccionadas = [];
+    var montoTotal = 0;
+    var numerosFacturas = [];
     
-    facturaSeleccionada = data;
+    $('.chk-factura:checked').each(function() {
+        var idFactura = parseInt($(this).data('idfactura'));
+        var monto = parseFloat($(this).data('monto'));
+        
+        facturasSeleccionadas.push(idFactura);
+        montoTotal += monto;
+        
+        // Obtener numero de factura de la fila
+        var fila = $(this).closest('tr');
+        var data = tabladata.row(fila).data();
+        if (data) {
+            numerosFacturas.push(data.NumeroFactura);
+        }
+    });
     
-    // Resaltar fila seleccionada
-    $('#tbFacturasPendientes tbody tr').removeClass('table-active');
-    filaSeleccionada.addClass('table-active');
-    
-    // Mostrar informacion de la factura seleccionada
-    $("#spanFacturaSeleccionada").text(data.NumeroFactura);
-    var numero = parseFloat(data.MontoTotal).toFixed(2);
-    var partes = numero.split('.');
-    var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    var decimal = partes[1];
-    $("#spanMontoSeleccionado").text("AR$ " + entero + ',' + decimal);
-    
-    // Mostrar seccion de metodo de pago
-    $("#divMetodoPago").slideDown();
-    $("#cboMetodoPago").val("0");
-    $("#btnGuardarOrdenPago").prop("disabled", true);
-    
-    // Scroll suave hacia el metodo de pago
-    $('html, body').animate({
-        scrollTop: $("#divMetodoPago").offset().top - 100
-    }, 500);
-});
+    // Mostrar informacion de facturas seleccionadas
+    if (facturasSeleccionadas.length > 0) {
+        $("#spanFacturasSeleccionadas").text(numerosFacturas.join(', '));
+        
+        var numero = montoTotal.toFixed(2);
+        var partes = numero.split('.');
+        var entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        var decimal = partes[1];
+        $("#spanMontoSeleccionado").text("AR$ " + entero + ',' + decimal);
+        
+        // Mostrar seccion de metodo de pago
+        if ($("#divMetodoPago").is(':hidden')) {
+            $("#divMetodoPago").slideDown();
+            
+            // Scroll suave hacia el metodo de pago
+            $('html, body').animate({
+                scrollTop: $("#divMetodoPago").offset().top - 100
+            }, 500);
+        }
+        
+        // Habilitar boton si hay metodo seleccionado
+        if ($("#cboMetodoPago").val() != "0") {
+            $("#btnGuardarOrdenPago").prop("disabled", false);
+        }
+    } else {
+        $("#spanFacturasSeleccionadas").text("");
+        $("#spanMontoSeleccionado").text("AR$ 0,00");
+        $("#divMetodoPago").hide();
+        $("#cboMetodoPago").val("0");
+        $("#btnGuardarOrdenPago").prop("disabled", true);
+    }
+}
 
 // GUARDAR ORDEN DE PAGO
 $("#btnGuardarOrdenPago").click(function () {
-    if (facturaSeleccionada == null) {
-        swal("Mensaje", "Debe seleccionar una factura", "warning");
+    if (facturasSeleccionadas.length == 0) {
+        swal("Mensaje", "Debe seleccionar al menos una factura", "warning");
         return;
     }
     
-    if ($("#cboMetodoPago").val() == "0") {
+    var metodoPago = $("#cboMetodoPago").val();
+    
+    if (metodoPago == "0") {
         swal("Mensaje", "Debe seleccionar un metodo de pago", "warning");
         return;
     }
+    
+    // Validar campos adicionales si no es efectivo
+    var referencia = null;
+    var numeroTransaccion = null;
+    
+    if (metodoPago != "Efectivo") {
+        referencia = $("#txtReferencia").val().trim();
+        numeroTransaccion = $("#txtNumeroTransaccion").val().trim();
+        
+        if (referencia == "") {
+            swal("Mensaje", "Debe ingresar la referencia", "warning");
+            $("#txtReferencia").focus();
+            return;
+        }
+        
+        if (numeroTransaccion == "") {
+            swal("Mensaje", "Debe ingresar el numero de transaccion", "warning");
+            $("#txtNumeroTransaccion").focus();
+            return;
+        }
+        
+        // Validar que ultimos 4 digitos sean exactamente 4 digitos
+        if ((metodoPago == "Tarjeta de Credito" || metodoPago == "Tarjeta de Debito") && referencia.length != 4) {
+            swal("Mensaje", "Debe ingresar exactamente 4 digitos de la tarjeta", "warning");
+            $("#txtReferencia").focus();
+            return;
+        }
+    }
+    
+    // Calcular monto total de facturas seleccionadas
+    var montoTotal = 0;
+    $('.chk-factura:checked').each(function() {
+        montoTotal += parseFloat($(this).data('monto'));
+    });
 
     var request = {
-        IdFactura: facturaSeleccionada.IdFactura,
+        IdsFacturas: facturasSeleccionadas,
         IdProveedor: parseInt($("#cboProveedor").val()),
-        MetodoPago: $("#cboMetodoPago").val(),
-        MontoTotal: facturaSeleccionada.MontoTotal
+        MetodoPago: metodoPago,
+        MontoTotal: montoTotal,
+        Referencia: referencia,
+        NumeroTransaccion: numeroTransaccion
     };
 
     jQuery.ajax({
@@ -227,20 +333,18 @@ $("#btnGuardarOrdenPago").click(function () {
             $("#btnGuardarOrdenPago").prop("disabled", false).html('<i class="fas fa-save"></i> Registrar Orden de Pago');
             
             if (data.resultado) {
+                console.log("Orden de pago registrada exitosamente, recargando pagina...");
                 swal({
                     title: "Exito",
                     text: data.mensaje,
-                    icon: "success",
-                    button: "Aceptar"
-                }).then(() => {
-                    // Ocultar seccion de metodo de pago
-                    $("#divMetodoPago").hide();
-                    $("#cboMetodoPago").val("0");
-                    
-                    // Recargar facturas pendientes del mismo proveedor
-                    var idProveedor = $("#cboProveedor").val();
-                    facturaSeleccionada = null;
-                    cargarFacturasPendientes(idProveedor);
+                    type: "success",
+                    showConfirmButton: true,
+                    confirmButtonText: "Aceptar",
+                    closeOnConfirm: false
+                }, function() {
+                    console.log("Usuario acepto el mensaje, recargando...");
+                    // Recargar la pagina
+                    window.location.href = window.location.href;
                 });
             } else {
                 swal("Error", data.mensaje, "error");

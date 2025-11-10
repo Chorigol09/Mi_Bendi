@@ -56,8 +56,6 @@ namespace CapaDatos
                                 NombreProveedor = dr["NombreProveedor"].ToString(),
                                 FechaEmision = fechaEmision,
                                 TextoFechaEmision = fechaStr, // Guardar tambien como string
-                                Productos = dr["Productos"].ToString(),
-                                Cantidad = Convert.ToInt32(dr["Cantidad"]),
                                 MontoTotal = Convert.ToDecimal(dr["MontoTotal"])
                             });
                         }
@@ -71,7 +69,7 @@ namespace CapaDatos
             return lista;
         }
 
-        // Registrar nueva orden de pago
+        // Registrar nueva orden de pago con múltiples facturas
         public bool RegistrarOrdenPago(OrdenPago obj, out string Mensaje, out int IdOrdenPago)
         {
             bool respuesta = false;
@@ -85,11 +83,16 @@ namespace CapaDatos
                     SqlCommand cmd = new SqlCommand("SP_REGISTRAR_ORDEN_PAGO", oConexion);
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@IdFactura", obj.IdFactura);
+                    // Convertir lista de IDs a string separado por comas
+                    string idsFacturas = string.Join(",", obj.IdsFacturas);
+                    
+                    cmd.Parameters.AddWithValue("@IdsFacturas", idsFacturas);
                     cmd.Parameters.AddWithValue("@IdProveedor", obj.IdProveedor);
                     cmd.Parameters.AddWithValue("@MetodoPago", obj.MetodoPago);
                     cmd.Parameters.AddWithValue("@MontoTotal", obj.MontoTotal);
                     cmd.Parameters.AddWithValue("@UsuarioRegistro", obj.UsuarioRegistro);
+                    cmd.Parameters.AddWithValue("@Referencia", string.IsNullOrEmpty(obj.Referencia) ? (object)DBNull.Value : obj.Referencia);
+                    cmd.Parameters.AddWithValue("@NumeroTransaccion", string.IsNullOrEmpty(obj.NumeroTransaccion) ? (object)DBNull.Value : obj.NumeroTransaccion);
 
                     SqlParameter paramResultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
                     SqlParameter paramMensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
@@ -137,13 +140,12 @@ namespace CapaDatos
                             {
                                 IdOrdenPago = Convert.ToInt32(dr["IdOrdenPago"]),
                                 NumeroOrdenPago = dr["NumeroOrdenPago"].ToString(),
-                                IdFactura = Convert.ToInt32(dr["IdFactura"]),
+                                IdFactura = dr["IdFactura"] != DBNull.Value ? Convert.ToInt32(dr["IdFactura"]) : 0,
                                 NumeroFactura = dr["NumeroFactura"].ToString(),
                                 IdProveedor = Convert.ToInt32(dr["IdProveedor"]),
                                 NombreProveedor = dr["NombreProveedor"].ToString(),
                                 FechaEmision = dr["FechaEmision"].ToString(),
-                                Productos = dr["Productos"].ToString(),
-                                Cantidad = Convert.ToInt32(dr["Cantidad"]),
+                                CantidadFacturas = dr["CantidadFacturas"] != DBNull.Value ? Convert.ToInt32(dr["CantidadFacturas"]) : 0,
                                 MetodoPago = dr["MetodoPago"].ToString(),
                                 MontoTotal = Convert.ToDecimal(dr["MontoTotal"]),
                                 FechaRegistro = Convert.ToDateTime(dr["FechaRegistro"]),
@@ -191,6 +193,8 @@ namespace CapaDatos
                             obj.TelefonoProveedor = dr["TelefonoProveedor"].ToString();
                             obj.MetodoPago = dr["MetodoPago"].ToString();
                             obj.MontoTotal = Convert.ToDecimal(dr["MontoTotal"]);
+                            obj.Referencia = dr["Referencia"] != DBNull.Value ? dr["Referencia"].ToString() : null;
+                            obj.NumeroTransaccion = dr["NumeroTransaccion"] != DBNull.Value ? dr["NumeroTransaccion"].ToString() : null;
                             obj.FechaRegistro = Convert.ToDateTime(dr["FechaRegistro"]);
                             obj.FechaFactura = Convert.ToDateTime(dr["FechaFactura"]);
                             obj.Estado = dr["Estado"].ToString();
@@ -222,6 +226,44 @@ namespace CapaDatos
                 }
             }
             return obj;
+        }
+
+        // Obtener facturas asociadas a una orden de pago
+        public List<FacturaOrdenPago> ObtenerFacturasOrdenPago(int idOrdenPago)
+        {
+            List<FacturaOrdenPago> lista = new List<FacturaOrdenPago>();
+            using (SqlConnection oConexion = new SqlConnection(Conexion.CN))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SP_OBTENER_FACTURAS_ORDEN_PAGO", oConexion);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@IdOrdenPago", idOrdenPago);
+
+                    oConexion.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new FacturaOrdenPago
+                            {
+                                IdDetalleOrdenPago = Convert.ToInt32(dr["IdDetalleOrdenPago"]),
+                                IdFactura = Convert.ToInt32(dr["IdFactura"]),
+                                NumeroFactura = dr["NumeroFactura"].ToString(),
+                                FechaEmision = dr["FechaEmision"].ToString(),
+                                MontoFactura = Convert.ToDecimal(dr["MontoFactura"]),
+                                Estado = dr["Estado"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    lista = new List<FacturaOrdenPago>();
+                }
+            }
+            return lista;
         }
     }
 }

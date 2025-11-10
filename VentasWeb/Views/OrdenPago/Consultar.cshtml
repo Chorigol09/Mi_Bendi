@@ -45,19 +45,25 @@
 
                 <hr />
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover table-sm" id="tbOrdenesPago">
+                <div style="overflow-x: hidden;">
+                    <style>
+                        #tbOrdenesPago td {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                    </style>
+                    <table class="table table-bordered table-striped table-hover table-sm" id="tbOrdenesPago" style="font-size: 14px; width: 100%; table-layout: fixed;">
                         <thead>
                             <tr>
-                                <th width="100px">Comprobante</th>
-                                <th>Nro Factura</th>
-                                <th>Proveedor</th>
-                                <th>Fecha</th>
-                                <th>Productos</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                                <th>Metodo Pago</th>
-                                <th>Estado</th>
+                                <th width="70px" class="text-center">Ver</th>
+                                <th width="20%">Nro Factura(s)</th>
+                                <th width="22%">Proveedor</th>
+                                <th width="7%" class="text-center">Cant.</th>
+                                <th width="10%">Fecha</th>
+                                <th width="14%" class="text-right">Total</th>
+                                <th width="13%">Metodo Pago</th>
+                                <th width="7%" class="text-center">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -118,19 +124,28 @@
                         </div>
                     </div>
 
-                    <!-- Detalle Factura -->
+                    <!-- Detalle Facturas Pagadas -->
                     <div class="row mb-3">
                         <div class="col-12">
                             <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
-                                Detalle Factura
+                                Detalle Factura(s) Pagada(s)
                             </div>
-                            <table class="table table-bordered table-sm mb-0">
-                                <tr>
-                                    <td style="width: 15%; font-weight: bold;">Numero:</td>
-                                    <td style="width: 35%;" id="txtNumeroFactura">FACT-20251023-10</td>
-                                    <td style="width: 15%; font-weight: bold;">Fecha Emision:</td>
-                                    <td style="width: 35%;" id="txtFechaFactura">23/10/2025</td>
-                                </tr>
+                            <table class="table table-bordered table-sm">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th style="text-align: center; width: 50%;">Numero de Factura</th>
+                                        <th style="text-align: right; width: 50%;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDetalleFacturas">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                                <tfoot style="background-color: #e9ecef;">
+                                    <tr>
+                                        <td style="text-align: right; font-weight: bold; font-size: 16px;">Total General:</td>
+                                        <td id="txtTotalOrdenPago" style="text-align: right; font-weight: bold; font-size: 18px; color: #28a745;">AR$ 0,00</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -150,34 +165,6 @@
                         </div>
                     </div>
 
-                    <!-- Detalle Productos -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <div style="background-color: #17a2b8; color: white; padding: 8px; font-weight: bold;">
-                                Detalle Productos
-                            </div>
-                            <table class="table table-bordered table-sm">
-                                <thead style="background-color: #f8f9fa;">
-                                    <tr>
-                                        <th style="text-align: center;">Cantidad</th>
-                                        <th>Concepto</th>
-                                        <th style="text-align: right;">P.Unitario</th>
-                                        <th style="text-align: right;">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyDetalleProductos">
-                                    <!-- Se llenará dinámicamente -->
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3" style="text-align: right; font-weight: bold;">Total</td>
-                                        <td id="txtTotalOrdenPago" style="text-align: right; font-weight: bold; font-size: 16px;">$ 2.000,00</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-
                     <!-- Metodo de Pago -->
                     <div class="row mb-3">
                         <div class="col-12">
@@ -186,8 +173,14 @@
                             </div>
                             <table class="table table-bordered table-sm mb-0">
                                 <tr>
-                                    <td style="width: 15%; font-weight: bold;">Metodo:</td>
-                                    <td id="txtMetodoPago">Transferencia Bancaria</td>
+                                    <td style="width: 20%; font-weight: bold;">Metodo:</td>
+                                    <td id="txtMetodoPago" style="width: 30%;">Transferencia Bancaria</td>
+                                    <td style="width: 20%; font-weight: bold;" id="lblReferencia">Referencia:</td>
+                                    <td id="txtReferencia" style="width: 30%;">-</td>
+                                </tr>
+                                <tr id="trNumeroTransaccion" style="display:none;">
+                                    <td style="font-weight: bold;">Numero Transaccion:</td>
+                                    <td colspan="3" id="txtNumeroTransaccion">-</td>
                                 </tr>
                             </table>
                         </div>

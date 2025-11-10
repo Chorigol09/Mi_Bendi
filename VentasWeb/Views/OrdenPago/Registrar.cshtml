@@ -43,17 +43,25 @@
 
                 <div id="divFacturas" style="display:none;">
                     <h5><i class="fas fa-file-invoice"></i> Facturas Pendientes</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-sm" id="tbFacturasPendientes">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> <strong>Nota:</strong> Puede seleccionar multiples facturas del mismo proveedor para pagarlas en una sola orden de pago.
+                    </div>
+                    <div style="overflow-x: hidden;">
+                        <style>
+                            #tbFacturasPendientes td {
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        </style>
+                        <table class="table table-bordered table-striped table-sm" id="tbFacturasPendientes" style="font-size: 14px; width: 100%; table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th width="80px"></th>
-                                    <th>Numero Factura</th>
-                                    <th>Proveedor</th>
-                                    <th>Fecha</th>
-                                    <th>Productos</th>
-                                    <th>Cantidad</th>
-                                    <th>Total</th>
+                                    <th width="35px" class="text-center"><i class="fas fa-check-square"></i></th>
+                                    <th width="22%">Numero Factura</th>
+                                    <th width="38%">Proveedor</th>
+                                    <th width="15%">Fecha</th>
+                                    <th width="20%" class="text-right">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,14 +75,15 @@
                     <h5><i class="fas fa-credit-card"></i> Datos de Pago</h5>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="alert alert-info">
-                                <strong>Factura Seleccionada:</strong> <span id="spanFacturaSeleccionada"></span><br>
-                                <strong>Monto a Pagar:</strong> <span id="spanMontoSeleccionado"></span>
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-check-circle"></i> <strong>Resumen de Orden de Pago</strong></h6>
+                                <strong>Facturas Seleccionadas:</strong> <span id="spanFacturasSeleccionadas"></span><br>
+                                <strong>Monto Total a Pagar:</strong> <span id="spanMontoSeleccionado" class="h5"></span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="cboMetodoPago">Metodo de Pago: <span class="text-danger">*</span></label>
                                 <select class="form-control form-control-sm" id="cboMetodoPago">
@@ -87,9 +96,34 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                    </div>
+                    
+                    <!-- Campos adicionales para metodos de pago no efectivo -->
+                    <div id="divCamposAdicionales" style="display:none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="txtReferencia">
+                                        <span id="lblReferencia">Referencia</span>: 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-sm" id="txtReferencia" placeholder="Ingrese referencia">
+                                    <small class="form-text text-muted" id="helpReferencia"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="txtNumeroTransaccion">Numero de Transaccion: <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="txtNumeroTransaccion" placeholder="Ingrese numero de transaccion">
+                                    <small class="form-text text-muted">Identificador unico de la transaccion</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label>&nbsp;</label>
                                 <button type="button" class="btn btn-success btn-block" id="btnGuardarOrdenPago" disabled>
                                     <i class="fas fa-save"></i> Registrar Orden de Pago
                                 </button>
@@ -122,11 +156,11 @@
                     </div>
                     <div class="col-md-6">
                         <p><strong>Monto Total:</strong> S/ <span id="spanMonto"></span></p>
-                        <p><strong>Método de Pago:</strong> <span id="spanMetodo"></span></p>
+                        <p><strong>Metodo de Pago:</strong> <span id="spanMetodo"></span></p>
                     </div>
                 </div>
                 <hr />
-                <p class="text-center">¿Está seguro de registrar esta orden de pago?</p>
+                <p class="text-center">Esta seguro de registrar esta orden de pago?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">

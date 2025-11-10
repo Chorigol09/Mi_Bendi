@@ -66,44 +66,60 @@ $(document).ready(function () {
 
     // INICIALIZAR DATATABLE
     tabladata = $('#tbOrdenesPago').DataTable({
-        responsive: true,
+        responsive: false,
         paging: true,
         searching: true,
         info: true,
+        autoWidth: false,
         data: [],
         "columns": [
             {
                 "defaultContent": '<button class="btn btn-info btn-sm btn-ver"><i class="fas fa-eye"></i></button>',
                 "orderable": false,
                 "searchable": false,
-                "width": "80px"
-            },
-            { "data": "NumeroFactura", "defaultContent": "" },
-            { "data": "NombreProveedor", "defaultContent": "" },
-            { 
-                "data": "FechaEmision",
-                "defaultContent": ""
+                "width": "70px",
+                "className": "text-center"
             },
             { 
-                "data": "Productos",
-                "defaultContent": "Sin productos",
-                "render": function (data) {
-                    if (data && data.length > 40) {
-                        return data.substring(0, 40) + '...';
+                "data": "NumeroFactura", 
+                "defaultContent": "",
+                "width": "20%",
+                "render": function (data, type, row) {
+                    if (data && data.length > 30) {
+                        return '<span title="' + data + '">' + data.substring(0, 30) + '...</span>';
                     }
-                    return data || 'Sin productos';
+                    return data || '';
                 }
             },
             { 
-                "data": "Cantidad",
-                "defaultContent": "0",
-                "className": "text-center"
+                "data": "NombreProveedor", 
+                "defaultContent": "",
+                "width": "22%"
+            },
+            { 
+                "data": "CantidadFacturas",
+                "defaultContent": "1",
+                "className": "text-center",
+                "width": "7%",
+                "render": function (data) {
+                    var cantidad = data || 1;
+                    if (cantidad > 1) {
+                        return '<span class="badge badge-primary">' + cantidad + '</span>';
+                    } else {
+                        return '<span class="badge badge-secondary">1</span>';
+                    }
+                }
+            },
+            { 
+                "data": "FechaEmision",
+                "defaultContent": "",
+                "width": "10%"
             },
             { 
                 "data": "MontoTotal",
                 "defaultContent": "0.00",
                 "className": "text-right",
-                "width": "140px",
+                "width": "14%",
                 "render": function (data) {
                     var numero = parseFloat(data || 0).toFixed(2);
                     var partes = numero.split('.');
@@ -112,11 +128,16 @@ $(document).ready(function () {
                     return 'AR$ ' + entero + ',' + decimal;
                 }
             },
-            { "data": "MetodoPago", "defaultContent": "" },
+            { 
+                "data": "MetodoPago", 
+                "defaultContent": "",
+                "width": "13%"
+            },
             { 
                 "data": "Estado",
                 "defaultContent": "",
                 "className": "text-center",
+                "width": "7%",
                 "render": function (data) {
                     if (data == "Pagado") {
                         return '<span class="badge badge-success">Pagado</span>';
@@ -224,21 +245,6 @@ $(document).ready(function () {
                     $("#txtRucProveedor").text(detalle.DocumentoProveedor || "N/A");
                     $("#txtRazonSocialProveedor").text(detalle.NombreProveedor);
 
-                    // Detalle Factura
-                    $("#txtNumeroFactura").text(detalle.NumeroFactura);
-                    
-                    // Convertir fecha de factura
-                    var fechaFactura = detalle.FechaFactura;
-                    if (fechaFactura) {
-                        var fecha2 = new Date(parseInt(fechaFactura.substr(6)));
-                        var dia2 = ("0" + fecha2.getDate()).slice(-2);
-                        var mes2 = ("0" + (fecha2.getMonth() + 1)).slice(-2);
-                        var anio2 = fecha2.getFullYear();
-                        $("#txtFechaFactura").text(dia2 + "/" + mes2 + "/" + anio2);
-                    } else {
-                        $("#txtFechaFactura").text("N/A");
-                    }
-
                     // Estado
                     $("#txtEstadoPago").text(detalle.Estado);
                     if (detalle.Estado == "Pagado") {
@@ -247,42 +253,73 @@ $(document).ready(function () {
                         $("#txtEstadoPago").css("color", "#ffc107");
                     }
 
-                    // Detalle Productos
-                    $("#tbodyDetalleProductos").html("");
-                    if (detalle.DetalleProductos && detalle.DetalleProductos.length > 0) {
-                        $.each(detalle.DetalleProductos, function (i, item) {
-                            // Formatear precio unitario
-                            var precioNum = parseFloat(item.PrecioUnitario).toFixed(2);
-                            var precioPartes = precioNum.split('.');
-                            var precioEntero = precioPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                            var precioFormatado = "$ " + precioEntero + "," + precioPartes[1];
+                    // Obtener facturas asociadas a la orden de pago
+                    $.ajax({
+                        url: $.MisUrls.url._ObtenerFacturasOrdenPago,
+                        type: "POST",
+                        data: JSON.stringify({ idOrdenPago: detalle.IdOrdenPago }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (responseFacturas) {
+                            $("#tbodyDetalleFacturas").html("");
                             
-                            // Formatear subtotal
-                            var subtotalNum = parseFloat(item.Subtotal).toFixed(2);
-                            var subtotalPartes = subtotalNum.split('.');
-                            var subtotalEntero = subtotalPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                            var subtotalFormatado = "$ " + subtotalEntero + "," + subtotalPartes[1];
-                            
-                            var fila = "<tr>" +
-                                "<td style='text-align: center;'>" + item.Cantidad + "</td>" +
-                                "<td>" + item.NombreProducto + "</td>" +
-                                "<td style='text-align: right;'>" + precioFormatado + "</td>" +
-                                "<td style='text-align: right;'>" + subtotalFormatado + "</td>" +
-                                "</tr>";
-                            $("#tbodyDetalleProductos").append(fila);
-                        });
-                    } else {
-                        $("#tbodyDetalleProductos").append("<tr><td colspan='4' class='text-center'>No hay productos registrados</td></tr>");
-                    }
-
-                    // Total
-                    var totalNum = parseFloat(detalle.MontoTotal).toFixed(2);
-                    var totalPartes = totalNum.split('.');
-                    var totalEntero = totalPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                    $("#txtTotalOrdenPago").text("$ " + totalEntero + "," + totalPartes[1]);
+                            if (responseFacturas.resultado && responseFacturas.data && responseFacturas.data.length > 0) {
+                                var totalGeneral = 0;
+                                
+                                $.each(responseFacturas.data, function (i, factura) {
+                                    // Formatear monto de factura
+                                    var montoNum = parseFloat(factura.MontoFactura).toFixed(2);
+                                    var montoPartes = montoNum.split('.');
+                                    var montoEntero = montoPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                                    var montoFormatado = "AR$ " + montoEntero + "," + montoPartes[1];
+                                    
+                                    totalGeneral += parseFloat(factura.MontoFactura);
+                                    
+                                    var fila = "<tr>" +
+                                        "<td style='text-align: center; font-size: 14px;'>" + factura.NumeroFactura + "</td>" +
+                                        "<td style='text-align: right; font-size: 14px;'>" + montoFormatado + "</td>" +
+                                        "</tr>";
+                                    $("#tbodyDetalleFacturas").append(fila);
+                                });
+                                
+                                // Formatear total general
+                                var totalNum = totalGeneral.toFixed(2);
+                                var totalPartes = totalNum.split('.');
+                                var totalEntero = totalPartes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                                $("#txtTotalOrdenPago").text("AR$ " + totalEntero + "," + totalPartes[1]);
+                            } else {
+                                $("#tbodyDetalleFacturas").append("<tr><td colspan='2' class='text-center'>No hay facturas registradas</td></tr>");
+                                $("#txtTotalOrdenPago").text("AR$ 0,00");
+                            }
+                        },
+                        error: function (error) {
+                            console.error("Error al cargar facturas:", error);
+                            $("#tbodyDetalleFacturas").append("<tr><td colspan='2' class='text-center text-danger'>Error al cargar facturas</td></tr>");
+                        }
+                    });
 
                     // Metodo de Pago
                     $("#txtMetodoPago").text(detalle.MetodoPago);
+                    
+                    // Referencia y Numero Transaccion
+                    if (detalle.MetodoPago != "Efectivo" && detalle.Referencia) {
+                        $("#trNumeroTransaccion").show();
+                        
+                        // Cambiar etiqueta segun metodo
+                        if (detalle.MetodoPago == "Transferencia Bancaria" || detalle.MetodoPago == "Cheque") {
+                            $("#lblReferencia").text("Numero de Comprobante:");
+                        } else if (detalle.MetodoPago == "Tarjeta de Credito" || detalle.MetodoPago == "Tarjeta de Debito") {
+                            $("#lblReferencia").text("Ultimos 4 Digitos:");
+                        }
+                        
+                        $("#txtReferencia").text(detalle.Referencia || "-");
+                        $("#txtNumeroTransaccion").text(detalle.NumeroTransaccion || "-");
+                    } else {
+                        $("#trNumeroTransaccion").hide();
+                        $("#lblReferencia").text("Referencia:");
+                        $("#txtReferencia").text("-");
+                        $("#txtNumeroTransaccion").text("-");
+                    }
 
                     // Mostrar modal
                     $("#modalComprobanteOrdenPago").modal('show');

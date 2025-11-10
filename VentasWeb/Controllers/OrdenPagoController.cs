@@ -119,6 +119,22 @@ namespace VentasWeb.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult ObtenerFacturasOrdenPago(int idOrdenPago)
+        {
+            try
+            {
+                List<FacturaOrdenPago> oLista = new List<FacturaOrdenPago>();
+                oLista = CD_OrdenPago.Instancia.ObtenerFacturasOrdenPago(idOrdenPago);
+
+                return Json(new { resultado = true, data = oLista, mensaje = "" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { resultado = false, data = new List<FacturaOrdenPago>(), mensaje = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #endregion
     }
 }
