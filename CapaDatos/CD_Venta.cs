@@ -42,15 +42,15 @@ namespace CapaDatos
                 try
                 {
                     SqlCommand cmd = new SqlCommand("usp_RegistrarVenta", oConexion);
-                    cmd.Parameters.Add("Detalle", SqlDbType.Xml).Value = Detalle;
-                    cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("@DetalleVenta", SqlDbType.VarChar, -1).Value = Detalle;
+                    cmd.Parameters.Add("@Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     oConexion.Open();
 
                     cmd.ExecuteNonQuery();
 
-                    respuesta = Convert.ToInt32(cmd.Parameters["Resultado"].Value);
+                    respuesta = Convert.ToInt32(cmd.Parameters["@Resultado"].Value);
 
                 }
                 catch (Exception ex)

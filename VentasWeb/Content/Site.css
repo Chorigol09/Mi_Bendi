@@ -207,23 +207,6 @@ footer {
     text-align: center;
     padding: 10px 0;
     position: fixed;
-    bottom: 0;
-    left: 0; 
-    width: 100%;
-    font-size: 14px;
-}
-/* ====== Topbar estilo "Mi Bendi" ====== NUEVOOOOOOOOO*/
-
-.topbar {
-    background: linear-gradient(90deg,#0f97b0,#0a6fa7) !important;
-    border-bottom: 1px solid rgba(255,255,255,.25);
-    padding: 8px 0;
-    min-height: 56px;
-}
-
-    /* Marca */
-    .topbar .brand-text {
-        font-weight: 700;
         font-size: 20px;
         color: #fff !important;
         white-space: nowrap;

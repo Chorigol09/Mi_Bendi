@@ -57,6 +57,8 @@
     <Compile Include="DetalleRemito.cs" />
     <Compile Include="DetalleVenta.cs" />
     <Compile Include="Factura.cs" />
+    <Compile Include="ListaPrecio.cs" />
+    <Compile Include="ListaPrecioDetalle.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="MovimientoStock.cs" />
     <Compile Include="OrdenPago.cs" />

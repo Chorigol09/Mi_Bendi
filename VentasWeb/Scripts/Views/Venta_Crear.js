@@ -10,6 +10,9 @@ $(document).ready(function () {
     $("#txtproductocantidad").val("0");
     $("#txtfechaventa").val(ObtenerFecha());
 
+    // CARGAR LISTAS DE PRECIOS
+    cargarListasPrecios();
+
 
     //OBTENER PROVEEDORES
     jQuery.ajax({
@@ -39,16 +42,15 @@ $(document).ready(function () {
     });
 
 
-    //OBTENER PRODUCTOS
+    //OBTENER PRODUCTOS - Inicializar sin datos
     tablaproducto = $('#tbProducto').DataTable({
-        "ajax": {
-            "url": $.MisUrls.url._ObtenerProductoStockPorTienda + "?IdTienda=0",
-            "type": "GET",
-            "datatype": "json"
-        },
+        "data": [], // Iniciar con array vacío
         "columns": [
             {
-                "data": "IdProductoTienda", "render": function (data, type, row, meta) {
+                "data": "IdProductoTienda", 
+                "defaultContent": "",
+                "render": function (data, type, row, meta) {
+                    if (!data) return "";
                     return "<button class='btn btn-sm btn-primary ml-2' type='button' onclick='productoSelect(" + JSON.stringify(row) + ")'><i class='fas fa-check'></i></button>"
                 },
                 "orderable": false,
@@ -56,21 +58,37 @@ $(document).ready(function () {
                 "width": "90px"
             },
             {
-                "data": "oProducto", render: function (data) {
-                    return data.Codigo
+                "data": "oProducto",
+                "defaultContent": "",
+                "render": function (data) {
+                    return data ? data.Codigo : "";
                 }
             },
             {
-                "data": "oProducto", render: function (data) {
-                    return data.Nombre
+                "data": "oProducto",
+                "defaultContent": "",
+                "render": function (data) {
+                    return data ? data.Nombre : "";
                 }
             },
             {
-                "data": "oProducto", render: function (data) {
-                    return data.Descripcion
+                "data": "oProducto",
+                "defaultContent": "",
+                "render": function (data) {
+                    return data ? data.Descripcion : "";
                 }
             },
-            { "data": "Stock" }
+            { 
+                "data": "Stock",
+                "defaultContent": ""
+            },
+            {
+                "data": "PrecioVenta",
+                "defaultContent": "$0,00",
+                "render": function (data) {
+                    return data ? formatearPrecio(data) : "$0,00";
+                }
+            }
 
         ],
         "language": {
@@ -105,6 +123,34 @@ $(document).ready(function () {
         responsive: true
     });
 
+    // Validar selección de lista de precios al cambiar
+    $('#cboListaPrecio').on('change', function() {
+        var idLista = $(this).val();
+        if (idLista == '0') {
+            // Limpiar productos si cambia la lista
+            if ($('#tbVenta tbody tr').length > 0) {
+                swal({
+                    title: "Advertencia",
+                    text: "Al cambiar la lista de precios se borrarán los productos agregados. ¿Desea continuar?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, cambiar",
+                    cancelButtonText: "Cancelar"
+                }, function(isConfirm) {
+                    if (isConfirm) {
+                        $('#tbVenta tbody').html('');
+                        calcularPrecios();
+                    } else {
+                        // Revertir cambio
+                        $('#cboListaPrecio').val($('#cboListaPrecio').data('ultimaLista') || '0');
+                    }
+                });
+            }
+        } else {
+            $('#cboListaPrecio').data('ultimaLista', idLista);
+        }
+    });
+
     // Manejar cambio de método de pago
     $('#cboMetodoPago').on('change', function() {
         var metodoPago = $(this).val();
@@ -122,6 +168,29 @@ $(document).ready(function () {
     });
 
 })
+
+function cargarListasPrecios() {
+    jQuery.ajax({
+        url: '/ListaPrecio/ObtenerListasPreciosActivas',
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            if (data.data && data.data.length > 0) {
+                var combo = $("#cboListaPrecio");
+                combo.empty();
+                combo.append('<option value="0">-- Seleccionar Lista --</option>');
+                $.each(data.data, function (i, item) {
+                    combo.append('<option value="' + item.IdListaPrecio + '">' + item.Nombre + ' (' + item.TipoLista + ')</option>');
+                });
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            swal("Error", "No se pudieron cargar las listas de precios", "error");
+        }
+    });
+}
 
 function ObtenerFecha() {
 
@@ -255,11 +324,74 @@ $("#txtmontopago").on('blur', function() {
 });
 
 $('#btnBuscarProducto').on('click', function () {
-
-  
-    tablaproducto.ajax.url($.MisUrls.url._ObtenerProductoStockPorTienda + "?IdTienda=" + parseInt($("#txtIdTienda").val()) ).load();
-
-    $('#modalProducto').modal('show');
+    var idListaPrecio = parseInt($("#cboListaPrecio").val());
+    
+    if (idListaPrecio == 0) {
+        swal("Mensaje", "Debe seleccionar una lista de precios primero", "warning");
+        return;
+    }
+    
+    var idTienda = parseInt($("#txtIdTienda").val());
+    var urlBase = window.location.protocol + "//" + window.location.host;
+    
+    // PRIMERO: Probar endpoint de test
+    console.log('Probando conectividad con servidor...');
+    $.ajax({
+        url: urlBase + '/ListaPrecio/TestEndpoint',
+        type: 'GET',
+        dataType: 'json',
+        success: function(testData) {
+            console.log('✅ Test exitoso:', testData);
+            
+            // Si el test funciona, ahora intentar el endpoint real
+            var url = urlBase + '/ListaPrecio/ObtenerProductosListaPrecioConStock';
+            console.log('Cargando productos desde:', url);
+            console.log('Parametros:', {idListaPrecio: idListaPrecio, idTienda: idTienda});
+            
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {
+                    idListaPrecio: idListaPrecio,
+                    idTienda: idTienda
+                },
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Respuesta del servidor:', data);
+                    
+                    if (data.success === false) {
+                        swal("Error", data.error || "Error al cargar productos", "error");
+                        return;
+                    }
+                    
+                    // Limpiar tabla y cargar nuevos datos
+                    tablaproducto.clear();
+                    
+                    if (data.data && data.data.length > 0) {
+                        tablaproducto.rows.add(data.data);
+                        tablaproducto.draw();
+                        $('#modalProducto').modal('show');
+                    } else {
+                        // Si no hay productos
+                        tablaproducto.draw();
+                        var mensaje = data.mensaje || "No hay productos disponibles en esta lista con stock";
+                        swal("Informacion", mensaje, "info");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('❌ Error en endpoint real:', {xhr: xhr, status: status, error: error});
+                    console.log('URL intentada:', url);
+                    console.log('Status Code:', xhr.status);
+                    console.log('Response Text:', xhr.responseText);
+                    swal("Error", "Endpoint existe pero falla. Codigo: " + xhr.status + " - " + error, "error");
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            console.log('❌ Test de conectividad falló:', {xhr: xhr, status: status, error: error});
+            swal("Error Critico", "No se puede conectar con el servidor. El proyecto no se compiló correctamente. Recompila (Clean + Rebuild)!", "error");
+        }
+    });
 })
 
 $('#btnBuscarCliente').on('click', function () {
@@ -270,13 +402,28 @@ $('#btnBuscarCliente').on('click', function () {
 })
 
 function productoSelect(json) {
+    var idListaPrecio = parseInt($("#cboListaPrecio").val());
+    
+    if (idListaPrecio == 0) {
+        swal("Mensaje", "Debe seleccionar una lista de precios primero", "warning");
+        return;
+    }
+
     $("#txtIdProducto").val(json.oProducto.IdProducto);
     $("#txtproductocodigo").val(json.oProducto.Codigo);
     $("#txtproductonombre").val(json.oProducto.Nombre);
     $("#txtproductodescripcion").val(json.oProducto.Descripcion);
     $("#txtproductostock").val(json.Stock);
-    $("#txtproductoprecio").val(formatearPrecio(json.PrecioUnidadVenta));
     $("#txtproductocantidad").val("0");
+    
+    // El precio ya viene de la lista seleccionada
+    if (json.PrecioVenta) {
+        $("#txtproductoprecio").val(formatearPrecio(json.PrecioVenta));
+    } else {
+        // Si por alguna razón no viene, obtenerlo
+        obtenerPrecioProducto(idListaPrecio, json.oProducto.IdProducto);
+    }
+    
     $('#modalProducto').modal('hide');
 }
 
@@ -291,39 +438,52 @@ function clienteSelect(json) {
 }
 
 $("#txtproductocodigo").on('keypress', function (e) {
-
-
     if (e.which == 13) {
+        var idListaPrecio = parseInt($("#cboListaPrecio").val());
+        
+        if (idListaPrecio == 0) {
+            swal("Mensaje", "Debe seleccionar una lista de precios primero", "warning");
+            return;
+        }
+        
+        var idTienda = parseInt($("#txtIdTienda").val());
+        var codigoBuscado = $("#txtproductocodigo").val();
+        
+        var urlBase = window.location.protocol + "//" + window.location.host;
+        var url = urlBase + '/ListaPrecio/ObtenerProductosListaPrecioConStock';
 
-        var request = { IdTienda: parseInt($("#txtIdTienda").val()) }
-
-
-        //OBTENER PROVEEDORES
+        // Buscar en productos de la lista seleccionada
         jQuery.ajax({
-            url: $.MisUrls.url._ObtenerProductoStockPorTienda + "?IdTienda=" + parseInt($("#txtIdTienda").val()),
+            url: url,
             type: "GET",
+            data: {
+                idListaPrecio: idListaPrecio,
+                idTienda: idTienda
+            },
             dataType: "json",
-            contentType: "application/json; charset=utf-8",
             success: function (data) {
-
                 var encontrado = false;
                 if (data.data != null) {
                     $.each(data.data, function (i, item) {
-                        if (item.oProducto.Codigo == $("#txtproductocodigo").val()) {
-
+                        if (item.oProducto.Codigo == codigoBuscado) {
                             $("#txtIdProducto").val(item.oProducto.IdProducto);
                             $("#txtproductocodigo").val(item.oProducto.Codigo);
                             $("#txtproductonombre").val(item.oProducto.Nombre);
                             $("#txtproductodescripcion").val(item.oProducto.Descripcion);
                             $("#txtproductostock").val(item.Stock);
-                            $("#txtproductoprecio").val(formatearPrecio(item.PrecioUnidadVenta));
+                            
+                            // Precio ya viene de la lista
+                            if (item.PrecioVenta) {
+                                $("#txtproductoprecio").val(formatearPrecio(item.PrecioVenta));
+                            }
+                            
                             encontrado = true;
                             return false;
                         }
-                    })
+                    });
 
                     if (!encontrado) {
-
+                        swal("Mensaje", "Producto no encontrado en la lista seleccionada", "warning");
                         $("#txtIdProducto").val("0");
                         $("#txtproductocodigo").val("");
                         $("#txtproductonombre").val("");
@@ -331,21 +491,14 @@ $("#txtproductocodigo").on('keypress', function (e) {
                         $("#txtproductostock").val("");
                         $("#txtproductoprecio").val("");
                         $("#txtproductocantidad").val("0");
-
                     }
                 }
-
             },
-            error: function (error) {
-                console.log(error)
-            },
-            beforeSend: function () {
-                $("#cboProveedor").LoadingOverlay("show");
-            },
+            error: function (xhr, status, error) {
+                console.log('Error al buscar producto:', xhr, status, error);
+                swal("Error", "No se pudo buscar el producto", "error");
+            }
         });
-
-
-
     }
 });
 
@@ -353,6 +506,12 @@ $("#txtproductocodigo").on('keypress', function (e) {
 $('#btnAgregar').on('click', function () {
 
     $("#txtproductocantidad").val($("#txtproductocantidad").val() == "" ? "0" : $("#txtproductocantidad").val());
+
+    // Validar lista de precios seleccionada
+    if (parseInt($("#cboListaPrecio").val()) == 0) {
+        swal("Mensaje", "Debe seleccionar una lista de precios", "warning");
+        return;
+    }
 
     var existe_codigo = false;
     if (
@@ -490,6 +649,7 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         "<IdTienda>" + $("#txtIdTienda").val() + "</IdTienda>" +
         "<IdUsuario>" + $("#txtIdUsuario").val() + "</IdUsuario>" +
         "<IdCliente>0</IdCliente>" +
+        "<IdListaPrecio>" + $("#cboListaPrecio").val() + "</IdListaPrecio>" +
         "<TipoDocumento>" + $("#cboventatipodocumento").val() + "</TipoDocumento>" +
         "<MetodoPago>" + metodoPago + "</MetodoPago>" +
         "<CantidadProducto>" + $('#tbVenta tbody tr').length + "</CantidadProducto>" +
@@ -525,6 +685,9 @@ $('#btnTerminarGuardarVenta').on('click', function () {
             $(".card-venta").LoadingOverlay("hide");
 
             if (data.estado) {
+                //LISTA DE PRECIOS
+                $("#cboListaPrecio").val("0");
+                
                 //DOCUMENTO
                 $("#cboventatipodocumento").val("Boleta");
 
@@ -652,6 +815,28 @@ function controlarStock($idproducto, $idtienda, $cantidad, $restar) {
   
 }
 
+
+function obtenerPrecioProducto(idListaPrecio, idProducto) {
+    jQuery.ajax({
+        url: '/ListaPrecio/ObtenerPrecioProductoVigente?idListaPrecio=' + idListaPrecio + '&idProducto=' + idProducto,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            if (data.resultado) {
+                $("#txtproductoprecio").val(formatearPrecio(data.precio));
+            } else {
+                swal("Advertencia", data.mensaje || "El producto no tiene precio en la lista seleccionada", "warning");
+                $("#txtproductoprecio").val("$0,00");
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            swal("Error", "No se pudo obtener el precio del producto", "error");
+            $("#txtproductoprecio").val("$0,00");
+        }
+    });
+}
 
 window.onbeforeunload = function () {
     if ($('#tbVenta tbody tr').length > 0) {

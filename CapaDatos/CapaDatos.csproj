@@ -54,6 +54,7 @@
     <Compile Include="CD_Cliente.cs" />
     <Compile Include="CD_Compra.cs" />
     <Compile Include="CD_Factura.cs" />
+    <Compile Include="CD_ListaPrecio.cs" />
     <Compile Include="CD_MovimientoStock.cs" />
     <Compile Include="CD_OrdenPago.cs" />
     <Compile Include="CD_Permisos.cs" />

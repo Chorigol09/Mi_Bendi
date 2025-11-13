@@ -25,7 +25,17 @@
                     <div class="col-sm-3">
                         <div class="input-group input-group-sm mb-2">
                             <div class="input-group-prepend">
-                                <label class="input-group-text bg-info text-white" for="inputGroupSelect01">Tipo Documento</label>
+                                <label class="input-group-text bg-info text-white" for="cboListaPrecio">Lista de Precios</label>
+                            </div>
+                            <select class="custom-select" id="cboListaPrecio">
+                                <option value="0">-- Seleccionar Lista --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group input-group-sm mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text bg-info text-white" for="cboventatipodocumento">Tipo Documento</label>
                             </div>
                             <select class="custom-select" id="cboventatipodocumento">
                                 <option value="Boleta">Boleta</option>
@@ -36,7 +46,7 @@
                     <div class="col-sm-3">
                         <div class="input-group input-group-sm mb-2">
                             <div class="input-group-prepend">
-                                <label class="input-group-text bg-info text-white" for="inputGroupSelect01">Fecha de Venta</label>
+                                <label class="input-group-text bg-info text-white" for="txtfechaventa">Fecha de Venta</label>
                             </div>
                             <input id="txtfechaventa" readonly type="text" class="form-control">
                         </div>
@@ -361,6 +371,7 @@
                                 <th>Nombre</th>
                                 <th>Descripcion</th>
                                 <th>Stock</th>
+                                <th>Precio</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

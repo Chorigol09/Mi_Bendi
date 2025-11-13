@@ -90,6 +90,18 @@
     </div>
     
     <style>
+        /* ========== PREVENIR SCROLL HORIZONTAL ========== */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+        
+        /* Prevenir que las tablas causen scroll horizontal */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
         /* ========== FOOTER MI BENDI (prefijo mbd-) ========== */
         
         .mbd-footer-spacer {

@@ -23,6 +23,8 @@ namespace CapaModelo
         public Usuario oUsuario { get; set; }
         public Tienda oTienda { get; set; }
         public Cliente oCliente { get; set; }
+        public int IdListaPrecio { get; set; }
+        public ListaPrecio oListaPrecio { get; set; }
         public List<DetalleVenta> oListaDetalleVenta { get; set; }
 
     }
