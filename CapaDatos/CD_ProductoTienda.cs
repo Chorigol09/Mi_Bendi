@@ -246,6 +246,57 @@ namespace CapaDatos
             return respuesta;
         }
 
+        public List<object> ObtenerMovimientosStockPorProducto(int idProducto)
+        {
+            List<object> lista = new List<object>();
+            using (SqlConnection oConexion = new SqlConnection(Conexion.CN))
+            {
+                try
+                {
+                    string query = @"
+                        SELECT 
+                            ms.FechaRegistro,
+                            ISNULL(tm.Descripcion, ms.TipoMovimiento) AS TipoMovimiento,
+                            t.Nombre AS Tienda,
+                            ms.Cantidad,
+                            ISNULL(ms.Motivo, '-') AS Motivo,
+                            u.Nombres AS Usuario
+                        FROM MOVIMIENTO_STOCK ms
+                        INNER JOIN TIENDA t ON ms.IdTienda = t.IdTienda
+                        INNER JOIN USUARIO u ON ms.IdUsuario = u.IdUsuario
+                        LEFT JOIN TIPO_MOV tm ON ms.IdTipoMov = tm.IdTipoMov
+                        WHERE ms.IdProducto = @IdProducto
+                        ORDER BY ms.FechaRegistro DESC";
+
+                    SqlCommand cmd = new SqlCommand(query, oConexion);
+                    cmd.Parameters.AddWithValue("@IdProducto", idProducto);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new
+                            {
+                                FechaRegistro = Convert.ToDateTime(dr["FechaRegistro"]),
+                                TipoMovimiento = dr["TipoMovimiento"].ToString(),
+                                Tienda = dr["Tienda"].ToString(),
+                                Cantidad = Convert.ToInt32(dr["Cantidad"]),
+                                Motivo = dr["Motivo"].ToString(),
+                                Usuario = dr["Usuario"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lista = new List<object>();
+                }
+            }
+            return lista;
+        }
+
         
     }
 }

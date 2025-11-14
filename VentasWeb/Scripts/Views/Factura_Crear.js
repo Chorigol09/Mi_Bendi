@@ -160,7 +160,7 @@ $(document).ready(function () {
         }
 
         if ($("#txtNumeroFactura").val().trim() == "") {
-            swal("Mensaje", "Debe ingresar el número de factura", "warning")
+            swal("Mensaje", "Debe ingresar el numero de factura", "warning")
             return;
         }
 
@@ -226,7 +226,7 @@ $(document).ready(function () {
                 if (data.resultado) {
                     // Mensaje simplificado
                     var mensaje = "Factura registrada exitosamente\n\n";
-                    mensaje += "Número: " + $("#txtNumeroFactura").val() + "\n";
+                    mensaje += "Numero: " + $("#txtNumeroFactura").val() + "\n";
                     mensaje += "Proveedor: " + $("#txtRazonSocialProveedor").val() + "\n";
                     mensaje += "Tienda: " + $("#txtNombreTienda").val() + "\n";
                     mensaje += "TOTAL: " + formatearPrecio(totalfactura) + "\n";
@@ -426,6 +426,7 @@ $("#txtCantidadProducto").inputFilter(function (value) {
     return /^-?\d*$/.test(value);
 });
 
+
 // Limpiar el campo de cantidad cuando se hace clic y tiene valor 0
 $("#txtCantidadProducto").on('focus', function() {
     if ($(this).val() === '0') {
@@ -521,7 +522,7 @@ $('#btnAgregarProducto').on('click', function () {
         parseFloat($("#txtCantidadProducto").val()) == 0 ||
         desformatearPrecio($("#txtPrecioUnitario").val()) == 0
     ) {
-        swal("Mensaje", "Debe completar todos los campos (proveedor, número, fecha, tienda y producto)", "warning")
+        swal("Mensaje", "Debe completar todos los campos (proveedor, numero, fecha, tienda y producto)", "warning")
         return;
     }
 

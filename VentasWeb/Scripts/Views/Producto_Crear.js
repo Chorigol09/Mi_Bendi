@@ -74,11 +74,12 @@ $(document).ready(function () {
             {
                 "data": "IdProducto", "render": function (data, type, row, meta) {
                     return "<button class='btn btn-primary btn-sm' type='button' onclick='abrirPopUpForm(" + JSON.stringify(row) + ")'><i class='fas fa-pen'></i></button>" +
+                        "<button class='btn btn-info btn-sm ml-2' type='button' onclick='verMovimientos(" + data + ", &quot;" + row.Nombre + "&quot;)'><i class='fas fa-box'></i></button>" +
                         "<button class='btn btn-danger btn-sm ml-2' type='button' onclick='eliminar(" + data + ")'><i class='fa fa-trash'></i></button>"
                 },
                 "orderable": false,
                 "searchable": false,
-                "width": "90px"
+                "width": "140px"
             }
 
         ],
@@ -167,8 +168,100 @@ function Guardar() {
 }
 
 
-function eliminar($id) {
+var tablaMovimientos;
 
+function verMovimientos(idProducto, nombreProducto) {
+    $('#MovimientosModal').modal('show');
+    $('#modalTituloProducto').text(nombreProducto);
+    
+    // Destruir DataTable si ya existe
+    if ($.fn.DataTable.isDataTable('#tbMovimientos')) {
+        $('#tbMovimientos').DataTable().destroy();
+    }
+    
+    // Resetear el selector a "Más recientes primero"
+    $('#cboOrdenMovimientos').val('desc');
+    
+    // Inicializar DataTable de movimientos
+    tablaMovimientos = $('#tbMovimientos').DataTable({
+        "ajax": {
+            "url": $.MisUrls.url._ObtenerMovimientosStock + "?idProducto=" + idProducto,
+            "type": "GET",
+            "datatype": "json"
+        },
+        "scrollX": false,
+        "autoWidth": false,
+        "columns": [
+            { 
+                "data": "FechaRegistro",
+                "render": function (data, type, row) {
+                    if (!data) return '-';
+                    
+                    // Manejar formato de fecha de .NET (/Date(...)/)
+                    var fecha;
+                    if (typeof data === 'string' && data.indexOf('/Date(') === 0) {
+                        var timestamp = parseInt(data.replace(/\/Date\((\d+)\)\//, '$1'));
+                        fecha = new Date(timestamp);
+                    } else {
+                        fecha = new Date(data);
+                    }
+                    
+                    if (isNaN(fecha.getTime())) return '-';
+                    
+                    // Para ordenamiento, devolver timestamp
+                    if (type === 'sort' || type === 'type') {
+                        return fecha.getTime();
+                    }
+                    
+                    // Para display, devolver formato legible
+                    var dia = String(fecha.getDate()).padStart(2, '0');
+                    var mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                    var anio = fecha.getFullYear();
+                    var horas = String(fecha.getHours()).padStart(2, '0');
+                    var minutos = String(fecha.getMinutes()).padStart(2, '0');
+                    return dia + '/' + mes + '/' + anio + ' ' + horas + ':' + minutos;
+                }
+            },
+            { 
+                "data": "TipoMovimiento",
+                "width": "25%"
+            },
+            { "data": "Tienda" },
+            { 
+                "data": "Cantidad",
+                "render": function (data, type, row) {
+                    var tipoMov = row.TipoMovimiento.toLowerCase();
+                    // Determinar si es ingreso o egreso por palabras clave
+                    if (tipoMov.includes('compra') || tipoMov.includes('recepcion') || 
+                        tipoMov.includes('ajuste') && tipoMov.includes('suma') || 
+                        tipoMov.includes('devolucion') || tipoMov.includes('ingreso')) {
+                        return '<span class="text-success font-weight-bold">+' + data + '</span>';
+                    } else {
+                        return '<span class="text-danger font-weight-bold">-' + data + '</span>';
+                    }
+                }
+            },
+            { "data": "Motivo" },
+            { "data": "Usuario" }
+        ],
+        "language": {
+            "url": $.MisUrls.url.Url_datatable_spanish
+        },
+        "order": [[0, "desc"]],
+        responsive: true
+    });
+    
+    // Evento para cambiar el orden al seleccionar una opción
+    $('#cboOrdenMovimientos').off('change').on('change', function() {
+        var orden = $(this).val();
+        if (tablaMovimientos) {
+            tablaMovimientos.order([0, orden]).draw();
+        }
+    });
+}
+
+
+function eliminar($id) {
 
     swal({
         title: "Mensaje",

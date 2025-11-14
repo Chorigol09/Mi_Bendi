@@ -54,12 +54,10 @@
                         <table id="tbProductosLista" class="table table-striped table-bordered nowrap compact" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Código</th>
+                                    <th>Codigo</th>
                                     <th>Producto</th>
-                                    <th>Categoría</th>
+                                    <th>Categoria</th>
                                     <th>Precio Venta</th>
-                                    <th>Vigencia Desde</th>
-                                    <th>Vigencia Hasta</th>
                                     <th>Estado</th>
                                     <th>Vigente</th>
                                     <th>Acciones</th>
@@ -88,17 +86,6 @@
                 <form id="formAgregarProducto">
                     <input type="hidden" id="txtIdListaPrecioAdd" name="IdListaPrecio" value="@ViewBag.IdListaPrecio" />
                     
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Vigencia Desde <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control form-control-sm" id="txtFechaDesdeAdd" name="FechaVigenciaDesde" required />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Vigencia Hasta <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control form-control-sm" id="txtFechaHastaAdd" name="FechaVigenciaHasta" required />
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label>Producto <span class="text-danger">*</span></label>
                         <select class="form-control form-control-sm" id="cboProductoAdd" name="IdProducto" required>
@@ -111,9 +98,6 @@
                         <input type="number" step="0.01" min="0.01" class="form-control form-control-sm" id="txtPrecioVentaAdd" name="PrecioVenta" required />
                     </div>
 
-                    <div class="alert alert-warning">
-                        <small><strong>Nota:</strong> No pueden existir dos precios vigentes para el mismo producto en fechas que se solapen.</small>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -143,17 +127,6 @@
                     <div class="form-group">
                         <label>Producto</label>
                         <input type="text" class="form-control form-control-sm" id="txtProductoNombre" readonly />
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Vigencia Desde <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control form-control-sm" id="txtFechaDesdeEdit" name="FechaVigenciaDesde" required />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Vigencia Hasta <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control form-control-sm" id="txtFechaHastaEdit" name="FechaVigenciaHasta" required />
-                        </div>
                     </div>
 
                     <div class="form-group">

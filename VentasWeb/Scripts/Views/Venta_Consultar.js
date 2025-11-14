@@ -66,7 +66,17 @@ $(document).ready(function () {
                 }
             },
             { "data": "TipoDocumento" },
-            { "data": "Codigo" },
+            { 
+                "data": null,
+                "render": function (data, type, row) {
+                    // Si es Factura y tiene NumeroFactura, mostrarlo
+                    if (row.TipoDocumento === "Factura" && row.NumeroFactura && row.NumeroFactura.trim() !== "") {
+                        return row.NumeroFactura;
+                    }
+                    // Sino, mostrar el código de venta normal
+                    return row.Codigo;
+                }
+            },
             { 
                 "data": "FechaRegistro",
                 "render": function(data, type, row) {
@@ -76,6 +86,12 @@ $(document).ready(function () {
                         return row.VFechaRegistro;
                     }
                     return data;
+                }
+            },
+            {
+                "data": "oTienda", 
+                "render": function (data) {
+                    return data ? data.Nombre : "";
                 }
             },
             {

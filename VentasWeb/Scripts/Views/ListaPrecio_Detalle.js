@@ -6,11 +6,6 @@ $(document).ready(function () {
     activarMenu("Administracion");
     cargarInformacionLista();
     inicializarTabla();
-    
-    // Establecer fecha por defecto en los campos de fecha
-    var hoy = new Date().toISOString().split('T')[0];
-    $("#txtFechaDesdeAdd").val(hoy);
-    $("#txtFechaHastaAdd").val(hoy);
 });
 
 function cargarInformacionLista() {
@@ -32,7 +27,7 @@ function cargarInformacionLista() {
             }
         },
         error: function (error) {
-            console.log("Error al cargar información:", error);
+            console.log("Error al cargar informacion:", error);
         }
     });
 }
@@ -58,18 +53,6 @@ function inicializarTabla() {
                 "data": "PrecioVenta",
                 "render": function (data) {
                     return '$' + parseFloat(data).toFixed(2);
-                }
-            },
-            { 
-                "data": "FechaVigenciaDesde",
-                "render": function (data) {
-                    return formatearFecha(data);
-                }
-            },
-            { 
-                "data": "FechaVigenciaHasta",
-                "render": function (data) {
-                    return formatearFecha(data);
                 }
             },
             {
@@ -154,37 +137,21 @@ function abrirModalAgregarProducto() {
     $("#formAgregarProducto")[0].reset();
     $("#txtIdListaPrecioAdd").val(idListaPrecio);
     
-    var hoy = new Date().toISOString().split('T')[0];
-    $("#txtFechaDesdeAdd").val(hoy);
-    $("#txtFechaHastaAdd").val(hoy);
-    
     cargarProductosDisponibles();
     $("#modalAgregarProducto").modal("show");
 }
 
 function cargarProductosDisponibles() {
-    var fechaDesde = $("#txtFechaDesdeAdd").val();
-    var fechaHasta = $("#txtFechaHastaAdd").val();
-    
-    if (!fechaDesde || !fechaHasta) {
-        return;
-    }
-    
     $.ajax({
-        url: "/ListaPrecio/ObtenerProductosDisponibles",
+        url: "/Producto/Obtener",
         type: "GET",
-        data: {
-            idListaPrecio: idListaPrecio,
-            fechaDesde: fechaDesde,
-            fechaHasta: fechaHasta
-        },
         dataType: "json",
         success: function (response) {
             var select = $("#cboProductoAdd");
             select.empty();
             select.append('<option value="">-- Seleccione un producto --</option>');
             
-            if (response.success && response.data) {
+            if (response.data) {
                 $.each(response.data, function (i, item) {
                     select.append($('<option>', {
                         value: item.IdProducto,
@@ -199,44 +166,25 @@ function cargarProductosDisponibles() {
     });
 }
 
-// Recargar productos disponibles cuando cambian las fechas
-$("#txtFechaDesdeAdd, #txtFechaHastaAdd").on("change", function () {
-    cargarProductosDisponibles();
-});
-
 function guardarProductoLista() {
     var idProducto = $("#cboProductoAdd").val();
     var precioVenta = parseFloat($("#txtPrecioVentaAdd").val());
-    var fechaDesde = $("#txtFechaDesdeAdd").val();
-    var fechaHasta = $("#txtFechaHastaAdd").val();
     
     // Validaciones
     if (!idProducto) {
-        swal("Atención", "Seleccione un producto", "warning");
+        swal("Atencion", "Seleccione un producto", "warning");
         return;
     }
     
     if (!precioVenta || precioVenta <= 0) {
-        swal("Atención", "Ingrese un precio válido", "warning");
-        return;
-    }
-    
-    if (!fechaDesde || !fechaHasta) {
-        swal("Atención", "Ingrese las fechas de vigencia", "warning");
-        return;
-    }
-    
-    if (new Date(fechaDesde) > new Date(fechaHasta)) {
-        swal("Atención", "La fecha de inicio debe ser menor o igual a la fecha de fin", "warning");
+        swal("Atencion", "Ingrese un precio valido", "warning");
         return;
     }
     
     var objeto = {
         IdListaPrecio: idListaPrecio,
         IdProducto: parseInt(idProducto),
-        PrecioVenta: precioVenta,
-        FechaVigenciaDesde: fechaDesde,
-        FechaVigenciaHasta: fechaHasta
+        PrecioVenta: precioVenta
     };
     
     $.ajax({
@@ -247,7 +195,7 @@ function guardarProductoLista() {
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             if (data.success) {
-                swal("Éxito", data.mensaje, "success");
+                swal("Exito", data.mensaje, "success");
                 $("#modalAgregarProducto").modal("hide");
                 tabladata.ajax.reload();
                 cargarInformacionLista();
@@ -257,7 +205,7 @@ function guardarProductoLista() {
         },
         error: function (error) {
             console.log(error);
-            swal("Error", "Ocurrió un error al procesar la solicitud", "error");
+            swal("Error", "Ocurrio un error al procesar la solicitud", "error");
         }
     });
 }
@@ -266,8 +214,6 @@ function editarProducto(data) {
     $("#txtIdListaPrecioDetalle").val(data.IdListaPrecioDetalle);
     $("#txtProductoNombre").val(data.oProducto.Nombre);
     $("#txtPrecioVentaEdit").val(data.PrecioVenta);
-    $("#txtFechaDesdeEdit").val(formatearFechaInput(data.FechaVigenciaDesde));
-    $("#txtFechaHastaEdit").val(formatearFechaInput(data.FechaVigenciaHasta));
     $("#cboActivoEdit").val(data.Activo.toString());
     
     $("#modalEditarProducto").modal("show");
@@ -276,31 +222,17 @@ function editarProducto(data) {
 function actualizarProductoLista() {
     var idDetalle = parseInt($("#txtIdListaPrecioDetalle").val());
     var precioVenta = parseFloat($("#txtPrecioVentaEdit").val());
-    var fechaDesde = $("#txtFechaDesdeEdit").val();
-    var fechaHasta = $("#txtFechaHastaEdit").val();
     var activo = $("#cboActivoEdit").val() === "true";
     
     // Validaciones
     if (!precioVenta || precioVenta <= 0) {
-        swal("Atención", "Ingrese un precio válido", "warning");
-        return;
-    }
-    
-    if (!fechaDesde || !fechaHasta) {
-        swal("Atención", "Ingrese las fechas de vigencia", "warning");
-        return;
-    }
-    
-    if (new Date(fechaDesde) > new Date(fechaHasta)) {
-        swal("Atención", "La fecha de inicio debe ser menor o igual a la fecha de fin", "warning");
+        swal("Atencion", "Ingrese un precio valido", "warning");
         return;
     }
     
     var objeto = {
         IdListaPrecioDetalle: idDetalle,
         PrecioVenta: precioVenta,
-        FechaVigenciaDesde: fechaDesde,
-        FechaVigenciaHasta: fechaHasta,
         Activo: activo
     };
     
@@ -312,7 +244,7 @@ function actualizarProductoLista() {
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             if (data.success) {
-                swal("Éxito", data.mensaje, "success");
+                swal("Exito", data.mensaje, "success");
                 $("#modalEditarProducto").modal("hide");
                 tabladata.ajax.reload();
                 cargarInformacionLista();
@@ -322,18 +254,18 @@ function actualizarProductoLista() {
         },
         error: function (error) {
             console.log(error);
-            swal("Error", "Ocurrió un error al procesar la solicitud", "error");
+            swal("Error", "Ocurrio un error al procesar la solicitud", "error");
         }
     });
 }
 
 function eliminarProducto(idDetalle) {
     swal({
-        title: "Confirmación",
-        text: "¿Está seguro de eliminar este producto de la lista?",
+        title: "Confirmacion",
+        text: "Esta seguro de eliminar este producto de la lista?",
         type: "warning",
         showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
+        confirmButtonText: "Si, eliminar",
         confirmButtonColor: "#DD6B55",
         cancelButtonText: "Cancelar",
         closeOnConfirm: false
@@ -347,7 +279,7 @@ function eliminarProducto(idDetalle) {
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 if (data.success) {
-                    swal("Éxito", data.mensaje, "success");
+                    swal("Exito", data.mensaje, "success");
                     tabladata.ajax.reload();
                     cargarInformacionLista();
                 } else {
@@ -356,7 +288,7 @@ function eliminarProducto(idDetalle) {
             },
             error: function (error) {
                 console.log(error);
-                swal("Error", "Ocurrió un error al procesar la solicitud", "error");
+                swal("Error", "Ocurrio un error al procesar la solicitud", "error");
             }
         });
     });

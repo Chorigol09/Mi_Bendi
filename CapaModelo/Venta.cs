@@ -10,6 +10,7 @@ namespace CapaModelo
     {
         public int IdVenta { get; set; }
         public string TipoDocumento { get; set; }
+        public string NumeroFactura { get; set; }
         public string MetodoPago { get; set; }
         public string Codigo { get; set; }
         public float TotalCosto { get; set; }

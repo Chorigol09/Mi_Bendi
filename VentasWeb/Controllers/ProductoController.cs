@@ -170,6 +170,20 @@ namespace VentasWeb.Controllers
                 return Json(new { resultado = false, mensaje = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        public JsonResult ObtenerMovimientosStock(int idProducto)
+        {
+            try
+            {
+                var movimientos = CD_ProductoTienda.Instancia.ObtenerMovimientosStockPorProducto(idProducto);
+                return Json(new { data = movimientos }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = new List<object>(), error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         
     }
 }

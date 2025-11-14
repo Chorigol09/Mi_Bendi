@@ -128,6 +128,7 @@
     <Compile Include="Controllers\CompraController.cs" />
     <Compile Include="Controllers\FacturaController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\IndicadoresController.cs" />
     <Compile Include="Controllers\ListaPrecioController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\PermisosController.cs" />
@@ -2070,6 +2071,7 @@
     <Content Include="Scripts\Views\ListaPrecio_Index.js" />
     <Content Include="Scripts\Views\ListaPrecio_Detalle.js" />
     <Content Include="Web.config" />
+    <Content Include="Views\Indicadores\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

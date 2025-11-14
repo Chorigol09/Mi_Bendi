@@ -42,7 +42,7 @@ namespace CapaDatos
                 try
                 {
                     SqlCommand cmd = new SqlCommand("usp_RegistrarVenta", oConexion);
-                    cmd.Parameters.Add("@DetalleVenta", SqlDbType.VarChar, -1).Value = Detalle;
+                    cmd.Parameters.Add("@Detalle", SqlDbType.VarChar, -1).Value = Detalle;
                     cmd.Parameters.Add("@Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -88,6 +88,7 @@ namespace CapaDatos
                                                    select new Venta()
                                                    {
                                                        TipoDocumento = dato.Element("TipoDocumento").Value,
+                                                       NumeroFactura = dato.Element("NumeroFactura") != null ? dato.Element("NumeroFactura").Value : "",
                                                        MetodoPago = dato.Element("MetodoPago") != null ? dato.Element("MetodoPago").Value : "Efectivo",
                                                        Codigo = dato.Element("Codigo").Value,
                                                        TotalCosto = float.Parse(dato.Element("TotalCosto").Value, NuevaCultura),
@@ -169,11 +170,17 @@ namespace CapaDatos
                         {
                             IdVenta = Convert.ToInt32(dr["IdVenta"].ToString()),
                             TipoDocumento = dr["TipoDocumento"].ToString(),
+                            NumeroFactura = dr["NumeroFactura"] != DBNull.Value ? dr["NumeroFactura"].ToString() : "",
                             MetodoPago = dr["MetodoPago"] != DBNull.Value ? dr["MetodoPago"].ToString() : "Efectivo",
                             Codigo = dr["Codigo"].ToString(),
                             FechaRegistro = Convert.ToDateTime(dr["FechaRegistro"].ToString()).ToString("dd/MM/yyyy"),
                             VFechaRegistro = Convert.ToDateTime(dr["FechaRegistro"].ToString()),
                             oCliente = new Cliente() { NumeroDocumento = dr["NumeroDocumento"].ToString(), Nombre = dr["Nombre"].ToString() },
+                            oTienda = new Tienda() { 
+                                IdTienda = Convert.ToInt32(dr["IdTienda"].ToString()), 
+                                Nombre = dr["NombreTienda"].ToString(),
+                                RUC = dr["RUCTienda"].ToString()
+                            },
                             TotalCosto = float.Parse(dr["TotalCosto"].ToString())
                         });
                     }

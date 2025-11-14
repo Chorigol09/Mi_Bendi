@@ -1,0 +1,660 @@
+@{
+    ViewBag.Title = "Indicadores";
+}
+
+@section estilos {
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+    
+    <style>
+        .card-indicador {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        .card-indicador:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Estilos para DataTables */
+        .dataTables_wrapper {
+            padding: 0 !important;
+        }
+        
+        .dataTables_filter {
+            margin-bottom: 15px;
+            text-align: center !important;
+        }
+        
+        .dataTables_filter label {
+            display: block;
+            margin-bottom: 0;
+        }
+        
+        .dataTables_filter input {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 5px 12px;
+            margin-left: 10px;
+            width: 200px;
+        }
+        
+        .dataTables_length select {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin: 0 8px;
+            width: auto;
+            min-width: 65px;
+            height: 34px;
+            background-color: white;
+            font-size: 14px;
+        }
+        
+        .dataTables_info {
+            padding-top: 15px;
+            font-size: 0.875rem;
+        }
+        
+        .dataTables_paginate {
+            padding-top: 15px;
+        }
+        
+        .dataTables_paginate .paginate_button {
+            padding: 5px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+        }
+        
+        /* Eliminar scroll horizontal y vertical innecesario */
+        .dataTables_scrollBody {
+            overflow-x: hidden !important;
+            overflow-y: hidden !important;
+        }
+        
+        .table-container {
+            max-height: 450px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .card-body {
+            overflow: visible !important;
+        }
+        
+        /* Scrollbar personalizado para table-container */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Fijar encabezados de tabla al hacer scroll */
+        .table-container table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 100;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Altura fija para las 4 cards específicas */
+        #tableTopClientes,
+        #tableTopProductos,
+        #tableTopProveedores,
+        #tableTopProductosComprados {
+            margin-bottom: 0;
+        }
+        
+        /* Asegurar que todas las cards de tabla tengan la misma altura */
+        .card-indicador:has(#tableTopClientes),
+        .card-indicador:has(#tableTopProductos),
+        .card-indicador:has(#tableTopProveedores),
+        .card-indicador:has(#tableTopProductosComprados) {
+            height: 580px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-indicador:has(#tableTopClientes) .card-body,
+        .card-indicador:has(#tableTopProductos) .card-body,
+        .card-indicador:has(#tableTopProveedores) .card-body,
+        .card-indicador:has(#tableTopProductosComprados) .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Ajustar tabla responsive */
+        table.dataTable {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        
+        table.dataTable thead th {
+            white-space: nowrap;
+            position: relative;
+        }
+        
+        table.dataTable.no-footer thead th,
+        table.dataTable thead th.sorting,
+        table.dataTable thead th.sorting_asc,
+        table.dataTable thead th.sorting_desc {
+            padding-left: 12px !important;
+            padding-right: 30px !important;
+        }
+        
+        table.dataTable thead th.sorting::before,
+        table.dataTable thead th.sorting::after,
+        table.dataTable thead th.sorting_asc::before,
+        table.dataTable thead th.sorting_asc::after,
+        table.dataTable thead th.sorting_desc::before,
+        table.dataTable thead th.sorting_desc::after {
+            content: "" !important;
+            position: absolute !important;
+            bottom: 0.9em !important;
+            display: block !important;
+            opacity: 0.3 !important;
+            right: 1em !important;
+            line-height: 9px !important;
+            font-size: 0.9em !important;
+        }
+        
+        table.dataTable thead th.sorting_asc::after,
+        table.dataTable thead th.sorting_desc::after {
+            opacity: 0.6 !important;
+        }
+        
+        table.dataTable thead > tr > th {
+            padding-right: 35px !important;
+        }
+        
+        table.dataTable tbody td {
+            white-space: normal;
+            word-wrap: break-word;
+            padding: 8px 12px !important;
+        }
+        
+        /* Ancho mínimo para columnas con iconos de ordenamiento */
+        table.dataTable thead th.sorting,
+        table.dataTable thead th.sorting_asc,
+        table.dataTable thead th.sorting_desc {
+            min-width: 100px;
+        }
+        
+        /* Mejorar espaciado de la tabla */
+        .dataTables_wrapper .row {
+            margin: 0;
+        }
+        
+        .dataTables_wrapper .row > div {
+            padding: 0;
+        }
+        
+        table.dataTable.table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Asegurar que las columnas de números se alineen correctamente */
+        table.dataTable tbody td.text-right {
+            text-align: right !important;
+        }
+        
+        table.dataTable tbody td.text-center {
+            text-align: center !important;
+        }
+        
+        .kpi-card {
+            border-left: 4px solid;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        }
+        
+        .kpi-card.ventas { border-left-color: #28a745; }
+        .kpi-card.compras { border-left-color: #dc3545; }
+        .kpi-card.margen { border-left-color: #17a2b8; }
+        .kpi-card.clientes { border-left-color: #ffc107; }
+        
+        .kpi-icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .kpi-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            padding: 20px;
+        }
+        
+        .chart-container-large {
+            height: 400px;
+        }
+        
+        .badge-custom {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .filtros-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .filtros-container label {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .filtros-container .form-control {
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+        }
+        
+        .btn-aplicar {
+            background: white;
+            color: #667eea;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 30px;
+            transition: all 0.3s;
+        }
+        
+        .btn-aplicar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            background: #f8f9fa;
+            color: #667eea;
+        }
+        
+        /* CORRECCIÓN FLECHAS DATATABLES - MÁXIMA PRIORIDAD */
+        #tableTopClientes thead th,
+        #tableTopProductos thead th,
+        #tableTopProveedores thead th,
+        #tableTopProductosComprados thead th {
+            padding-right: 40px !important;
+            padding-left: 12px !important;
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+            position: relative !important;
+        }
+        
+        #tableTopClientes thead th.sorting::after,
+        #tableTopClientes thead th.sorting::before,
+        #tableTopProductos thead th.sorting::after,
+        #tableTopProductos thead th.sorting::before,
+        #tableTopProveedores thead th.sorting::after,
+        #tableTopProveedores thead th.sorting::before,
+        #tableTopProductosComprados thead th.sorting::after,
+        #tableTopProductosComprados thead th.sorting::before,
+        #tableTopClientes thead th.sorting_asc::after,
+        #tableTopClientes thead th.sorting_asc::before,
+        #tableTopProductos thead th.sorting_asc::after,
+        #tableTopProductos thead th.sorting_asc::before,
+        #tableTopProveedores thead th.sorting_asc::after,
+        #tableTopProveedores thead th.sorting_asc::before,
+        #tableTopProductosComprados thead th.sorting_asc::after,
+        #tableTopProductosComprados thead th.sorting_asc::before,
+        #tableTopClientes thead th.sorting_desc::after,
+        #tableTopClientes thead th.sorting_desc::before,
+        #tableTopProductos thead th.sorting_desc::after,
+        #tableTopProductos thead th.sorting_desc::before,
+        #tableTopProveedores thead th.sorting_desc::after,
+        #tableTopProveedores thead th.sorting_desc::before,
+        #tableTopProductosComprados thead th.sorting_desc::after,
+        #tableTopProductosComprados thead th.sorting_desc::before {
+            right: 10px !important;
+            left: auto !important;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card shadow-sm">
+            <div class="card-body" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0;">
+                <h3 class="mb-0">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    Indicadores y Estadisticas
+                </h3>
+                <p class="mb-0 mt-2">Analisis completo de ventas y compras</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<div class="row mt-4">
+    <div class="col-sm-12">
+        <div class="filtros-container">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label for="txtFechaInicio">
+                        <i class="fas fa-calendar-alt mr-1"></i>
+                        Fecha Inicio
+                    </label>
+                    <input type="date" class="form-control" id="txtFechaInicio" />
+                </div>
+                <div class="col-md-4">
+                    <label for="txtFechaFin">
+                        <i class="fas fa-calendar-alt mr-1"></i>
+                        Fecha Fin
+                    </label>
+                    <input type="date" class="form-control" id="txtFechaFin" />
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-aplicar btn-block" id="btnFiltrar">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Actualizar Datos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPIs PRINCIPALES -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card card-indicador kpi-card ventas">
+            <div class="card-body position-relative">
+                <i class="fas fa-dollar-sign kpi-icon text-success"></i>
+                <div class="kpi-label">Total Ventas</div>
+                <h3 class="kpi-value" id="kpiTotalVentas">$0,00</h3>
+                <small class="text-muted"><span id="kpiCantidadVentas">0</span> transacciones</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-indicador kpi-card compras">
+            <div class="card-body position-relative">
+                <i class="fas fa-shopping-cart kpi-icon text-danger"></i>
+                <div class="kpi-label">Total Compras</div>
+                <h3 class="kpi-value" id="kpiTotalCompras">$0,00</h3>
+                <small class="text-muted"><span id="kpiCantidadCompras">0</span> ordenes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-indicador kpi-card margen">
+            <div class="card-body position-relative">
+                <i class="fas fa-chart-line kpi-icon text-info"></i>
+                <div class="kpi-label">Margen Bruto</div>
+                <h3 class="kpi-value" id="kpiMargenBruto">$0</h3>
+                <small class="text-muted"><span id="kpiUnidadesVendidas">0</span> unidades vendidas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-indicador kpi-card clientes">
+            <div class="card-body position-relative">
+                <i class="fas fa-users kpi-icon text-warning"></i>
+                <div class="kpi-label">Clientes Unicos</div>
+                <h3 class="kpi-value" id="kpiClientesUnicos">0</h3>
+                <small class="text-muted">Promedio: $<span id="kpiPromedioVenta">0,00</span></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GRÁFICOS DE VENTAS -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-store text-primary mr-2"></i>
+                    Ventas por Tienda
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartVentasPorTienda"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-invoice text-primary mr-2"></i>
+                    Ventas por Tipo de Documento
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartVentasPorTipoDoc"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-credit-card text-primary mr-2"></i>
+                    Ventas por Metodo de Pago
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartVentasPorMetodo"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-day text-primary mr-2"></i>
+                    Tendencia de Ventas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartVentasPorDia"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOP CLIENTES Y PRODUCTOS -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-crown text-warning mr-2"></i>
+                    Clientes
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover" id="tableTopClientes">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-center">Compras</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy text-success mr-2"></i>
+                    Productos Vendidos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover" id="tableTopProductos">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOP PROVEEDORES Y PRODUCTOS COMPRADOS -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-truck-loading text-danger mr-2"></i>
+                    Proveedores
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover" id="tableTopProveedores">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Proveedor</th>
+                                <th class="text-center">Compras</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-boxes text-info mr-2"></i>
+                    Productos Comprados
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover" id="tableTopProductosComprados">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GRÁFICOS DE COMPRAS -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-truck text-primary mr-2"></i>
+                    Compras por Proveedor
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartComprasPorProveedor"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-indicador">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-day text-primary mr-2"></i>
+                    Tendencia de Compras
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartComprasPorDia"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
+    
+    <script src="~/Scripts/Views/Indicadores_Index.js"></script>
+}

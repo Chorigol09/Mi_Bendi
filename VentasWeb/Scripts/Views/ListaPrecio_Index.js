@@ -37,7 +37,7 @@ function inicializarTabla() {
             { 
                 "data": "Descripcion",
                 "render": function (data) {
-                    return data || '<span class="text-muted">Sin descripción</span>';
+                    return data || '<span class="text-muted">Sin descripcion</span>';
                 }
             },
             { 

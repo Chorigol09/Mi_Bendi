@@ -183,7 +183,7 @@ namespace VentasWeb.Controllers
                 }
                 else
                 {
-                    return Json(new { success = false, mensaje = "No se encontró precio vigente para el producto" }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = false, mensaje = "No se encontro precio vigente para el producto" }, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
@@ -210,7 +210,7 @@ namespace VentasWeb.Controllers
             }
         }
 
-        // MÉTODOS PARA VENTAS
+        // METODOS PARA VENTAS
 
         [HttpGet]
         public JsonResult ObtenerListasPreciosActivas()
@@ -243,7 +243,7 @@ namespace VentasWeb.Controllers
             }
         }
 
-        // TEST: Método simple para verificar que la ruta funciona
+        // TEST: Metodo simple para verificar que la ruta funciona
         [HttpGet]
         public JsonResult TestEndpoint()
         {
@@ -256,7 +256,7 @@ namespace VentasWeb.Controllers
         {
             try
             {
-                // Si no hay lista seleccionada, retornar vacío
+                // Si no hay lista seleccionada, retornar vacio
                 if (idListaPrecio == 0 || idTienda == 0)
                 {
                     return Json(new { success = true, data = new List<object>() }, JsonRequestBehavior.AllowGet);
@@ -270,7 +270,7 @@ namespace VentasWeb.Controllers
                     return Json(new { success = true, data = new List<object>(), mensaje = "La lista no tiene productos con precio vigente" }, JsonRequestBehavior.AllowGet);
                 }
                 
-                // Obtener TODOS los productos-tienda (sin parámetro)
+                // Obtener TODOS los productos-tienda (sin parametro)
                 List<ProductoTienda> todosProductosTienda = CD_ProductoTienda.Instancia.ObtenerProductoTienda();
                 
                 if (todosProductosTienda == null || todosProductosTienda.Count == 0)
@@ -278,7 +278,7 @@ namespace VentasWeb.Controllers
                     return Json(new { success = true, data = new List<object>(), mensaje = "No hay productos en las tiendas" }, JsonRequestBehavior.AllowGet);
                 }
                 
-                // Filtrar por tienda específica
+                // Filtrar por tienda especifica
                 var stockTienda = todosProductosTienda.Where(pt => pt.oTienda.IdTienda == idTienda).ToList();
                 
                 if (stockTienda.Count == 0)
@@ -286,7 +286,7 @@ namespace VentasWeb.Controllers
                     return Json(new { success = true, data = new List<object>(), mensaje = "No hay productos en esta tienda" }, JsonRequestBehavior.AllowGet);
                 }
                 
-                // Combinar información: solo productos que están en la lista Y tienen stock en la tienda
+                // Combinar informacion: solo productos que estan en la lista Y tienen stock en la tienda
                 var resultado = (from pl in productosLista
                                 join st in stockTienda on pl.IdProducto equals st.oProducto.IdProducto
                                 where st.Stock > 0 // Solo productos con stock
@@ -315,7 +315,7 @@ namespace VentasWeb.Controllers
                 // Validar que lista no sea null
                 if (lista == null)
                 {
-                    return Json(new { success = false, mensaje = "Datos de lista no válidos" });
+                    return Json(new { success = false, mensaje = "Datos de lista no validos" });
                 }
                 
                 string nombre = lista.Nombre;
@@ -360,7 +360,7 @@ namespace VentasWeb.Controllers
                     return Json(new { success = false, mensaje = mensajeCreacion });
                 }
 
-                // Obtener el ID de la lista recién creada
+                // Obtener el ID de la lista recien creada
                 List<ListaPrecio> listas = CD_ListaPrecio.Instancia.ObtenerListasPrecios();
                 ListaPrecio listaCreada2 = listas.FirstOrDefault(x => x.Nombre == nombre);
                 

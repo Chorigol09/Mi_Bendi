@@ -10,28 +10,29 @@ $(document).ready(function () {
     $("#txtproductocantidad").val("0");
     $("#txtfechaventa").val(ObtenerFecha());
 
-    // CARGAR LISTAS DE PRECIOS
+    // CARGAR TIENDAS Y LISTAS DE PRECIOS
+    cargarTiendas();
     cargarListasPrecios();
 
 
-    //OBTENER PROVEEDORES
+    //OBTENER DATOS DEL USUARIO
     jQuery.ajax({
         url: $.MisUrls.url._ObtenerUsuario,
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
         success: function (data) {
-            //TIENDA
-            $("#txtIdTienda").val(data.oTienda.IdTienda);
-            $("#lbltiendanombre").text(data.oTienda.Nombre);
-            $("#lbltiendaruc").text(data.oTienda.RUC);
-            $("#lbltiendadireccion").text(data.oTienda.Direccion);
-
             //USUARIO
             $("#txtIdUsuario").val(data.IdUsuario);
             $("#lblempleadonombre").text(data.Nombres);
             $("#lblempleadoapellido").text(data.Apellidos);
             $("#lblempleadocorreo").text(data.Correo);
+            
+            // Preseleccionar tienda del usuario
+            if (data.oTienda) {
+                $("#cboTienda").val(data.oTienda.IdTienda);
+                $("#cboTienda").trigger('change');
+            }
         },
         error: function (error) {
             console.log(error)
@@ -167,7 +168,154 @@ $(document).ready(function () {
         }
     });
 
+    // Manejar cambio de tipo de documento
+    $('#cboventatipodocumento').on('change', function() {
+        var tipoDocumento = $(this).val();
+        
+        if (tipoDocumento === 'Factura') {
+            $('#seccionNumeroFactura').slideDown();
+        } else {
+            $('#seccionNumeroFactura').slideUp();
+            // Limpiar campos de factura
+            $('#txtLetraFactura').val('');
+            $('#txtSucursalFactura').val('');
+            $('#txtNumeroFactura').val('');
+            $('#txtFacturaCompleta').val('');
+        }
+    });
+
+    // Manejar cambio de tienda
+    $('#cboTienda').on('change', function() {
+        var idTienda = $(this).val();
+        if (idTienda != '0') {
+            cargarDatosTienda(idTienda);
+            $('#txtIdTienda').val(idTienda);
+        } else {
+            $('#lbltiendanombre').text('');
+            $('#lbltiendaruc').text('');
+            $('#lbltiendadireccion').text('');
+            $('#txtIdTienda').val('0');
+            // Limpiar código de sucursal
+            $('#txtSucursalFactura').val('');
+            actualizarNumeroFacturaCompleto();
+        }
+    });
+
+    // Actualizar número de factura completo en tiempo real
+    $('#txtLetraFactura, #txtNumeroFactura').on('input', function() {
+        actualizarNumeroFacturaCompleto();
+    });
+
+    // Validaciones de campos de factura
+    $("#txtLetraFactura").inputFilter(function (value) {
+        return /^[A-Za-z]?$/.test(value);
+    });
+
+    $("#txtLetraFactura").on('input', function() {
+        $(this).val($(this).val().toUpperCase());
+    });
+
+    $("#txtNumeroFactura").inputFilter(function (value) {
+        return /^\d{0,8}$/.test(value);
+    });
+
 })
+
+function cargarTiendas() {
+    jQuery.ajax({
+        url: $.MisUrls.url._ObtenerTiendas,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            var combo = $("#cboTienda");
+            combo.empty();
+            combo.append('<option value="0">-- Seleccionar Tienda --</option>');
+            
+            if (data.data) {
+                $.each(data.data, function (i, item) {
+                    combo.append('<option value="' + item.IdTienda + '">' + item.Nombre + '</option>');
+                });
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            swal("Error", "No se pudieron cargar las tiendas", "error");
+        }
+    });
+}
+
+function cargarDatosTienda(idTienda) {
+    jQuery.ajax({
+        url: $.MisUrls.url._ObtenerTiendas,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            if (data.data) {
+                var tienda = data.data.find(t => t.IdTienda == idTienda);
+                if (tienda) {
+                    $("#lbltiendanombre").text(tienda.Nombre);
+                    $("#lbltiendaruc").text(tienda.RUC);
+                    $("#lbltiendadireccion").text(tienda.Direccion);
+                    
+                    // Generar código de sucursal automáticamente
+                    var codigoSucursal = generarCodigoSucursal(tienda);
+                    $("#txtSucursalFactura").val(codigoSucursal);
+                    
+                    // Actualizar número de factura completo
+                    actualizarNumeroFacturaCompleto();
+                }
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+function generarCodigoSucursal(tienda) {
+    // Opción 1: Si la tienda tiene un campo CodigoSucursal, usarlo
+    if (tienda.CodigoSucursal && tienda.CodigoSucursal.length === 4) {
+        return tienda.CodigoSucursal.toUpperCase();
+    }
+    
+    // Opción 2: Generar desde el nombre de la tienda
+    var nombre = (tienda.Nombre || "").trim();
+    var codigo = "";
+    
+    // Buscar si el nombre contiene "Sucursal" y tomar la palabra siguiente
+    var palabras = nombre.split(/\s+/); // Dividir por espacios
+    var palabraParaCodigo = "";
+    
+    for (var i = 0; i < palabras.length; i++) {
+        if (palabras[i].toLowerCase() === "sucursal" && i + 1 < palabras.length) {
+            // Tomar la palabra que viene después de "Sucursal"
+            palabraParaCodigo = palabras[i + 1];
+            break;
+        }
+    }
+    
+    // Si no se encontró "Sucursal", usar el nombre completo
+    if (!palabraParaCodigo) {
+        palabraParaCodigo = nombre;
+    }
+    
+    // Limpiar: solo letras
+    var textoLimpio = palabraParaCodigo.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    
+    if (textoLimpio.length >= 4) {
+        // Tomar las primeras 4 letras
+        codigo = textoLimpio.substring(0, 4);
+    } else if (textoLimpio.length > 0) {
+        // Si es muy corto, rellenar con la primera letra repetida
+        codigo = textoLimpio.padEnd(4, textoLimpio.charAt(0));
+    } else {
+        // Fallback: usar el ID de la tienda formateado
+        var idStr = ("000" + tienda.IdTienda).slice(-3);
+        codigo = "SUC" + idStr.charAt(0);
+    }
+    
+    return codigo.toUpperCase().substring(0, 4);
+}
 
 function cargarListasPrecios() {
     jQuery.ajax({
@@ -190,6 +338,18 @@ function cargarListasPrecios() {
             swal("Error", "No se pudieron cargar las listas de precios", "error");
         }
     });
+}
+
+function actualizarNumeroFacturaCompleto() {
+    var letra = $("#txtLetraFactura").val().trim();
+    var sucursal = $("#txtSucursalFactura").val().trim();
+    var numero = $("#txtNumeroFactura").val().trim();
+    
+    var completo = '';
+    if (letra || sucursal || numero) {
+        completo = (letra || '') + '-' + (sucursal || '') + '-' + (numero || '');
+    }
+    $("#txtFacturaCompleta").val(completo);
 }
 
 function ObtenerFecha() {
@@ -580,6 +740,12 @@ $('#tbVenta tbody').on('click', 'button[class="btn btn-danger btn-sm"]', functio
 
 $('#btnTerminarGuardarVenta').on('click', function () {
 
+    //VALIDACION DE TIENDA
+    if (parseInt($("#txtIdTienda").val()) == 0) {
+        swal("Mensaje", "Debe seleccionar una tienda origen", "warning");
+        return;
+    }
+
     //VALIDACIONES DE CLIENTE
     if ($("#txtclientedocumento").val().trim() == "" || $("#txtclientenombres").val().trim() == "") {
         swal("Mensaje", "Complete los datos del cliente", "warning");
@@ -596,6 +762,38 @@ $('#btnTerminarGuardarVenta').on('click', function () {
     if (metodoPago === "Efectivo" && $("#txtmontopago").val().trim() == "") {
         swal("Mensaje", "Ingrese el monto de pago", "warning");
         return;
+    }
+
+    // VALIDACIONES DE NUMERO DE FACTURA - Solo si es Factura
+    var tipoDocumento = $("#cboventatipodocumento").val();
+    var numeroFacturaCompleto = "";
+    
+    if (tipoDocumento === "Factura") {
+        var letra = $("#txtLetraFactura").val().trim().toUpperCase();
+        var sucursal = $("#txtSucursalFactura").val().trim();
+        var numero = $("#txtNumeroFactura").val().trim();
+        
+        if (letra == "" || sucursal == "" || numero == "") {
+            swal("Mensaje", "Debe completar todos los campos del numero de factura (Letra, Sucursal y Numero)", "warning");
+            return;
+        }
+        
+        if (!/^[A-Z]$/.test(letra)) {
+            swal("Mensaje", "La letra debe ser un solo caracter alfabetico", "warning");
+            return;
+        }
+        
+        if (!/^[A-Z]{4}$/.test(sucursal)) {
+            swal("Mensaje", "La sucursal debe tener exactamente 4 letras", "warning");
+            return;
+        }
+        
+        if (!/^\d{8}$/.test(numero)) {
+            swal("Mensaje", "El numero de factura debe tener exactamente 8 digitos", "warning");
+            return;
+        }
+        
+        numeroFacturaCompleto = letra + "-" + sucursal + "-" + numero;
     }
 
     var $totalproductos = 0;
@@ -623,7 +821,7 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         $totalimportes = $totalimportes + importetotal;
 
         DATOS_VENTA = DATOS_VENTA + "<DATOS>" +
-            "<IdVenta>0</IdVenta >" +
+            "<IdVenta>0</IdVenta>" +
             "<IdProducto>" + idproducto + "</IdProducto>" +
             "<Cantidad>" + productocantidad + "</Cantidad>" +
             "<PrecioUnidad>" + productoprecio.toFixed(2) + "</PrecioUnidad>" +
@@ -650,14 +848,15 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         "<IdUsuario>" + $("#txtIdUsuario").val() + "</IdUsuario>" +
         "<IdCliente>0</IdCliente>" +
         "<IdListaPrecio>" + $("#cboListaPrecio").val() + "</IdListaPrecio>" +
-        "<TipoDocumento>" + $("#cboventatipodocumento").val() + "</TipoDocumento>" +
+        "<TipoDocumento>" + tipoDocumento + "</TipoDocumento>" +
+        "<NumeroFactura>" + (numeroFacturaCompleto || "") + "</NumeroFactura>" +
         "<MetodoPago>" + metodoPago + "</MetodoPago>" +
         "<CantidadProducto>" + $('#tbVenta tbody tr').length + "</CantidadProducto>" +
         "<CantidadTotal>" + $totalproductos + "</CantidadTotal>" +
         "<TotalCosto>" + $totalimportes.toFixed(2) + "</TotalCosto>" +
         "<ImporteRecibido>" + importeRecibido.toFixed(2) + "</ImporteRecibido>" +
         "<ImporteCambio>" + importeCambio.toFixed(2) + "</ImporteCambio>" +
-        "</VENTA >";
+        "</VENTA>";
 
     DETALLE_CLIENTE = "<DETALLE_CLIENTE><DATOS>" +
         "<TipoDocumento>" + $("#cboclientetipodocumento").val() + "</TipoDocumento>" +
@@ -671,6 +870,10 @@ $('#btnTerminarGuardarVenta').on('click', function () {
 
     DETALLE = "<DETALLE>" + VENTA + DETALLE_CLIENTE + DETALLE_VENTA + "</DETALLE>"
 
+    // DEBUG: Mostrar el XML que se está enviando
+    console.log("========== XML A ENVIAR ==========");
+    console.log(DETALLE);
+    console.log("==================================");
 
     var request = { xml: DETALLE };
 
@@ -683,6 +886,11 @@ $('#btnTerminarGuardarVenta').on('click', function () {
         success: function (data) {
 
             $(".card-venta").LoadingOverlay("hide");
+            
+            // DEBUG: Mostrar respuesta del servidor
+            console.log("========== RESPUESTA DEL SERVIDOR ==========");
+            console.log(data);
+            console.log("============================================");
 
             if (data.estado) {
                 //LISTA DE PRECIOS
@@ -690,6 +898,13 @@ $('#btnTerminarGuardarVenta').on('click', function () {
                 
                 //DOCUMENTO
                 $("#cboventatipodocumento").val("Boleta");
+                $("#seccionNumeroFactura").hide();
+                
+                //NUMERO DE FACTURA
+                $("#txtLetraFactura").val("");
+                $("#txtSucursalFactura").val("");
+                $("#txtNumeroFactura").val("");
+                $("#txtFacturaCompleta").val("");
 
                 //CLIENTE
                 $("#cboclientetipodocumento").val("DNI");
